@@ -411,6 +411,7 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
       <fieldset>
         <legend>One more thing</legend>
         <label class="check"><input type="checkbox" id="f_paper"><span>I have paper and a pencil next to me, in case I want them</span></label>
+        <label class="check hidden" id="readAloudOpt"><input type="checkbox" id="f_read"><span>Read the questions out loud to me. You can still turn this on or off at any point, and you can always ask to hear a question again.</span></label>
       </fieldset>
 
       <fieldset>
@@ -452,6 +453,16 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
     <div class="itemhead">
       <span class="dom" id="itemDomain"></span>
       <span class="no" id="itemNo"></span>
+    </div>
+
+    <div class="btnrow hidden" id="audioBar" style="margin-bottom:1rem">
+      <button class="btn ghost" id="btnHear" type="button">Hear it again</button>
+      <button class="btn quiet" id="btnAudioOff" type="button">Turn reading out loud off</button>
+      <span class="spacer"></span>
+      <span class="timer" id="audioState"></span>
+    </div>
+    <div class="btnrow hidden" id="audioOffBar" style="margin-bottom:1rem">
+      <button class="btn quiet" id="btnAudioOn" type="button">Read the questions out loud</button>
     </div>
 
     <div id="stageAnswer">
@@ -550,6 +561,7 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
     <p class="err" id="pErr"></p>
     <div class="btnrow" style="margin-top:1rem">
       <button class="btn" id="btnCheck" type="button">Check</button>
+      <button class="btn ghost hidden" id="pHear" type="button">Read it to me</button>
       <button class="btn ghost" id="btnWalk" type="button">Show me how</button>
       <button class="btn hidden" id="btnNextP" type="button">Next question</button>
       <span class="spacer"></span>
@@ -985,7 +997,8 @@ function gBalance3(band){
 /* ---------- word problems ---------- */
 const NAMES=["Ravi","Nour","Sam","Ines","Toby","Priya","Marco","Aiko","Dee","Omar","Lena","Zeke"];
 function buildWord(spec){
-  return {dom:5,task:spec.task,kind:"word",p:{sol:spec.sol||[],ans:spec.ans,inter:spec.inter,extraneous:spec.unused||""},
+  return {dom:5,task:spec.task,kind:"word",p:{sol:spec.sol||[],ans:spec.ans,inter:spec.inter,extraneous:spec.unused||"",
+      text:spec.text,q:spec.q},
     instruction:"Read this problem carefully. Not every number in it is needed.",
     stimText:spec.text.replace(/\s+/g," "),
     stimHTML:'<p class="stim-word">'+esc(spec.text)+'<span class="qn">'+esc(spec.q)+'</span></p>',
@@ -1358,6 +1371,116 @@ function scoreItem(it,raw){
   return res;
 }
 
+/* ---------- read-aloud ----------
+   Speech is generated from each item's own parameters rather than from the text on
+   screen: "8 × 9" has to be heard as "8 times 9", "3/5" as "three fifths", and a
+   balance scale as its relations in words. Reading the glyphs would be useless.
+
+   Timing is the hazard. Speaking an item takes seconds, so the response clock does
+   NOT start until the first reading finishes, and any replay is subtracted from the
+   elapsed time exactly as hidden-tab time is. Replays are counted, because asking to
+   hear it again is the spoken form of reading it twice and is worth recording. A
+   watchdog starts the clock anyway if the speech engine never reports finishing,
+   which some engines do not. */
+const SPEAK={
+  ok:function(){
+    try{return typeof window.speechSynthesis!=="undefined"&&typeof window.SpeechSynthesisUtterance!=="undefined";}
+    catch(e){return false;}
+  },
+  voice:null,
+  pickVoice:function(){
+    if(!this.ok())return null;
+    try{
+      const vs=window.speechSynthesis.getVoices()||[];
+      if(!vs.length)return null;
+      const en=vs.filter(function(v){return /^en(-|_|$)/i.test(v.lang||"");});
+      const pool=en.length?en:vs;
+      this.voice=pool.filter(function(v){return v.localService;})[0]||pool[0];
+      return this.voice;
+    }catch(e){return null;}
+  },
+  cancel:function(){try{if(this.ok())window.speechSynthesis.cancel();}catch(e){}},
+  /* Resolves when speaking finishes, or when the watchdog fires, whichever is first.
+     Never rejects: a failed read must not strand the child on a dead question. */
+  say:function(text,onDone){
+    const done=function(){if(!fired){fired=true;onDone&&onDone();}};
+    let fired=false;
+    if(!this.ok()||!text){setTimeout(done,0);return function(){};}
+    try{
+      window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(String(text));
+      if(!this.voice)this.pickVoice();
+      if(this.voice)u.voice=this.voice;
+      u.rate=0.92; u.pitch=1; u.lang=(this.voice&&this.voice.lang)||"en-GB";
+      u.onend=done; u.onerror=done;
+      /* ~11 characters a second at this rate, plus five seconds of slack. */
+      const guard=setTimeout(done,Math.min(60000,3000+String(text).length*110));
+      window.speechSynthesis.speak(u);
+      return function(){clearTimeout(guard);};
+    }catch(e){setTimeout(done,0);return function(){};}
+  }
+};
+if(SPEAK.ok()){
+  try{
+    window.speechSynthesis.addEventListener("voiceschanged",function(){SPEAK.pickVoice();});
+    SPEAK.pickVoice();
+  }catch(e){}
+}
+
+const ORDINAL={2:["half","halves"],3:["third","thirds"],4:["quarter","quarters"],5:["fifth","fifths"],
+  6:["sixth","sixths"],7:["seventh","sevenths"],8:["eighth","eighths"],9:["ninth","ninths"],
+  10:["tenth","tenths"],11:["eleventh","elevenths"],12:["twelfth","twelfths"]};
+const ONES=["zero","one","two","three","four","five","six","seven","eight","nine"];
+function fracWords(f){
+  const w=ORDINAL[f.d];
+  if(!w)return small(f.n)+" over "+f.d;
+  return (f.n===1?"one":small(f.n))+" "+(f.n===1?w[0]:w[1]);
+}
+function numWords(v){
+  const n=Number(v);
+  if(!isFinite(n))return String(v);
+  const neg=n<0, a=Math.abs(n);
+  const body=(String(a).indexOf(".")<0)
+    ? String(a)
+    : String(a).split(".")[0]+" point "+String(a).split(".")[1].split("").map(function(d){return ONES[+d];}).join(" ");
+  return (neg?"negative ":"")+body;
+}
+const shapeWord=function(k,n){return (n<10?ONES[n]:n)+" "+k+(n===1?"":"s");};
+const small=function(n){return n<10?ONES[n]:String(n);};
+/* Each entry returns the COMPLETE spoken text, including its own instruction, written
+   for someone listening rather than reading: no "the scales below", no doubled
+   question, and no glyph that only works on the page. */
+const SPOKEN={
+  compare:function(p){return "Which number is larger? Is it "+numWords(p.a)+", or "+numWords(p.b)+"?";},
+  fraction:function(p){return "Which of these is the larger amount? Is it "+fracWords(p.f1)+", or "+fracWords(p.f2)+"?";},
+  midpoint:function(p){return "What number is exactly halfway between "+numWords(p.a)+" and "+numWords(p.b)+"?";},
+  addfact:function(p){return "Say the answer as soon as you know it. What is "+p.a+" plus "+p.b+"?";},
+  mulfact:function(p){return "Say the answer as soon as you know it, without counting. What is "+p.a+" times "+p.b+"?";},
+  bridge:function(p){return "Straight away, without counting back. What is "+p.m+" minus "+p.n+"?";},
+  bond:function(p){return "Say the missing number as soon as you know it. "+p.b+" plus what makes "+p.t+"?";},
+  regroup:function(p){return "Work this one out, writing down each step as you go. What is "+p.a+" minus "+p.b+"?";},
+  coladd:function(p){return "Work this one out, writing down each step as you go. What is "+p.a+" plus "+p.b+"?";},
+  longmul:function(p){return "Work this one out, writing down each step as you go. What is "+p.a+" times "+p.b+"?";},
+  divide:function(p){return "Work this one out, writing down your steps. What is "+p.a+" divided by "+p.d+"?"+
+    (p.r>0?" Give the whole number, and anything left over.":"");},
+  bal2:function(p){
+    return "Here are two scales, and both of them balance. On the first scale, one circle balances "+shapeWord("square",p.k)+". "+
+      "On the second scale, one triangle balances "+shapeWord("circle",p.c)+" and "+shapeWord("square",p.m)+". "+
+      "How many squares balance one triangle?";},
+  bal3:function(p){
+    return "Here are three scales, and all of them balance. One circle balances "+shapeWord("square",p.k)+". "+
+      "One triangle balances "+shapeWord("circle",p.c)+" and "+shapeWord("square",p.m)+". "+
+      "One hexagon balances "+shapeWord("triangle",p.h)+". "+
+      "How many squares balance one hexagon? Try to do this one in your head.";},
+  word:function(p){return "Listen carefully. Not every number in this one is needed. "+(p.text||"")+" "+(p.q||"");}
+};
+function spokenFor(it){
+  try{
+    const f=SPOKEN[it.kind];
+    return f?f(it.p||{}):(it.instruction||"")+" "+it.stimText;
+  }catch(e){return it.instruction||"";}
+}
+
 /* ---------- state ---------- */
 const LSKEY="ndp.session.v1";
 const S={intake:{},band:2,ageBand:null,age:null,items:[],idx:0,plan:[],startedAt:null,endedAt:null,
@@ -1373,6 +1496,12 @@ function clearSaved(){try{localStorage.removeItem(LSKEY);}catch(e){}}
 const F=id=>$("#f_"+id);
 function todayISO(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 F("date").value=todayISO();
+(function offerReadAloud(){
+  if(!SPEAK.ok())return;
+  const show=function(){$("#readAloudOpt").classList.remove("hidden");};
+  show();
+  try{window.speechSynthesis.addEventListener("voiceschanged",show);}catch(e){}
+})();
 
 function refreshAge(){
   const a=ageAt(F("dob").value,F("date").value||todayISO());
@@ -1391,7 +1520,8 @@ $("#intakeForm").addEventListener("submit",function(e){
   S.ageBand=a?bandFromAge(a.y):null;
   S.band=grade?GRADE_BAND[grade]:S.ageBand;
   S.intake={name:F("name").value.trim(),dob:F("dob").value,date:todayISO(),grade:grade,
-    paper:F("paper").checked,ageTxt:a?a.txt:"",ageY:a?a.y:null,selfAdministered:true};
+    paper:F("paper").checked,readAloud:SPEAK.ok()&&F("read").checked,
+    ageTxt:a?a.txt:"",ageY:a?a.y:null,selfAdministered:true};
   $("#briefBand").innerHTML="The questions will start at about "+esc(BAND_NAME[S.band].toLowerCase())+
     " level and get easier or harder as you go, depending on how you're doing."+
     (S.ageBand&&S.ageBand!==S.band?" Your grade and your age point at slightly different levels, so we've gone with your grade.":"")+
@@ -1448,11 +1578,33 @@ function bandFor(dom){
   }
   return clampBand(S.band+off);
 }
-const CLK={t0:0,first:null,hidden:0,hiddenAt:null,interrupted:false,stopped:null};
+const CLK={t0:0,first:null,hidden:0,hiddenAt:null,interrupted:false,stopped:null,replays:0,speaking:false};
 function clockStart(){
   CLK.t0=performance.now(); CLK.first=null; CLK.hidden=0;
   CLK.hiddenAt=document.hidden?performance.now():null;
-  CLK.interrupted=!!document.hidden; CLK.stopped=null;
+  CLK.interrupted=!!document.hidden; CLK.stopped=null; CLK.replays=0; CLK.speaking=false;
+}
+/* A replay is time the question is being read, not time spent answering it, so it is
+   subtracted exactly as hidden-tab time is. The count is kept: asking to hear it again
+   is the spoken form of reading it twice, and belongs in the record. */
+function speakItem(it,isReplay){
+  if(!S.intake.readAloud||!SPEAK.ok())return;
+  const text=spokenFor(it);
+  const t=performance.now();
+  CLK.speaking=true;
+  if(isReplay)CLK.replays++;
+  $("#audioState").textContent="Reading it out…";
+  SPEAK.say(text,function(){
+    CLK.speaking=false;
+    $("#audioState").textContent="";
+    if(isReplay){CLK.hidden+=performance.now()-t;}
+    else if(CLK.stopped===null){CLK.t0=performance.now();}
+  });
+}
+function syncAudioBar(){
+  const on=!!S.intake.readAloud&&SPEAK.ok();
+  $("#audioBar").classList.toggle("hidden",!on);
+  $("#audioOffBar").classList.toggle("hidden",on||!SPEAK.ok());
 }
 function clockFirstInput(){
   if(CLK.first===null&&CLK.stopped===null)CLK.first=Math.round(performance.now()-CLK.t0-CLK.hidden);
@@ -1519,6 +1671,8 @@ function nextItem(){
     });
   });
   clockStart();
+  syncAudioBar();
+  speakItem(it,false);
 }
 function currentAnswer(){
   const ai=$("#ansIn"); return ai?ai.value.trim():S.answer;
@@ -1529,11 +1683,14 @@ function commitAnswer(dontKnow){
   if(!dontKnow&&(raw===null||raw===undefined||raw==="")){
     $("#itemErr").textContent="Put in an answer, or press “I don't know this one”.";return;
   }
+  const spokeOver=CLK.speaking;
+  SPEAK.cancel(); CLK.speaking=false; $("#audioState").textContent="";
   const lat=clockStop();
   const res=dontKnow?{correct:false,code:"UNSCORED"}:scoreItem(it,raw);
   S.pending={n:S.idx+1,dom:it.dom,task:it.task,stim:it.stimText,expected:it.answerText,
     given:dontKnow?"—":String(raw),latency:lat,think:CLK.first===null?lat:CLK.first,
-    interrupted:CLK.interrupted,strategy:dontKnow?"unknown":null,flags:[],
+    interrupted:CLK.interrupted,replays:CLK.replays,readAloud:!!S.intake.readAloud,softTiming:spokeOver,
+    strategy:dontKnow?"unknown":null,flags:[],
     work:"",correct:res.correct,code:res.code,band:bandFor(it.dom)};
   $("#stageAnswer").classList.add("hidden");
   $("#stageReflect").classList.remove("hidden");
@@ -1547,13 +1704,15 @@ function commitAnswer(dontKnow){
       b.setAttribute("aria-pressed","true"); S.pending.strategy=b.dataset.s;});
   });
   $("#flagOpts").innerHTML=FLAGS.filter(function(f){return !f.choiceOnly||it.input.type==="choice";}).map(function(f){
-    return '<button type="button" class="strat" data-f="'+f.v+'" aria-pressed="false">'+esc(f.l)+'</button>';}).join("");
+    const label=(f.v==="reread"&&S.intake.readAloud)?"I had to hear it more than once":f.l;
+    return '<button type="button" class="strat" data-f="'+f.v+'" aria-pressed="false">'+esc(label)+'</button>';}).join("");
   $("#flagOpts").querySelectorAll(".strat").forEach(function(b){
     b.addEventListener("click",function(){
       b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")==="true"?"false":"true");
       S.pending.flags=[].slice.call($("#flagOpts").querySelectorAll('[aria-pressed="true"]')).map(function(x){return x.dataset.f;});});
   });
   $("#itemMeta").innerHTML='<span>Took <b>'+secs(lat)+'</b></span>'+
+    (CLK.replays?'<span>Heard it <b>'+(CLK.replays+1)+'</b> times</span>':"")+
     (CLK.interrupted?'<span style="color:var(--ochre)">tab was hidden partway — timing adjusted for it</span>':"");
   const firstStrat=$("#stratOpts").querySelector(".strat");
   (dontKnow||!firstStrat?$("#btnNextItem"):firstStrat).focus();
@@ -1566,6 +1725,13 @@ function recordItem(){
   S.items.push(P); S.pending=null; S.idx++; save();
   nextItem();
 }
+$("#btnHear").addEventListener("click",function(){if(S.cur&&!CLK.speaking)speakItem(S.cur,true);});
+$("#btnAudioOff").addEventListener("click",function(){
+  SPEAK.cancel(); CLK.speaking=false; $("#audioState").textContent="";
+  S.intake.readAloud=false; save(); syncAudioBar();});
+$("#btnAudioOn").addEventListener("click",function(){
+  S.intake.readAloud=true; save(); syncAudioBar();
+  if(S.cur&&CLK.stopped===null)speakItem(S.cur,true);});
 $("#btnSubmitItem").addEventListener("click",function(){commitAnswer(false);});
 $("#btnDontKnow").addEventListener("click",function(){commitAnswer(true);});
 $("#btnNextItem").addEventListener("click",recordItem);
@@ -1574,6 +1740,7 @@ $("#btnEndEarly").addEventListener("click",function(){
   if(confirm("Stop here? You've done "+S.items.length+" of 12. You'll still get your results, based on what you've finished."))finish();
 });
 function finish(){
+  SPEAK.cancel();
   S.endedAt=Date.now(); save(); archive();
   renderReport(); show("report");
 }
@@ -1603,6 +1770,9 @@ function analyze(ctx){
   const codes={}; all.forEach(x=>{if(x.code)codes[x.code]=(codes[x.code]||0)+1;});
   const flags={}; all.forEach(x=>(x.flags||[]).forEach(f=>{(flags[f]=flags[f]||[]).push(x.n);}));
   const interrupted=all.filter(x=>x.interrupted).map(x=>x.n);
+  const softTimed=all.filter(x=>x.softTiming).map(x=>x.n);
+  const heard=all.filter(x=>x.readAloud).length;
+  const replayed=all.filter(x=>(x.replays||0)>0);
   const has=(...c)=>c.some(k=>codes[k]);
   const nOf=(...c)=>c.reduce((s,k)=>s+(codes[k]||0),0);
 
@@ -1650,7 +1820,7 @@ function analyze(ctx){
   P.flags=present.filter(d=>st[d].s==="flag").length;
 
   const totalMs=(C.endedAt||Date.now())-(C.startedAt||Date.now());
-  return {dom:dom,st:st,codes:codes,flags:flags,interrupted:interrupted,has:has,nOf:nOf,present:present,bottleneck:bottleneck,strongest:strongest,
+  return {dom:dom,st:st,codes:codes,flags:flags,interrupted:interrupted,softTimed:softTimed,heard:heard,replayed:replayed,has:has,nOf:nOf,present:present,bottleneck:bottleneck,strongest:strongest,
           P:P,items:all,totalMs:totalMs,
           accAll:all.filter(x=>x.correct).length/all.length,
           medAll:all.map(x=>x.latency).sort((a,b)=>a-b)[Math.floor(all.length/2)]};
@@ -1752,7 +1922,7 @@ function domainNarrative(A,d){
   }
   return (s.s==="ok"?"Word problems were translated into the correct operations and carried to completion, including the filtering of irrelevant quantities.":
     "Translation from text to arithmetic was where these items failed"+(list?" — "+list:"")+".")+
-    (S.intake.readAloud?" Items were read aloud, so decoding load can be excluded as an explanation.":" Items were read independently; if reading fluency is also a concern, re-administer with the problems read aloud to separate the reading demand from the mathematical one.");
+    (o.items.some(function(x){return x.readAloud;})?" These were read aloud, so decoding can be ruled out as the explanation — what is left is the translation from a situation into arithmetic.":" These were read independently, so a reading difficulty and a translation difficulty are still confounded. Turning read-aloud on and re-probing separates the two.");
 }
 
 /* ---------- scaffold library ---------- */
@@ -1855,13 +2025,14 @@ function renderReport(){
      rec("Name",I.name)+rec("Date of birth",I.dob)+rec("Age",I.ageTxt)+
      rec("Grade",gradeLabel(I.grade))+rec("Difficulty band",BAND_NAME[S.band])+
      rec("Date",I.date)+rec("How it was taken",I.selfAdministered?"On their own":"Not recorded")+
+     rec("Read aloud",A.heard?(A.heard===A.items.length?"Yes, every question":"Yes, "+A.heard+" of "+A.items.length+" questions"):"No, read independently")+
      rec("Items administered",A.items.length+" of 12")+rec("Duration",dur+" min")+
      rec("Overall accuracy",pct(A.accAll))+rec("Median latency",secs(A.medAll))+
      '</dl></div><div class="rpt-body">';
 
   /* what they told us about themselves */
   const flagKeys=Object.keys(A.flags||{}).filter(function(k){return k!=="misclick";});
-  if(flagKeys.length||A.interrupted.length||I.paper){
+  if(flagKeys.length||A.interrupted.length||A.heard||A.softTimed.length||I.paper){
     h+='<section class="rpt-sec"><h3><span class="n">00</span> What they said about it</h3>'+
        '<p>These are the boxes ticked after answering, in their own words rather than an observer\'s. Self-report from a child is not a measurement, but it is the only direct evidence of what the work felt like from the inside, and where it lines up with the item data it carries real weight.</p>';
     if(flagKeys.length){
@@ -1879,6 +2050,16 @@ function renderReport(){
     if(A.interrupted.length)
       h+='<p><strong>Interrupted.</strong> The tab was hidden partway through question'+(A.interrupted.length>1?"s":"")+' '+A.interrupted.join(", ")+
          '. That time is subtracted from the recorded latency, but attention may have moved away and back, so treat those timings as soft.</p>';
+    if(A.heard){
+      h+='<p><strong>Questions were read aloud'+(A.heard===A.items.length?"":" on "+A.heard+" of "+A.items.length+" questions")+'.</strong> '+
+         'That removes reading from the measurement, which is the point of the option — but it also means nothing here speaks to decoding, and the applied-reasoning result reflects understanding the situation rather than reading the words. '+
+         'Timing excludes the reading: the clock starts when the question finishes being spoken.'+
+         (A.softTimed.length?' On question'+(A.softTimed.length>1?"s":"")+' '+A.softTimed.join(", ")+
+           ' the answer came while the question was still being read, so the clock had not started and those times include the reading. Treat them as upper bounds, not measurements.':'')+
+         (A.replayed.length?' Hearing it again was asked for on question'+(A.replayed.length>1?"s":"")+' '+A.replayed.map(function(x){return x.n;}).join(", ")+
+           ', which is the spoken equivalent of re-reading and points the same way — at comprehension load rather than at arithmetic.':'')+
+         '</p>';
+    }
     h+='<p><strong>Conditions.</strong> Taken independently, without anyone administering it. '+
        (I.paper?"Paper and pencil were to hand.":"No paper or pencil was to hand, which loads working memory beyond what the written items themselves demand.")+
        ' No background information was collected — no history, no current placement, nothing about how the day was going — so anything of that sort has to come from whoever knows them.</p></section>';
@@ -2158,7 +2339,7 @@ const DOMBLURB={1:"Comparing sizes, fractions, and finding the middle of a numbe
   3:"Written algorithms: regrouping, long multiplication, division with remainders.",
   4:"Balance-scale puzzles that ask you to hold one value while working out the next.",
   5:"Word problems carrying a number that is not needed."};
-const PR={doms:new Set([1,2,3,4,5]),band:2,autoWalk:true,cur:null,n:0,correct:0,answered:false,walkShown:false};
+const PR={doms:new Set([1,2,3,4,5]),band:2,autoWalk:true,readAloud:false,cur:null,n:0,correct:0,answered:false,walkShown:false};
 
 function lastReportFlags(){
   const h=history(); if(!h.length)return null;
@@ -2221,6 +2402,8 @@ function nextPractice(){
   $("#pStimulus").innerHTML=itemBodyHTML(it);
   $("#pInput").innerHTML=inputHTML(it,"pAns");
   $("#pFeedback").innerHTML=""; $("#pErr").textContent="";
+  $("#pHear").classList.toggle("hidden",!SPEAK.ok());
+  if(SPEAK.ok()&&PR.readAloud)SPEAK.say(spokenFor(it));
   $("#btnCheck").classList.remove("hidden");
   $("#btnWalk").classList.remove("hidden");
   $("#btnWalk").textContent="Show me how";
@@ -2586,6 +2769,7 @@ $("#tabPractice").addEventListener("click",function(){selectTab("practice");});
 $("#tabHistory").addEventListener("click",function(){selectTab("history");});
 
 $("#btnPractice").addEventListener("click",startPractice);
+$("#pHear").addEventListener("click",function(){if(PR.cur)SPEAK.say(spokenFor(PR.cur));});
 $("#btnCheck").addEventListener("click",checkPractice);
 $("#btnWalk").addEventListener("click",showWalk);
 $("#btnNextP").addEventListener("click",nextPractice);

@@ -40,9 +40,8 @@ it — a child opens it and works through it unsupervised. The start screen asks
 what to call you, your birthday, and your year or grade. Nothing clinical, nothing an adult
 has to fill in first.
 
-Note the honest limit: independent use assumes the questions can be read. Below roughly
-age 8, or where reading is itself a difficulty, someone will still need to read them aloud,
-and the briefing says so.
+Independent use assumes the questions can be read, so there is a read-aloud mode (below)
+for younger children and for anyone whose reading is itself the difficulty.
 
 **Banding.** Difficulty is banded from grade placement, falling back to chronological age:
 
@@ -76,6 +75,25 @@ form was submitted, so it swept in strategy selection and note-taking — severa
 against a fact-automaticity threshold of three. Records carry a `timing` schema version, and
 the comparison view refuses to read latency across the two, rather than reporting a
 difference that is an artefact of the change.
+
+**Read-aloud.** Optional, offered only where the browser can actually speak, and
+switchable at any point during the test. Speech is generated from each item's own
+parameters rather than from the text on screen — "8 × 9" is heard as *"what is 8 times
+9"*, "3/5" as *"three fifths"*, and a balance scale as its relations in words. Reading the
+glyphs aloud would be useless.
+
+Timing is the hazard, and it is handled the same way as everything else here: the response
+clock does **not** start until the first reading finishes, and any replay is subtracted from
+elapsed time exactly as hidden-tab time is. Replays are counted, because asking to hear it
+again is the spoken form of reading it twice. A watchdog starts the clock anyway if the
+speech engine never reports finishing, which some do not; and if an answer arrives while the
+question is still being read, that item's timing is marked soft rather than reported as a
+clean measurement.
+
+Turning it on changes what the probe measures, so the report says so: reading is removed
+from the picture, nothing then speaks to decoding, and the applied-reasoning result reflects
+understanding the situation rather than reading the words. With read-aloud on, the
+"I had to read it more than once" tick-box becomes "I had to hear it more than once".
 
 **Self-report.** After answering, the learner says how they worked it out and ticks anything
 else that applies — read it more than once, lost my place, hard to hold the numbers, wasn't
