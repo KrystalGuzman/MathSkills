@@ -387,6 +387,8 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
             <label for="f_dob">When is your birthday?</label>
             <input type="date" id="f_dob">
             <span class="agecalc" id="ageOut"></span>
+            <label class="check hidden" id="ageConfirmWrap" style="margin-top:.4rem">
+              <input type="checkbox" id="f_ageok"><span id="ageConfirmText"></span></label>
           </div>
           <div class="field">
             <label for="f_grade">What year or grade are you in?</label>
@@ -1503,9 +1505,26 @@ F("date").value=todayISO();
   try{window.speechSynthesis.addEventListener("voiceschanged",show);}catch(e){}
 })();
 
+const AGE_FLOOR=5, AGE_CEILING=100;
 function refreshAge(){
   const a=ageAt(F("dob").value,F("date").value||todayISO());
-  $("#ageOut").textContent=a?("Age at testing: "+a.txt):(F("dob").value?"Check the dates — birth date is after the test date.":"");
+  const out=$("#ageOut"), wrap=$("#ageConfirmWrap");
+  if(!a){
+    out.textContent=F("dob").value?"That birthday is in the future — check the year.":"";
+    wrap.classList.add("hidden"); F("ageok").checked=false;
+    return null;
+  }
+  out.textContent="That makes you "+a.txt+" old.";
+  /* The easiest way to get a wildly wrong band is a mistyped year, and nothing
+     downstream would notice: the band is set from this number in silence. */
+  if(a.y<AGE_FLOOR||a.y>AGE_CEILING){
+    wrap.classList.remove("hidden");
+    $("#ageConfirmText").textContent=a.y>AGE_CEILING
+      ? "That would make you "+a.y+" years old. Check the year — or tick here if it really is right."
+      : "These questions are built for ages "+AGE_FLOOR+" and up, so "+a.txt+" is younger than anything here is designed for. Check the year — or tick here if it really is right, and we'll start with the easiest questions.";
+  }else{
+    wrap.classList.add("hidden"); F("ageok").checked=false;
+  }
   return a;
 }
 F("dob").addEventListener("change",refreshAge);
@@ -1515,12 +1534,16 @@ $("#intakeForm").addEventListener("submit",function(e){
   e.preventDefault();
   const a=refreshAge(), grade=F("grade").value;
   if(!a&&!grade){$("#intakeErr").textContent="Put in your birthday or your grade — that's how the questions get set to about the right level.";return;}
+  if(a&&(a.y<AGE_FLOOR||a.y>AGE_CEILING)&&!F("ageok").checked){
+    $("#intakeErr").textContent="Have a look at the birthday above — the year may have a typo. Tick the box if it is right.";return;
+  }
   $("#intakeErr").textContent="";
   S.age=a;
   S.ageBand=a?bandFromAge(a.y):null;
   S.band=grade?GRADE_BAND[grade]:S.ageBand;
   S.intake={name:F("name").value.trim(),dob:F("dob").value,date:todayISO(),grade:grade,
     paper:F("paper").checked,readAloud:SPEAK.ok()&&F("read").checked,
+    ageOutOfRange:!!(a&&(a.y<AGE_FLOOR||a.y>AGE_CEILING)),
     ageTxt:a?a.txt:"",ageY:a?a.y:null,selfAdministered:true};
   $("#briefBand").innerHTML="The questions will start at about "+esc(BAND_NAME[S.band].toLowerCase())+
     " level and get easier or harder as you go, depending on how you're doing."+
@@ -2059,6 +2082,11 @@ function renderReport(){
          (A.replayed.length?' Hearing it again was asked for on question'+(A.replayed.length>1?"s":"")+' '+A.replayed.map(function(x){return x.n;}).join(", ")+
            ', which is the spoken equivalent of re-reading and points the same way — at comprehension load rather than at arithmetic.':'')+
          '</p>';
+    }
+    if(I.ageOutOfRange){
+      h+='<p><strong>The recorded age sits outside what this probe covers.</strong> '+
+         'It is built for ages '+AGE_FLOOR+' and up, and the date of birth entered gives '+esc(I.ageTxt||"an age below that")+
+         '. That was confirmed rather than corrected at the start, but a mistyped year is the likeliest explanation, and the difficulty band is set from this number — so if the year is wrong, every item was pitched at the wrong level and none of the findings below can stand. Check the date of birth before reading any further.</p>';
     }
     h+='<p><strong>Conditions.</strong> Taken independently, without anyone administering it. '+
        (I.paper?"Paper and pencil were to hand.":"No paper or pencil was to hand, which loads working memory beyond what the written items themselves demand.")+
