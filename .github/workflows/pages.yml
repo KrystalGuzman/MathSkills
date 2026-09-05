@@ -1,0 +1,65 @@
+name: Deploy to GitHub Pages
+
+# Two Pages configurations both work for this repo, and which one is live depends
+# on Settings -> Pages -> Build and deployment -> Source:
+#   "GitHub Actions"       -> this workflow publishes the site.
+#   "Deploy from a branch" -> the committed index.html at the repo root is served
+#                             directly, and this workflow only verifies it is current.
+
+on:
+  push:
+    branches:
+      - main
+      - claude/math-diagnostic-assessment-vjnu5r
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deployment finish rather than cancelling it midway.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build the site from numeracy-probe.html
+        run: node build.mjs
+
+      - name: Check the committed index.html is not stale
+        run: |
+          if ! git diff --quiet -- index.html; then
+            echo "::error file=index.html::index.html does not match numeracy-probe.html. Run 'node build.mjs' and commit the result."
+            git diff --stat -- index.html
+            exit 1
+          fi
+
+      - name: Stage the site directory
+        run: node build.mjs site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -2,11 +2,34 @@
 
 ## Numeracy Diagnostic Probe (Form A)
 
-`numeracy-probe.html` — a self-contained, browser-only instrument that administers an
-informal, criterion-referenced probe of the cognitive domains implicated in dyscalculia
-and math learning differences, then compiles a printable qualitative diagnostic profile.
+A self-contained, browser-only instrument that administers an informal,
+criterion-referenced probe of the cognitive domains implicated in dyscalculia and math
+learning differences, then compiles a printable qualitative diagnostic profile.
 
-Published as an Artifact; the file is the source of record.
+**Live site:** https://krystalguzman.github.io/MathSkills/
+
+### Layout
+
+| Path | Role |
+|------|------|
+| `numeracy-probe.html` | Source of record. Authored as an Artifact body fragment — opens with `<title>`, a font `<link>` and one `<style>` block, no document scaffolding, because the Artifact host supplies `<!doctype>`, `<head>` and `<body>` at publish time. |
+| `build.mjs` | Wraps that fragment in a real HTML document. `node build.mjs` writes `index.html`; `node build.mjs site` stages `site/` for CI. |
+| `index.html` | Generated. Do not hand-edit — change `numeracy-probe.html` and rebuild. |
+| `.github/workflows/pages.yml` | Deploys to Pages and fails the build if `index.html` is stale relative to its source. |
+
+One source file therefore serves both targets. The only run-time difference is how the
+report is saved: inside the Artifact viewer the sandbox blocks page-initiated downloads,
+so the host's `downloads` capability performs the save; served as an ordinary web page the
+same buttons use an object-URL download directly. The page detects which is available and
+hides the buttons if neither is. Print-to-PDF and copy-as-text work everywhere.
+
+### Deploying
+
+`index.html` sits at the repository root and the workflow also publishes `site/`, so
+either Pages source works — under **Settings → Pages → Build and deployment**, *Deploy
+from a branch* (default branch, `/` root) serves the committed file, and *GitHub Actions*
+runs the workflow. Rebuild and commit `index.html` alongside any change to
+`numeracy-probe.html`, or CI will reject the push.
 
 ### What it does
 
