@@ -1,30 +1,28 @@
-name: Deploy to GitHub Pages
+name: Verify site build
 
-# Two Pages configurations both work for this repo, and which one is live depends
-# on Settings -> Pages -> Build and deployment -> Source:
-#   "GitHub Actions"       -> this workflow publishes the site.
-#   "Deploy from a branch" -> the committed index.html at the repo root is served
-#                             directly, and this workflow only verifies it is current.
+# Pages for this repository is configured as "Deploy from a branch", so GitHub's
+# own pages-build-deployment run publishes the committed index.html at the repo
+# root. This workflow does not deploy — a second deployer would only race that
+# one. It guards the thing branch deployment cannot: that the generated
+# index.html still matches the source it was built from.
+#
+# If Settings -> Pages -> Source is ever switched to "GitHub Actions", this
+# workflow needs a deploy job added (actions/configure-pages, then
+# actions/upload-pages-artifact with `site`, then actions/deploy-pages).
 
 on:
   push:
     branches:
       - main
       - claude/math-diagnostic-assessment-vjnu5r
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-# Let a running deployment finish rather than cancelling it midway.
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,33 +31,36 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build the site from numeracy-probe.html
+      - name: Rebuild the site from numeracy-probe.html
         run: node build.mjs
 
       - name: Check the committed index.html is not stale
         run: |
           if ! git diff --quiet -- index.html; then
-            echo "::error file=index.html::index.html does not match numeracy-probe.html. Run 'node build.mjs' and commit the result."
+            echo "::error file=index.html::index.html no longer matches numeracy-probe.html. Run 'node build.mjs' and commit the result."
             git diff --stat -- index.html
             exit 1
           fi
+          echo "index.html is current."
 
-      - name: Stage the site directory
-        run: node build.mjs site
-
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Check the page parses and boots
+        run: |
+          node -e '
+            const s = require("fs").readFileSync("index.html", "utf8");
+            const must = [
+              ["doctype", /^<!doctype html>/i],
+              ["single title", /<title>Numeracy Diagnostic Probe<\/title>/],
+              ["intake form", /id="intakeForm"/],
+              ["report mount", /id="report"/],
+              ["twelve-item plan", /const PLAN=\[/]
+            ];
+            let bad = 0;
+            for (const [name, re] of must) {
+              if (!re.test(s)) { console.error("missing:", name); bad++; }
+            }
+            const opens = (s.match(/<script\b/g) || []).length;
+            const closes = (s.match(/<\/script>/g) || []).length;
+            if (opens !== closes) { console.error(`unbalanced script tags: ${opens} open, ${closes} close`); bad++; }
+            if (bad) process.exit(1);
+            console.log("index.html looks well formed.");
+          '

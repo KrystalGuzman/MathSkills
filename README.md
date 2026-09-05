@@ -15,7 +15,7 @@ learning differences, then compiles a printable qualitative diagnostic profile.
 | `numeracy-probe.html` | Source of record. Authored as an Artifact body fragment — opens with `<title>`, a font `<link>` and one `<style>` block, no document scaffolding, because the Artifact host supplies `<!doctype>`, `<head>` and `<body>` at publish time. |
 | `build.mjs` | Wraps that fragment in a real HTML document. `node build.mjs` writes `index.html`; `node build.mjs site` stages `site/` for CI. |
 | `index.html` | Generated. Do not hand-edit — change `numeracy-probe.html` and rebuild. |
-| `.github/workflows/pages.yml` | Deploys to Pages and fails the build if `index.html` is stale relative to its source. |
+| `.github/workflows/pages.yml` | CI. Rebuilds from source and fails if `index.html` is stale; does not deploy. |
 
 One source file therefore serves both targets. The only run-time difference is how the
 report is saved: inside the Artifact viewer the sandbox blocks page-initiated downloads,
@@ -25,11 +25,13 @@ hides the buttons if neither is. Print-to-PDF and copy-as-text work everywhere.
 
 ### Deploying
 
-`index.html` sits at the repository root and the workflow also publishes `site/`, so
-either Pages source works — under **Settings → Pages → Build and deployment**, *Deploy
-from a branch* (default branch, `/` root) serves the committed file, and *GitHub Actions*
-runs the workflow. Rebuild and commit `index.html` alongside any change to
-`numeracy-probe.html`, or CI will reject the push.
+Pages is set to **Deploy from a branch**, so GitHub's own `pages-build-deployment` run
+publishes the committed `index.html` at the repository root on every push to the default
+branch — no deploy step of our own, and no second deployer racing it. CI verifies rather
+than deploys: it rebuilds from source and fails if the committed `index.html` is stale, so
+rebuild and commit it alongside any change to `numeracy-probe.html`. Switching the Pages
+source to *GitHub Actions* would require adding a deploy job; the workflow file says what
+that needs.
 
 ### What it does
 
