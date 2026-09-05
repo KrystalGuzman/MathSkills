@@ -76,6 +76,43 @@ item record, error analysis, and targeted instructional scaffolds, all generated
 recorded data. It can be printed or saved as PDF, downloaded as a standalone HTML file or
 a structured JSON record, or copied as plain text.
 
+### Practice mode
+
+A separate tab, deliberately unlike the assessment: untimed, unscored, unlimited items, with
+immediate feedback and an optional worked solution on every question. Domains can be chosen
+by hand or auto-selected from what the last report flagged.
+
+Walk-throughs teach the derivation for the numbers actually generated rather than revealing
+an answer — a multiplication fact is derived from an anchor the learner already owns (nine as
+ten-groups-minus-one, eight as double-double-double), subtraction across zeros is shown by
+the counting-up route that sidesteps the borrow chain entirely, multi-digit multiplication
+uses the box model so neither partial product can go missing, and word problems begin by
+naming the number that is not needed.
+
+**Practice and assessment are kept apart on purpose.** Practising the underlying skills
+between probes is instruction working as intended. Two domains are different: the balance
+scales and the word problems measure how an *unfamiliar* structure is handled, so format
+familiarity can lower the load without the underlying capacity changing. Practice volume is
+logged per domain and surfaced in any comparison so a gain can be read in that light.
+
+### History and comparison
+
+Completed administrations are kept in the browser and any two can be compared. Because each
+domain carries only two or three items, one item changing hand swings that domain by 33–50
+percentage points — so the comparison deliberately leads on the signals that do not move by
+chance, and demotes accuracy:
+
+1. **Strategy migration.** An answer that used to be counted and is now recalled is real
+   progress and cannot be produced by luck.
+2. **Response latency.** The same accuracy reached faster is consolidation an accuracy score
+   cannot see.
+3. **Error signatures** resolved, persisting, or newly appearing.
+4. **Accuracy by domain**, explicitly labelled high-noise, with any delta traceable to a
+   single item marked as such.
+
+Differing bands between the two administrations, and practice logged in between, are both
+called out as interpretation limits rather than left for the reader to notice.
+
 ### Error classification
 
 Wrong answers are classified by the mechanism that produced them, not by the operation
@@ -84,9 +121,13 @@ between, among others: ones-digit dominance and decimal-length bias in magnitude
 judgements; whole-number bias in fractions; midpoint reported as distance rather than
 position; neighbouring-fact retrieval interference; smaller-from-larger subtraction;
 regrouping not carried across a zero; partial products left incomplete or unshifted;
-quotient zeros omitted; the intermediate value reported as final; and extraneous
-quantities harvested from word-problem text. Scaffolds in the report are matched to the
-signatures actually observed.
+quotient zeros omitted; the intermediate value reported as final; extraneous
+quantities harvested from word-problem text; and answers landing far outside any plausible
+range, which indicates a missing estimate rather than a slip inside a sound procedure.
+Scaffolds in the report are matched to the signatures actually observed.
+
+Every classifier is verified reachable by a sweep over all generators; a branch that can
+never fire would mean the report could never name that misconception.
 
 ### Limitations
 
@@ -99,5 +140,6 @@ Fluency, the Butterworth Dyscalculia Screener, and the WISC-V Figure Weights par
 ### Privacy
 
 Everything runs in the browser. Examinee data is never transmitted; an in-progress
-administration is held in `localStorage` on that device only, and leaves it solely when
-the examiner prints, downloads, or copies the report.
+administration is held in `localStorage` on that device only — along with completed
+administrations and the practice log — and leaves it solely when the examiner prints,
+downloads, or copies a report. Clearing history removes both, and cannot be undone.
