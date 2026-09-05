@@ -330,12 +330,12 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
         <h1>Numeracy Diagnostic Probe</h1>
         <span class="ed">FORM&nbsp;A · v1.0</span>
       </div>
-      <p>An informal, dynamically generated probe of the cognitive domains implicated in dyscalculia and math learning differences. Every item is generated fresh — nothing repeats between administrations.</p>
+      <p>Twelve questions that work out which parts of maths come easily and which are fiddly. Every question is made up fresh, so it can't be practised or memorised — and there's no score, no pass mark, and nothing to revise for.</p>
     </div>
     <div class="formstamp">
-      <b>12 items</b> · 5 domains<br>
+      <b>12 questions</b><br>
       Ages 5 – adult<br>
-      Est. 15 – 25 min
+      About 15 – 25 min
     </div>
   </div>
 </header>
@@ -351,8 +351,8 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
 <nav class="rail noprint hidden" id="rail" aria-label="Assessment progress">
   <div class="wrap">
     <div class="rail-head">
-      <span id="railDomain">Domain 1 · Core number sense</span>
-      <span><b id="railCount">Item 1</b> of 12</span>
+      <span id="railDomain">How big numbers feel</span>
+      <span><b id="railCount">Question 1</b> of 12</span>
     </div>
     <div class="scale" id="scale"></div>
     <div class="bands" id="bands"></div>
@@ -361,41 +361,37 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
 
 <main class="wrap pad-top" id="stage">
 
-<!-- ============ INTAKE ============ -->
+<!-- ============ START ============ -->
 <section id="intake" class="stack">
   <div id="resumeBanner" class="resume hidden">
-    <span id="resumeText">An unfinished administration is saved on this device.</span>
+    <span id="resumeText">You started this before and didn't finish.</span>
     <span class="spacer"></span>
-    <button class="btn ghost" id="btnResume" type="button">Resume it</button>
-    <button class="btn quiet" id="btnDiscard" type="button">Discard</button>
+    <button class="btn ghost" id="btnResume" type="button">Carry on</button>
+    <button class="btn quiet" id="btnDiscard" type="button">Start fresh</button>
   </div>
 
   <div class="card">
-    <p class="eyebrow">Step 1 — Examinee record</p>
-    <h2 class="sec-title">Intake</h2>
-    <p class="lede">Item difficulty is banded from date of birth and grade placement, so both matter. Everything on this form is optional except date of birth <em>or</em> grade — but a fuller record makes the report more useful, and nothing entered here leaves this device unless you save or print it.</p>
+    <p class="eyebrow">Before you start</p>
+    <h2 class="sec-title">Tell us a bit about you</h2>
+    <p class="lede">Just three things, so the questions come out at about the right level. Nothing you type here leaves this device — it stays in this browser and is never sent anywhere.</p>
 
     <form id="intakeForm" autocomplete="off">
       <fieldset>
-        <legend>Identification</legend>
+        <legend>About you</legend>
         <div class="grid">
           <div class="field">
-            <label for="f_name">Examinee name or ID</label>
-            <input type="text" id="f_name" placeholder="e.g. J. Alvarez, or Case 2041">
+            <label for="f_name">What should we call you?</label>
+            <input type="text" id="f_name" placeholder="Your name or a nickname">
           </div>
           <div class="field">
-            <label for="f_dob">Date of birth</label>
+            <label for="f_dob">When is your birthday?</label>
             <input type="date" id="f_dob">
             <span class="agecalc" id="ageOut"></span>
           </div>
           <div class="field">
-            <label for="f_date">Date of assessment</label>
-            <input type="date" id="f_date">
-          </div>
-          <div class="field">
-            <label for="f_grade">Grade placement</label>
+            <label for="f_grade">What year or grade are you in?</label>
             <select id="f_grade">
-              <option value="">— select —</option>
+              <option value="">— pick one —</option>
               <option value="prek">Pre-K</option>
               <option value="k">Kindergarten</option>
               <option value="1">Grade 1</option><option value="2">Grade 2</option>
@@ -404,64 +400,24 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
               <option value="7">Grade 7</option><option value="8">Grade 8</option>
               <option value="9">Grade 9</option><option value="10">Grade 10</option>
               <option value="11">Grade 11</option><option value="12">Grade 12</option>
-              <option value="college">Post-secondary / college</option>
-              <option value="adult">Adult — not currently enrolled</option>
-              <option value="hsed">Adult — GED / HSE program</option>
+              <option value="college">College</option>
+              <option value="adult">I'm not in school right now</option>
             </select>
           </div>
-          <div class="field">
-            <label for="f_examiner">Examiner / proctor</label>
-            <input type="text" id="f_examiner" placeholder="Name and role">
-          </div>
-          <div class="field">
-            <label for="f_setting">Setting</label>
-            <input type="text" id="f_setting" placeholder="e.g. Resource room, teletherapy, home">
-          </div>
         </div>
+        <input type="hidden" id="f_date">
       </fieldset>
 
       <fieldset>
-        <legend>Background</legend>
-        <div class="grid two">
-          <div class="field">
-            <label for="f_lang">Primary language / language of instruction</label>
-            <input type="text" id="f_lang" placeholder="e.g. English; Spanish at home">
-          </div>
-          <div class="field">
-            <label for="f_math">Current math placement or curriculum</label>
-            <input type="text" id="f_math" placeholder="e.g. On-grade Algebra I; below-grade small group">
-          </div>
-          <div class="field span">
-            <label for="f_referral">Reason for referral — what prompted this probe?</label>
-            <textarea id="f_referral" placeholder="e.g. Persistently slow on timed fact drills; reverses digits when copying; avoids math homework; parent reports counting on fingers into middle school."></textarea>
-          </div>
-          <div class="field span">
-            <label for="f_hx">Relevant history — diagnoses, IEP / 504, services, prior testing</label>
-            <textarea id="f_hx" placeholder="e.g. ADHD dx 2023, unmedicated at time of testing; IEP for reading; no prior math evaluation."></textarea>
-          </div>
-          <div class="field span">
-            <label for="f_state">State at time of testing — vision / hearing / medication / fatigue / affect</label>
-            <textarea id="f_state" placeholder="e.g. Wears glasses, worn today. Tested after lunch. Visibly anxious when numbers appeared; asked twice if it was 'a test'."></textarea>
-          </div>
-        </div>
+        <legend>One more thing</legend>
+        <label class="check"><input type="checkbox" id="f_paper"><span>I have paper and a pencil next to me, in case I want them</span></label>
       </fieldset>
 
       <fieldset>
-        <legend>Administration conditions</legend>
-        <div class="grid two">
-          <label class="check"><input type="checkbox" id="f_paper"><span>Scratch paper is permitted (record its use per item — <em>that</em> is the datum, not whether it was allowed)</span></label>
-          <label class="check"><input type="checkbox" id="f_timer"><span>Show the running timer on screen (off by default — a visible clock changes behavior)</span></label>
-          <label class="check"><input type="checkbox" id="f_read"><span>Items will be read aloud to the examinee</span></label>
-          <label class="check"><input type="checkbox" id="f_calc"><span>Examinee ordinarily uses a calculator or fact chart in class</span></label>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Begin</legend>
+        <legend>Ready?</legend>
         <p class="err" id="intakeErr"></p>
         <div class="btnrow">
-          <button class="btn" id="btnStart" type="submit">Continue to protocol</button>
-          <span class="timer">Nothing is submitted anywhere — this runs entirely in your browser.</span>
+          <button class="btn" id="btnStart" type="submit">Next</button>
         </div>
       </fieldset>
     </form>
@@ -471,20 +427,21 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
 <!-- ============ BRIEFING ============ -->
 <section id="brief" class="stack hidden">
   <div class="card">
-    <p class="eyebrow">Step 2 — Before you begin</p>
-    <h2 class="sec-title">Administration protocol</h2>
+    <p class="eyebrow">How this works</p>
+    <h2 class="sec-title">Twelve questions, and no score at the end</h2>
     <p class="lede" id="briefBand"></p>
     <div class="grid two" style="margin-top:1.3rem">
-      <div class="domcard"><h4>One item at a time</h4><p>Twelve items across five domains. There is no going back — a revisited item is no longer a first-response measure.</p></div>
-      <div class="domcard"><h4>No feedback, ever</h4><p>The probe never says right or wrong, and neither should you. Correction mid-administration contaminates every item after it.</p></div>
-      <div class="domcard"><h4>Record the method, not just the answer</h4><p>After each response, mark <em>how</em> it was reached. A correct answer reached by counting on fingers at age fourteen is the finding.</p></div>
-      <div class="domcard"><h4>“I don't know” is data</h4><p>Accept it without prompting and move on. Do not encourage guessing, and do not wait out a long silence — record it and continue.</p></div>
-      <div class="domcard"><h4>Response latency runs automatically</h4><p>Timing starts when the item appears and stops on submit. Read items aloud promptly if you are reading; a slow read inflates the latency.</p></div>
-      <div class="domcard"><h4>Two items ask for written work</h4><p>On the procedural items, transcribe the intermediate steps as given. Where the algorithm breaks is more informative than whether it broke.</p></div>
+      <div class="domcard"><h4>You can't pass or fail this</h4><p>Nothing here goes on a report card. It's working out which bits of maths come easily to you and which bits are fiddly, so you get help with the right things.</p></div>
+      <div class="domcard"><h4>Some of it is meant to be too hard</h4><p>The questions get harder on purpose until they're harder than you can do. That's how it's built, so getting stuck doesn't mean anything has gone wrong.</p></div>
+      <div class="domcard"><h4>“I don't know” is a real answer</h4><p>There's a button for it. Using it tells us more than a guess does, and nobody minds.</p></div>
+      <div class="domcard"><h4>You won't be told right or wrong</h4><p>Not until the very end. That's deliberate — knowing would change how you did the next one.</p></div>
+      <div class="domcard"><h4>Answer first, then say how you did it</h4><p>Type your answer and press Enter. Then you'll get a couple of questions about <em>how</em> you worked it out. Take as long as you like on those — they're not timed.</p></div>
+      <div class="domcard"><h4>One at a time, and no going back</h4><p>Once you've answered, that one is done. Somewhere quiet helps, and try not to switch to another tab partway through a question.</p></div>
     </div>
+    <p class="lede" style="margin-top:1.2rem">If the reading is the hard part rather than the maths, it is completely fine to ask someone to read the questions out to you.</p>
     <div class="btnrow" style="margin-top:1.4rem">
-      <button class="btn" id="btnBegin" type="button">Present item 1</button>
-      <button class="btn quiet" id="btnBackIntake" type="button">Back to intake</button>
+      <button class="btn" id="btnBegin" type="button">Start question 1</button>
+      <button class="btn quiet" id="btnBackIntake" type="button">Go back</button>
     </div>
   </div>
 </section>
@@ -496,27 +453,47 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
       <span class="dom" id="itemDomain"></span>
       <span class="no" id="itemNo"></span>
     </div>
-    <p class="instruction" id="itemInstruction"></p>
-    <div id="itemStimulus"></div>
-    <div id="itemInput"></div>
-    <div class="strategy">
-      <span>How was this answer reached? <em>(required — mark what you observed)</em></span>
-      <div class="strat-opts" id="stratOpts"></div>
-    </div>
-    <details class="obs">
-      <summary>Examiner observation for this item</summary>
-      <div class="field" style="margin-top:.5rem">
-        <textarea id="itemObs" placeholder="e.g. Subvocalized while counting up. Re-read the problem three times. Wrote the numbers vertically before subtracting."></textarea>
+
+    <div id="stageAnswer">
+      <p class="instruction" id="itemInstruction"></p>
+      <div id="itemStimulus"></div>
+      <div id="itemInput"></div>
+      <p class="err" id="itemErr"></p>
+      <div class="btnrow" style="margin-top:1rem">
+        <button class="btn" id="btnSubmitItem" type="button">Answer</button>
+        <button class="btn ghost" id="btnDontKnow" type="button">I don't know this one</button>
       </div>
-    </details>
-    <p class="err" id="itemErr"></p>
-    <div class="btnrow" style="margin-top:1rem">
-      <button class="btn" id="btnSubmitItem" type="button">Record and continue</button>
-      <button class="btn ghost" id="btnDontKnow" type="button">Record “I don't know”</button>
-      <span class="spacer"></span>
-      <span class="timer" id="liveTimer"></span>
-      <button class="btn quiet" id="btnEndEarly" type="button">End and report</button>
     </div>
+
+    <div id="stageReflect" class="hidden">
+      <div class="feedback"><h4 id="reflectHead">Answer saved.</h4>
+        <p>You'll find out how you did at the end. Now a couple of questions about how you worked it out — there's no clock on these.</p></div>
+
+      <div class="strategy" id="stratBlock">
+        <span>How did you work that one out?</span>
+        <div class="strat-opts" id="stratOpts"></div>
+      </div>
+
+      <div class="strategy">
+        <span>Tick anything else that's true. Leave them blank if none of them are.</span>
+        <div class="strat-opts" id="flagOpts"></div>
+      </div>
+
+      <details class="obs" id="workBlock">
+        <summary>Did you write anything down? You can type it here</summary>
+        <div class="field" style="margin-top:.5rem">
+          <textarea id="workIn" placeholder="Only if you want to — this is optional, and it doesn't have to be neat."></textarea>
+        </div>
+      </details>
+
+      <p class="err" id="reflectErr"></p>
+      <div class="btnrow" style="margin-top:1rem">
+        <button class="btn" id="btnNextItem" type="button">Next question</button>
+        <span class="spacer"></span>
+        <button class="btn quiet" id="btnEndEarly" type="button">Stop here</button>
+      </div>
+    </div>
+    <div class="tally" id="itemMeta"></div>
   </div>
 </section>
 
@@ -603,8 +580,8 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
 <section id="report" class="hidden"></section>
 
 <footer class="page noprint">
-  Numeracy Diagnostic Probe · Form A · informal criterion-referenced probe — not a normed instrument and not a diagnosis.<br>
-  Item construction draws on principles from the Feifer Assessment of Mathematics, WIAT-4 Numerical Operations and Math Problem Solving, WJ-IV Math Facts Fluency, the Butterworth Dyscalculia Screener, and the WISC-V Figure Weights paradigm. It reproduces no published item.
+  Numeracy Diagnostic Probe · Form A · This is a practice-and-check tool, not a real test. It cannot diagnose anything, and nothing it says should be treated as a medical or educational decision on its own.<br>
+  Question design draws on principles from the Feifer Assessment of Mathematics, WIAT-4 Numerical Operations and Math Problem Solving, WJ-IV Math Facts Fluency, the Butterworth Dyscalculia Screener, and the WISC-V Figure Weights paradigm. It reproduces no published item.
 </footer>
 </main>
 
@@ -667,7 +644,7 @@ const ERRORS={
   UNIT_DIGIT_DOMINANCE:{c:"Conceptual — magnitude",t:"Ones digit judged as whole magnitude",d:"The number with the larger ones digit was selected even though it is the smaller quantity. Place value is not governing the magnitude judgement; the digits are being compared as separate symbols rather than as a composed number."},
   DECIMAL_LENGTH_BIAS:{c:"Conceptual — magnitude",t:"Longer decimal read as larger",d:"The decimal with more digits was chosen as larger — whole-number reasoning applied to decimal notation (0.65 treated as “sixty-five,” therefore bigger than 0.7)."},
   NEGATIVE_INVERSION:{c:"Conceptual — magnitude",t:"Negative magnitude inverted",d:"On the negative number line, absolute value was substituted for position: the number further from zero was judged larger."},
-  WHOLE_NUMBER_BIAS_DENOM:{c:"Conceptual — magnitude",t:"Fraction judged by its whole numbers",d:"The fraction built from the bigger whole numbers was chosen. The fraction is being processed as two independent counts rather than as one quantity — the most common fraction misconception, and a fair one to expect before formal instruction. Note that a two-alternative item cannot separate a denominator focus from a numerator focus, since both name the same choice; ask the examinee how they decided to tell which is operating."},
+  WHOLE_NUMBER_BIAS_DENOM:{c:"Conceptual — magnitude",t:"Fraction judged by its whole numbers",d:"The fraction built from the bigger whole numbers was chosen. The fraction is being processed as two independent counts rather than as one quantity — the most common fraction misconception, and a fair one to expect before formal instruction. Note that a two-alternative item cannot separate a denominator focus from a numerator focus, since both name the same choice; ask them how they decided if you want to tell which is operating."},
   MIDPOINT_NO_HALVING:{c:"Conceptual — number line",t:"Endpoints summed, not halved",d:"The two endpoints were added and the halving step was dropped — the procedure was started but not completed."},
   MIDPOINT_GAP:{c:"Conceptual — number line",t:"Distance reported instead of position",d:"The gap between the two numbers was given rather than the point between them. Interval and position are being conflated."},
   MIDPOINT_GAP_HALVED:{c:"Conceptual — number line",t:"Half the distance, not the midpoint",d:"The distance was correctly halved but never added back to the lower endpoint — the answer describes how far, not where."},
@@ -990,7 +967,7 @@ function gBalance3(band){
   const r2=balanceRow(shape("triangle"),"1 triangle",shapes("circle",c)+shapes("square",m),(c>1?c+" circles":"1 circle")+" + "+m+" square"+(m>1?"s":""));
   const r3=balanceRow(shape("hexagon"),"1 hexagon",shapes("triangle",h),h+" triangles");
   return {dom:4,task:"Three-relation equivalence chain",kind:"bal3",p:{k:k,c:c,m:m,h:h,tri:tri,ans:ans},
-    instruction:"All three scales are balanced. Work out the missing quantity — you may not write anything down for this one unless the examinee asks.",
+    instruction:"All three scales balance. Work out the missing number. Try to do this one in your head if you can.",
     stimText:"1 circle = "+k+" squares; 1 triangle = "+c+" circle(s) + "+m+" square(s); 1 hexagon = "+h+" triangles.",
     stimHTML:'<div class="scales">'+r1+r2+r3+'</div><p class="stim-word" style="margin-top:1rem"><span class="qn">How many squares balance one hexagon?</span></p>',
     input:{type:"number",placeholder:"number of squares"},answer:String(ans),answerText:ans+" squares",
@@ -1147,13 +1124,38 @@ const PLAN=[
 ];
 const AUTO_MS={1:6000,2:4500,3:3500,4:3000};
 const STRATS=[
-  {v:"instant",l:"Knew it instantly"},
-  {v:"reasoned",l:"Worked it out mentally"},
-  {v:"counted",l:"Counted — fingers, tally, or aloud"},
-  {v:"paper",l:"Used paper or a device"},
-  {v:"guess",l:"Guessed"},
-  {v:"unknown",l:"No response"}
+  {v:"instant",l:"I just knew it"},
+  {v:"reasoned",l:"I worked it out in my head"},
+  {v:"counted",l:"I counted on my fingers"},
+  {v:"paper",l:"I used paper"},
+  {v:"guess",l:"I guessed"},
+  {v:"unknown",l:"No answer given"}
 ];
+/* Self-report, in place of what someone watching would otherwise have written down.
+   Each flag is tied to a construct the probe already measures, so ticking one is
+   evidence rather than colour: re-reading points at comprehension load, losing your
+   place and juggling numbers at working memory, uncertainty at the estimate that
+   should have caught a wrong answer, and worry at the anxiety that consumes the same
+   working memory the arithmetic needs. `misclick` exists because clicking an option
+   commits the answer immediately. */
+const FLAGS=[
+  {v:"reread",l:"I had to read it more than once",c:"Comprehension load",
+   d:"Several passes were needed before the problem could be started, which points at the reading and translation demand rather than at the arithmetic."},
+  {v:"lostplace",l:"I lost my place partway through",c:"Working memory",
+   d:"Losing track mid-problem is the felt version of a working-memory drop: the steps were known, the place in them was not."},
+  {v:"holding",l:"It was hard to hold the numbers in my head",c:"Working memory",
+   d:"Difficulty holding intermediate values — exactly the load the balance items and multi-step problems are built to impose."},
+  {v:"unsure",l:"I wasn't sure my answer was right",c:"Monitoring",
+   d:"Uncertainty on an answer that was in fact correct suggests knowledge that is held but not trusted. On a wrong one it suggests the estimate that would have caught it was never formed."},
+  {v:"easy",l:"That felt easy",c:"Confidence",
+   d:"Reported ease, which is worth reading against accuracy: ease on a wrong answer means nothing flagged the error as it happened."},
+  {v:"worried",l:"I felt worried or rushed",c:"Affect",
+   d:"Anxiety draws on the same working memory the arithmetic needs, so it lowers performance directly rather than merely accompanying it."},
+  {v:"misclick",l:"I picked the wrong one by accident",c:"Invalid response",choiceOnly:true,
+   d:"Reported as a slip of the hand rather than a judgement, so the item should be read as unscored rather than incorrect."}
+];
+const FLAG_LABEL=Object.fromEntries(FLAGS.map(f=>[f.v,f.l]));
+const FLAG_DEF=Object.fromEntries(FLAGS.map(f=>[f.v,f]));
 const STRAT_LABEL=Object.fromEntries(STRATS.map(s=>[s.v,s.l]));
 
 /* ---------- worked solutions ----------
@@ -1383,20 +1385,17 @@ F("date").addEventListener("change",refreshAge);
 $("#intakeForm").addEventListener("submit",function(e){
   e.preventDefault();
   const a=refreshAge(), grade=F("grade").value;
-  if(!a&&!grade){$("#intakeErr").textContent="Enter a date of birth or a grade placement — item difficulty is banded from one or the other.";return;}
+  if(!a&&!grade){$("#intakeErr").textContent="Put in your birthday or your grade — that's how the questions get set to about the right level.";return;}
   $("#intakeErr").textContent="";
   S.age=a;
   S.ageBand=a?bandFromAge(a.y):null;
   S.band=grade?GRADE_BAND[grade]:S.ageBand;
-  S.intake={name:F("name").value.trim(),dob:F("dob").value,date:F("date").value||todayISO(),grade:grade,
-    examiner:F("examiner").value.trim(),setting:F("setting").value.trim(),lang:F("lang").value.trim(),
-    math:F("math").value.trim(),referral:F("referral").value.trim(),hx:F("hx").value.trim(),state:F("state").value.trim(),
-    paper:F("paper").checked,showTimer:F("timer").checked,readAloud:F("read").checked,usesCalc:F("calc").checked,
-    ageTxt:a?a.txt:"",ageY:a?a.y:null};
-  $("#briefBand").innerHTML="Items will be generated at the <strong>"+esc(BAND_NAME[S.band])+"</strong> band"+
-    (S.ageBand&&S.ageBand!==S.band?", set from grade placement. Chronological age implies the "+esc(BAND_NAME[S.ageBand])+" band instead — that discrepancy is noted in the report.":
-     ", and will adapt up or down within a domain as the examinee performs.")+
-    " Fact-retrieval items stay at single-digit difficulty for every band: automaticity is expected at all ages, so slow retrieval is the finding, not the item.";
+  S.intake={name:F("name").value.trim(),dob:F("dob").value,date:todayISO(),grade:grade,
+    paper:F("paper").checked,ageTxt:a?a.txt:"",ageY:a?a.y:null,selfAdministered:true};
+  $("#briefBand").innerHTML="The questions will start at about "+esc(BAND_NAME[S.band].toLowerCase())+
+    " level and get easier or harder as you go, depending on how you're doing."+
+    (S.ageBand&&S.ageBand!==S.band?" Your grade and your age point at slightly different levels, so we've gone with your grade.":"")+
+    " The quick number facts stay small on purpose, whatever your age — how <em>fast</em> those come is the thing being looked at, not how big the numbers are.";
   show("brief");
 });
 $("#btnBackIntake").addEventListener("click",()=>show("intake"));
@@ -1410,6 +1409,8 @@ function show(which){
 /* ---------- rail ---------- */
 const BANDS=[{d:1,s:0,n:3},{d:2,s:3,n:3},{d:3,s:6,n:2},{d:4,s:8,n:2},{d:5,s:10,n:2}];
 const SHORT={1:"Number sense",2:"Fact fluency",3:"Procedural",4:"Working memory",5:"Applied"};
+const ABOUT={1:"How big numbers feel",2:"Quick number facts",3:"Working things out on paper",
+             4:"Holding numbers in your head",5:"Maths hidden in words"};
 function drawRail(){
   const sc=$("#scale"); let h='<div class="scale-line"></div><div class="scale-fill" style="width:'+((S.idx/12)*100).toFixed(2)+'%"></div>';
   for(let i=0;i<12;i++){
@@ -1418,12 +1419,23 @@ function drawRail(){
   }
   sc.innerHTML=h;
   $("#bands").innerHTML=BANDS.map(b=>'<span class="band" style="left:'+((b.s/12)*100).toFixed(3)+'%;width:'+((b.n/12)*100).toFixed(3)+'%">'+SHORT[b.d]+'</span>').join("");
-  $("#railCount").textContent="Item "+Math.min(S.idx+1,12);
+  $("#railCount").textContent="Question "+Math.min(S.idx+1,12);
   const d=S.plan[Math.min(S.idx,11)].dom;
-  $("#railDomain").textContent="Domain "+d+" · "+D[d];
+  $("#railDomain").textContent=ABOUT[d];
 }
 
-/* ---------- runner ---------- */
+/* ---------- runner ----------
+   Timing covers ONE interval: the item appearing, to the answer being committed.
+   Everything after that -- saying how it was worked out, ticking what applies, typing
+   any written work -- happens in a second, untimed stage. Including that in the clock
+   swamped the measurement: choosing a strategy chip alone costs a second or two,
+   against a fact-automaticity threshold of three.
+
+   Two clocks are kept. `latency` is the whole interval; `think` stops at the first
+   keystroke or option click and so excludes typing, which is motor speed rather than
+   arithmetic. Fact automaticity is judged on `think`. Time with the tab hidden is
+   subtracted from both and the item flagged, since a page left open on the kitchen
+   table would otherwise record a twenty-minute retrieval. */
 function bandFor(dom){
   const prior=S.items.filter(x=>x.dom===dom);
   let off=0;
@@ -1436,6 +1448,24 @@ function bandFor(dom){
   }
   return clampBand(S.band+off);
 }
+const CLK={t0:0,first:null,hidden:0,hiddenAt:null,interrupted:false,stopped:null};
+function clockStart(){
+  CLK.t0=performance.now(); CLK.first=null; CLK.hidden=0;
+  CLK.hiddenAt=document.hidden?performance.now():null;
+  CLK.interrupted=!!document.hidden; CLK.stopped=null;
+}
+function clockFirstInput(){
+  if(CLK.first===null&&CLK.stopped===null)CLK.first=Math.round(performance.now()-CLK.t0-CLK.hidden);
+}
+function clockStop(){
+  if(CLK.stopped===null)CLK.stopped=Math.round(performance.now()-CLK.t0-CLK.hidden);
+  return CLK.stopped;
+}
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden){CLK.hiddenAt=performance.now();}
+  else if(CLK.hiddenAt!==null){CLK.hidden+=performance.now()-CLK.hiddenAt;CLK.hiddenAt=null;CLK.interrupted=true;}
+});
+
 function startSession(){
   S.plan=PLAN.slice();
   S.plan[7]={g:Math.random()<0.5?gLongMul:gDivide,dom:3};
@@ -1449,69 +1479,101 @@ function nextItem(){
   drawRail();
   const spec=S.plan[S.idx];
   const it=spec.g(bandFor(spec.dom));
-  S.cur=it; S.answer=null; S.strategy=null;
-  $("#itemDomain").textContent="Domain "+it.dom+" · "+it.task;
-  $("#itemNo").textContent="Item "+(S.idx+1)+" of 12";
+  S.cur=it; S.answer=null; S.pending=null;
+  $("#itemDomain").textContent=ABOUT[it.dom];
+  $("#itemNo").textContent="Question "+(S.idx+1)+" of 12";
   $("#itemInstruction").textContent=it.instruction;
   $("#itemStimulus").innerHTML=it.stimHTML?'<div class="stim">'+it.stimHTML+'</div>':
     (it.input.type==="choice"?"":'<div class="stim"><div class="stim-num">'+esc(it.stimText)+'</div></div>');
-  let ih="";
-  if(it.input.type==="choice"){
-    ih='<div class="choices" role="group" aria-label="Choose one">'+
-      it.input.choices.map(c=>'<button type="button" class="opt" data-v="'+esc(c.v)+'" aria-pressed="false">'+esc(c.label)+'</button>').join("")+'</div>';
-  }else{
-    ih='<div class="answerline"><div class="field"><label for="ansIn">Response as given</label>'+
-      '<input type="text" id="ansIn" class="bigans" inputmode="'+(it.input.type==="number"?"decimal":"text")+'" autocomplete="off" placeholder="'+esc(it.input.placeholder||"")+'"></div></div>';
+  $("#itemInput").innerHTML=it.input.type==="choice"
+    ? '<div class="choices" role="group" aria-label="Choose one">'+
+      it.input.choices.map(function(c){return '<button type="button" class="opt" data-v="'+esc(c.v)+'">'+esc(c.label)+'</button>';}).join("")+'</div>'
+    : '<div class="answerline"><div class="field"><label for="ansIn">Your answer</label>'+
+      '<input type="text" id="ansIn" class="bigans" inputmode="'+(it.input.type==="number"?"decimal":"text")+
+      '" autocomplete="off" placeholder="'+esc(it.input.placeholder||"")+'"></div></div>';
+  $("#itemErr").textContent=""; $("#reflectErr").textContent="";
+  $("#stageAnswer").classList.remove("hidden");
+  $("#stageReflect").classList.add("hidden");
+  $("#btnSubmitItem").classList.toggle("hidden",it.input.type==="choice");
+  $("#workBlock").classList.toggle("hidden",!it.input.work);
+  $("#workIn").value="";
+  $("#itemMeta").innerHTML="";
+
+  const ai=$("#ansIn");
+  if(ai){
+    ai.focus();
+    ai.addEventListener("input",clockFirstInput);
+    ai.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();commitAnswer(false);}});
   }
-  if(it.input.work){
-    ih+='<div class="field" style="margin-bottom:1rem"><label for="workIn">'+esc(it.input.work)+'</label>'+
-        '<textarea id="workIn" placeholder="Transcribe the written work, including crossings-out and the order things were written."></textarea></div>';
-  }
-  $("#itemInput").innerHTML=ih;
-  $("#stratOpts").innerHTML=STRATS.filter(s=>s.v!=="unknown").map(s=>
-    '<button type="button" class="strat" data-s="'+s.v+'" aria-pressed="false">'+esc(s.l)+'</button>').join("");
-  $("#itemObs").value=""; $("#itemErr").textContent="";
-  const ai=$("#ansIn"); if(ai){ai.focus(); ai.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();submitItem(false);}});}
-  $("#itemInput").querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{
-    $("#itemInput").querySelectorAll(".opt").forEach(o=>o.setAttribute("aria-pressed","false"));
-    b.setAttribute("aria-pressed","true"); S.answer=b.dataset.v;}));
-  $("#stratOpts").querySelectorAll(".strat").forEach(b=>b.addEventListener("click",()=>{
-    $("#stratOpts").querySelectorAll(".strat").forEach(o=>o.setAttribute("aria-pressed","false"));
-    b.setAttribute("aria-pressed","true"); S.strategy=b.dataset.s;}));
-  S.t0=performance.now();
-  if(S.tick)clearInterval(S.tick);
-  if(S.intake.showTimer){
-    const tl=$("#liveTimer");
-    S.tick=setInterval(()=>{tl.textContent=((performance.now()-S.t0)/1000).toFixed(1)+" s";},100);
-  }else{$("#liveTimer").textContent="";}
+  /* A click on an option IS the response, so it commits and stops the clock there
+     rather than asking for a second confirming click that would add motor time to
+     every comparison item. A misclick is recoverable through the tick-box after. */
+  $("#itemInput").querySelectorAll(".opt").forEach(function(b){
+    b.addEventListener("click",function(){
+      if(CLK.stopped!==null)return;
+      clockFirstInput();
+      $("#itemInput").querySelectorAll(".opt").forEach(function(o){o.setAttribute("aria-pressed","false");});
+      b.setAttribute("aria-pressed","true");
+      S.answer=b.dataset.v;
+      commitAnswer(false);
+    });
+  });
+  clockStart();
 }
 function currentAnswer(){
   const ai=$("#ansIn"); return ai?ai.value.trim():S.answer;
 }
-function submitItem(dontKnow){
-  const it=S.cur, lat=Math.round(performance.now()-S.t0);
+function commitAnswer(dontKnow){
+  const it=S.cur;
   const raw=dontKnow?"":currentAnswer();
-  if(!dontKnow){
-    if(raw===null||raw===""){$("#itemErr").textContent="Enter the response as it was given, or record “I don't know”.";return;}
-    if(!S.strategy){$("#itemErr").textContent="Mark how the answer was reached before continuing.";return;}
+  if(!dontKnow&&(raw===null||raw===undefined||raw==="")){
+    $("#itemErr").textContent="Put in an answer, or press “I don't know this one”.";return;
   }
+  const lat=clockStop();
   const res=dontKnow?{correct:false,code:"UNSCORED"}:scoreItem(it,raw);
-  S.items.push({n:S.idx+1,dom:it.dom,task:it.task,stim:it.stimText,expected:it.answerText,
-    given:dontKnow?"—":String(raw),latency:lat,strategy:dontKnow?"unknown":S.strategy,
-    obs:$("#itemObs").value.trim(),work:($("#workIn")?$("#workIn").value.trim():""),
-    correct:res.correct,code:res.code,band:bandFor(it.dom)});
-  S.idx++; save();
-  if(S.tick)clearInterval(S.tick);
+  S.pending={n:S.idx+1,dom:it.dom,task:it.task,stim:it.stimText,expected:it.answerText,
+    given:dontKnow?"—":String(raw),latency:lat,think:CLK.first===null?lat:CLK.first,
+    interrupted:CLK.interrupted,strategy:dontKnow?"unknown":null,flags:[],
+    work:"",correct:res.correct,code:res.code,band:bandFor(it.dom)};
+  $("#stageAnswer").classList.add("hidden");
+  $("#stageReflect").classList.remove("hidden");
+  $("#reflectHead").textContent=dontKnow?"That's fine — noted.":"Answer saved.";
+  $("#stratBlock").classList.toggle("hidden",dontKnow);
+  $("#stratOpts").innerHTML=STRATS.filter(function(x){return x.v!=="unknown";}).map(function(x){
+    return '<button type="button" class="strat" data-s="'+x.v+'" aria-pressed="false">'+esc(x.l)+'</button>';}).join("");
+  $("#stratOpts").querySelectorAll(".strat").forEach(function(b){
+    b.addEventListener("click",function(){
+      $("#stratOpts").querySelectorAll(".strat").forEach(function(o){o.setAttribute("aria-pressed","false");});
+      b.setAttribute("aria-pressed","true"); S.pending.strategy=b.dataset.s;});
+  });
+  $("#flagOpts").innerHTML=FLAGS.filter(function(f){return !f.choiceOnly||it.input.type==="choice";}).map(function(f){
+    return '<button type="button" class="strat" data-f="'+f.v+'" aria-pressed="false">'+esc(f.l)+'</button>';}).join("");
+  $("#flagOpts").querySelectorAll(".strat").forEach(function(b){
+    b.addEventListener("click",function(){
+      b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")==="true"?"false":"true");
+      S.pending.flags=[].slice.call($("#flagOpts").querySelectorAll('[aria-pressed="true"]')).map(function(x){return x.dataset.f;});});
+  });
+  $("#itemMeta").innerHTML='<span>Took <b>'+secs(lat)+'</b></span>'+
+    (CLK.interrupted?'<span style="color:var(--ochre)">tab was hidden partway — timing adjusted for it</span>':"");
+  const firstStrat=$("#stratOpts").querySelector(".strat");
+  (dontKnow||!firstStrat?$("#btnNextItem"):firstStrat).focus();
+}
+function recordItem(){
+  const P=S.pending;
+  if(!P)return;
+  if(P.strategy===null){$("#reflectErr").textContent="Pick one of the buttons above to say how you worked it out.";return;}
+  P.work=$("#workIn")?$("#workIn").value.trim():"";
+  S.items.push(P); S.pending=null; S.idx++; save();
   nextItem();
 }
-$("#btnSubmitItem").addEventListener("click",()=>submitItem(false));
-$("#btnDontKnow").addEventListener("click",()=>submitItem(true));
+$("#btnSubmitItem").addEventListener("click",function(){commitAnswer(false);});
+$("#btnDontKnow").addEventListener("click",function(){commitAnswer(true);});
+$("#btnNextItem").addEventListener("click",recordItem);
 $("#btnEndEarly").addEventListener("click",function(){
-  if(S.items.length<2){$("#itemErr").textContent="Record at least two items before generating a report.";return;}
-  if(confirm("End the administration here? The report will cover the "+S.items.length+" items completed so far."))finish();
+  if(S.items.length<2){$("#reflectErr").textContent="Have a go at a couple more first — that isn't enough to say anything useful yet.";return;}
+  if(confirm("Stop here? You've done "+S.items.length+" of 12. You'll still get your results, based on what you've finished."))finish();
 });
 function finish(){
-  if(S.tick)clearInterval(S.tick);
   S.endedAt=Date.now(); save(); archive();
   renderReport(); show("report");
 }
@@ -1534,10 +1596,13 @@ function analyze(ctx){
       max:lats[lats.length-1],
       instant:cnt("instant"),reasoned:cnt("reasoned"),counted:cnt("counted"),
       paper:cnt("paper"),guess:cnt("guess"),dk:cnt("unknown"),
-      auto:it.filter(x=>x.correct&&x.strategy==="instant"&&x.latency<=AUTO_MS[BAND]).length,
+      auto:it.filter(x=>x.correct&&x.strategy==="instant"&&(x.think==null?x.latency:x.think)<=AUTO_MS[BAND]).length,
+      medThink:it.map(x=>x.think==null?x.latency:x.think).sort((a,b)=>a-b)[Math.floor(it.length/2)],
       codes:it.filter(x=>x.code).map(x=>x.code)};
   });
   const codes={}; all.forEach(x=>{if(x.code)codes[x.code]=(codes[x.code]||0)+1;});
+  const flags={}; all.forEach(x=>(x.flags||[]).forEach(f=>{(flags[f]=flags[f]||[]).push(x.n);}));
+  const interrupted=all.filter(x=>x.interrupted).map(x=>x.n);
   const has=(...c)=>c.some(k=>codes[k]);
   const nOf=(...c)=>c.reduce((s,k)=>s+(codes[k]||0),0);
 
@@ -1578,10 +1643,14 @@ function analyze(ctx){
   P.counting=all.filter(x=>x.strategy==="counted").length>=3;
   P.intact=present.every(d=>st[d].s==="ok");
   P.withheld=all.filter(x=>x.strategy==="unknown").length>=3;
+  P.anxious=(flags.worried||[]).length>=2;
+  P.wmReported=((flags.lostplace||[]).length+(flags.holding||[]).length)>=2;
+  P.readingLoad=(flags.reread||[]).length>=2;
+  P.miscalibrated=all.filter(x=>!x.correct&&(x.flags||[]).indexOf("easy")>=0).length>=1;
   P.flags=present.filter(d=>st[d].s==="flag").length;
 
   const totalMs=(C.endedAt||Date.now())-(C.startedAt||Date.now());
-  return {dom:dom,st:st,codes:codes,has:has,nOf:nOf,present:present,bottleneck:bottleneck,strongest:strongest,
+  return {dom:dom,st:st,codes:codes,flags:flags,interrupted:interrupted,has:has,nOf:nOf,present:present,bottleneck:bottleneck,strongest:strongest,
           P:P,items:all,totalMs:totalMs,
           accAll:all.filter(x=>x.correct).length/all.length,
           medAll:all.map(x=>x.latency).sort((a,b)=>a-b)[Math.floor(all.length/2)]};
@@ -1589,7 +1658,7 @@ function analyze(ctx){
 
 /* ---------- executive summary prose ---------- */
 function summaryProse(A){
-  const who=S.intake.name?S.intake.name:"The examinee", n=A.items.length;
+  const who=S.intake.name?S.intake.name:"This learner", n=A.items.length;
   const p=[];
   let a="Across "+n+" dynamically generated items spanning five domains, "+who+" answered "+
     A.items.filter(x=>x.correct).length+" correctly ("+pct(A.accAll)+"), with a median response latency of "+secs(A.medAll)+
@@ -1631,10 +1700,13 @@ function summaryProse(A){
   if(c)p.push(c);
 
   const tail=[];
+  if(A.P.wmReported)tail.push("losing their place or struggling to hold the numbers was reported on "+((A.flags.lostplace||[]).length+(A.flags.holding||[]).length)+" questions, which is the felt version of the working-memory load the item data points at independently");
+  if(A.P.readingLoad)tail.push("needing to read the question more than once was reported on "+(A.flags.reread||[]).length+" questions, pointing at comprehension load rather than arithmetic");
   if(A.P.counting)tail.push("counting strategies persisted on "+A.items.filter(x=>x.strategy==="counted").length+" items, well past the age at which they should have been replaced by retrieval");
   if(A.P.spatial)tail.push("place-value and alignment errors appeared in the written algorithms, pointing to a spatial rather than conceptual failure");
-  if(A.P.withheld)tail.push("“I don't know” was recorded on "+A.items.filter(x=>x.strategy==="unknown").length+" items, which may reflect genuine absence of knowledge or a decision not to risk being wrong — worth distinguishing directly with the examinee");
-  if(S.intake.usesCalc&&A.st[2]&&A.st[2].s!=="ok")tail.push("the examinee already relies on a calculator or fact chart in class, which is consistent with what the fluency items showed and argues for formalising that support rather than withdrawing it");
+  if(A.P.withheld)tail.push("“I don't know” was chosen on "+A.items.filter(x=>x.strategy==="unknown").length+" items, which may reflect genuine absence of knowledge or a decision not to risk being wrong — worth asking about directly, since the two call for opposite responses");
+  if(A.P.anxious)tail.push("feeling worried or rushed was reported on "+(A.flags.worried||[]).length+" questions, and anxiety draws on the same working memory the arithmetic needs, so it lowers these scores directly rather than merely accompanying them");
+  if(A.P.miscalibrated)tail.push("at least one wrong answer was reported as having felt easy, meaning nothing flagged the error as it was made — the estimate that should catch an implausible result is not running");
   if(tail.length)p.push("Three secondary observations bear on planning: "+tail.slice(0,3).join("; ")+".");
   if(A.P.flags>=2||A.P.magnitude){
     p.push("Given "+(A.P.flags>=2?"weakness across more than one domain":"involvement of core magnitude processing")+
@@ -1658,7 +1730,7 @@ function domainNarrative(A,d){
   }
   if(d===2){
     const ar=Math.round((o.auto/o.n)*100);
-    return "Of "+o.n+" fact items, "+o.correct+" were answered correctly and "+o.auto+" met the automaticity criterion — immediate recall within "+(AUTO_MS[S.band]/1000)+" seconds — giving an automaticity rate of "+ar+"%. Median latency was "+secs(o.med)+
+    return "Of "+o.n+" fact items, "+o.correct+" were answered correctly and "+o.auto+" met the automaticity criterion — reported as instantly known, and reached within "+(AUTO_MS[S.band]/1000)+" seconds of the question appearing — giving an automaticity rate of "+ar+"%. That criterion is measured to the first key pressed, so it excludes typing speed. Median time to first key was "+secs(o.medThink)+", and median time to a committed answer "+secs(o.med)+
       (o.counted?", and counting was observed on "+o.counted+" item"+(o.counted>1?"s":"")+".":".")+
       (s.s==="ok"?" Facts are stored and retrievable; this domain needs maintenance, not intervention.":
        o.acc>=0.6?" The distinction that matters here is between knowing and retrieving: the answers were largely available, but they were reconstructed rather than recalled. Every reconstruction consumes the working memory that the surrounding procedure also needs, which is why fluency weakness surfaces as procedural error further downstream.":
@@ -1736,6 +1808,12 @@ const SCAFFOLDS=[
  {tag:"Word problems",t:"Bar models and problem-type schemas",
   b:"Teach the small set of underlying structures — change, part-part-whole, comparison, and equal groups — and have the learner name the type before choosing an operation. Bar-model diagrams make the structure visible and turn operation choice into a consequence of the diagram rather than a guess prompted by a keyword.",
   when:A=>A.nOf("OPERATION_SELECTION")>0||(A.st[5]&&A.st[5].s!=="ok")},
+ {tag:"Anxiety",t:"Take the pressure out before adding anything else",
+  b:"Where feeling worried or rushed is reported repeatedly, that is not background colour: anxiety occupies the same working memory the arithmetic needs, so it lowers performance directly and will cap the gains from any other scaffold here. Deal with it first — untimed work, no public or competitive drills, an explicit “I don't know” option always available, and praise for the strategy used rather than for the answer produced.",
+  when:A=>A.P.anxious},
+ {tag:"Self-monitoring",t:"Build the habit of checking whether an answer looks right",
+  b:"An answer that was wrong but felt easy means nothing raised a flag while it was being made. Before any correction, get the estimate running: say roughly what the answer should be, write it down, then compare afterwards. The aim is not accuracy but doubt in the right places — noticing that something looks off is the skill that makes every other error self-correctable.",
+  when:A=>A.P.miscalibrated},
  {tag:"Estimation",t:"Make an estimate before every calculation",
   b:"Where an answer lands far outside the possible range, the missing step is the estimate that would have caught it. Build the habit as a routine with two parts: before calculating, say roughly what the answer should be and write it down; after calculating, compare. “About 200” next to a computed 999 is a self-correction the learner makes without being told. Rounding practice on its own does not transfer — the estimate has to sit beside the real work and be checked against it.",
   when:A=>A.nOf("MAGNITUDE_IMPLAUSIBLE")>0},
@@ -1774,30 +1852,37 @@ function renderReport(){
      '<h2>Qualitative Diagnostic Profile</h2>'+
      '<p class="sub">Informal, criterion-referenced probe of numerical processing across five cognitive domains. Items were generated dynamically for this administration and are not reused.</p>'+
      '<dl class="recordgrid" style="margin:1.4rem 0 0">'+
-     rec("Examinee",I.name)+rec("Date of birth",I.dob)+rec("Age at testing",I.ageTxt)+
-     rec("Grade placement",gradeLabel(I.grade))+rec("Difficulty band",BAND_NAME[S.band])+
-     rec("Date of assessment",I.date)+rec("Examiner",I.examiner)+rec("Setting",I.setting)+
+     rec("Name",I.name)+rec("Date of birth",I.dob)+rec("Age",I.ageTxt)+
+     rec("Grade",gradeLabel(I.grade))+rec("Difficulty band",BAND_NAME[S.band])+
+     rec("Date",I.date)+rec("How it was taken",I.selfAdministered?"On their own":"Not recorded")+
      rec("Items administered",A.items.length+" of 12")+rec("Duration",dur+" min")+
      rec("Overall accuracy",pct(A.accAll))+rec("Median latency",secs(A.medAll))+
      '</dl></div><div class="rpt-body">';
 
-  /* narrative context */
-  if(I.referral||I.hx||I.state||I.lang||I.math){
-    h+='<section class="rpt-sec"><h3><span class="n">00</span> Referral context</h3>';
-    if(I.referral)h+='<p><strong>Reason for referral.</strong> '+esc(I.referral)+'</p>';
-    if(I.hx)h+='<p><strong>Relevant history.</strong> '+esc(I.hx)+'</p>';
-    if(I.math)h+='<p><strong>Current placement.</strong> '+esc(I.math)+'</p>';
-    if(I.lang)h+='<p><strong>Language.</strong> '+esc(I.lang)+'</p>';
-    if(I.state)h+='<p><strong>State at testing.</strong> '+esc(I.state)+'</p>';
-    const cond=[];
-    if(I.paper)cond.push("scratch paper permitted");else cond.push("no scratch paper");
-    if(I.readAloud)cond.push("items read aloud");
-    if(I.showTimer)cond.push("timer visible to examinee");
-    if(I.usesCalc)cond.push("uses calculator or fact chart in class");
-    h+='<p><strong>Conditions.</strong> '+esc(cond.join("; "))+'.'+
-       (S.ageBand&&S.ageBand!==S.band?" Item difficulty was set from grade placement ("+esc(BAND_NAME[S.band])+"); chronological age implies the "+esc(BAND_NAME[S.ageBand])+" band. Interpret accuracy against the band actually administered.":"")+'</p></section>';
+  /* what they told us about themselves */
+  const flagKeys=Object.keys(A.flags||{}).filter(function(k){return k!=="misclick";});
+  if(flagKeys.length||A.interrupted.length||I.paper){
+    h+='<section class="rpt-sec"><h3><span class="n">00</span> What they said about it</h3>'+
+       '<p>These are the boxes ticked after answering, in their own words rather than an observer\'s. Self-report from a child is not a measurement, but it is the only direct evidence of what the work felt like from the inside, and where it lines up with the item data it carries real weight.</p>';
+    if(flagKeys.length){
+      h+='<div class="tablewrap"><table><thead><tr><th>They said</th><th class="num">Questions</th><th>What it points at</th></tr></thead><tbody>';
+      flagKeys.sort(function(x,y){return A.flags[y].length-A.flags[x].length;}).forEach(function(k){
+        const f=FLAG_DEF[k]; if(!f)return;
+        h+='<tr><td><strong>'+esc(f.l)+'</strong></td><td class="num">'+A.flags[k].join(", ")+
+           ' <span style="color:var(--ink-faint)">('+A.flags[k].length+')</span></td><td>'+esc(f.d)+'</td></tr>';
+      });
+      h+='</tbody></table></div>';
+    }
+    if((A.flags.misclick||[]).length)
+      h+='<p><strong>Reported mis-clicks.</strong> Question'+(A.flags.misclick.length>1?"s":"")+' '+A.flags.misclick.join(", ")+
+         ' '+(A.flags.misclick.length>1?"were":"was")+' marked as picked by accident. Read '+(A.flags.misclick.length>1?"those":"that")+' as unscored rather than wrong.</p>';
+    if(A.interrupted.length)
+      h+='<p><strong>Interrupted.</strong> The tab was hidden partway through question'+(A.interrupted.length>1?"s":"")+' '+A.interrupted.join(", ")+
+         '. That time is subtracted from the recorded latency, but attention may have moved away and back, so treat those timings as soft.</p>';
+    h+='<p><strong>Conditions.</strong> Taken independently, without anyone administering it. '+
+       (I.paper?"Paper and pencil were to hand.":"No paper or pencil was to hand, which loads working memory beyond what the written items themselves demand.")+
+       ' No background information was collected — no history, no current placement, nothing about how the day was going — so anything of that sort has to come from whoever knows them.</p></section>';
   }
-
   /* exec summary */
   h+='<section class="rpt-sec"><h3><span class="n">01</span> Executive summary</h3>'+
      summaryProse(A).map(p=>'<p>'+p+'</p>').join("")+'</section>';
@@ -1836,18 +1921,19 @@ function renderReport(){
 
   /* item record */
   h+='<section class="rpt-sec"><h3><span class="n">04</span> Item record</h3><div class="tablewrap"><table>'+
-     '<thead><tr><th class="num">#</th><th class="num">Dom</th><th>Item as presented</th><th>Expected</th><th>Given</th><th class="num">Latency</th><th>Method</th><th class="num">Score</th><th>Error signature</th></tr></thead><tbody>';
+     '<thead><tr><th class="num">#</th><th class="num">Dom</th><th>Item as presented</th><th>Expected</th><th>Given</th><th class="num">Answer time</th><th class="num">To first key</th><th>How</th><th class="num">Score</th><th>Error signature</th></tr></thead><tbody>';
   A.items.forEach(x=>{
     h+='<tr><td class="num">'+x.n+'</td><td class="num">'+x.dom+'</td>'+
        '<td class="mono">'+esc(x.stim)+'</td><td class="mono">'+esc(x.expected)+'</td>'+
-       '<td class="mono">'+esc(x.given)+'</td><td class="num">'+secs(x.latency)+'</td>'+
+       '<td class="mono">'+esc(x.given)+'</td><td class="num">'+secs(x.latency)+(x.interrupted?' <span style="color:var(--ochre)" title="tab hidden partway">!</span>':"")+'</td>'+
+       '<td class="num">'+(x.think==null?"—":secs(x.think))+'</td>'+
        '<td>'+esc(STRAT_LABEL[x.strategy]||x.strategy)+'</td>'+
        '<td class="num '+(x.correct?"mark-y":x.strategy==="unknown"?"mark-d":"mark-n")+'">'+(x.correct?"✓":x.strategy==="unknown"?"—":"✗")+'</td>'+
        '<td>'+(x.code?esc(ERRORS[x.code]?ERRORS[x.code].t:x.code):"")+'</td></tr>';
-    if(x.work||x.obs){
-      h+='<tr><td></td><td></td><td colspan="7" style="color:var(--ink-soft);font-size:.78rem;padding-top:0">'+
-        (x.work?'<strong>Work shown:</strong> <span class="mono">'+esc(x.work)+'</span><br>':"")+
-        (x.obs?'<strong>Observed:</strong> '+esc(x.obs):"")+'</td></tr>';
+    if(x.work||(x.flags||[]).length){
+      h+='<tr><td></td><td></td><td colspan="8" style="color:var(--ink-soft);font-size:.78rem;padding-top:0">'+
+        (x.work?'<strong>Wrote down:</strong> <span class="mono">'+esc(x.work)+'</span><br>':"")+
+        ((x.flags||[]).length?'<strong>Said:</strong> '+esc(x.flags.map(function(f){return FLAG_LABEL[f]||f;}).join("; ")):"")+'</td></tr>';
     }
   });
   h+='</tbody></table></div></section>';
@@ -1917,19 +2003,18 @@ function textReport(A){
   L.push("NUMERACY DIAGNOSTIC PROBE — FORM A");
   L.push("Qualitative diagnostic profile");
   L.push(rule);
-  L.push("Examinee:            "+(I.name||"—"));
-  L.push("Date of birth:       "+(I.dob||"—")+"   Age at testing: "+(I.ageTxt||"—"));
-  L.push("Grade placement:     "+gradeLabel(I.grade));
+  L.push("Name:                "+(I.name||"—"));
+  L.push("Date of birth:       "+(I.dob||"—")+"   Age: "+(I.ageTxt||"—"));
+  L.push("Grade:               "+gradeLabel(I.grade));
   L.push("Difficulty band:     "+BAND_NAME[S.band]);
-  L.push("Date of assessment:  "+(I.date||"—"));
-  L.push("Examiner:            "+(I.examiner||"—"));
-  L.push("Setting:             "+(I.setting||"—"));
+  L.push("Date:                "+(I.date||"—"));
+  L.push("How taken:           "+(I.selfAdministered?"Independently, unsupervised":"Not recorded"));
   L.push("Items / duration:    "+A.items.length+" of 12 · "+Math.max(1,Math.round(A.totalMs/60000))+" min");
   L.push("Overall accuracy:    "+pct(A.accAll)+"   Median latency: "+secs(A.medAll));
   L.push("");
-  if(I.referral){L.push("REFERRAL: "+I.referral);}
-  if(I.hx){L.push("HISTORY: "+I.hx);}
-  if(I.state){L.push("STATE AT TESTING: "+I.state);}
+  const fk=Object.keys(A.flags||{});
+  if(fk.length){L.push("WHAT THEY SAID:");fk.forEach(function(k){
+    if(FLAG_DEF[k])L.push("  - "+FLAG_DEF[k].l+" (q "+A.flags[k].join(", ")+")");});L.push("");}
   L.push("");L.push("1. EXECUTIVE SUMMARY");L.push(rule);
   summaryProse(A).forEach(p=>{L.push(p.replace(/<[^>]+>/g,""));L.push("");});
   L.push("2. PERFORMANCE AT A GLANCE");L.push(rule);
@@ -1960,7 +2045,7 @@ function textReport(A){
 }
 function standaloneHTML(){
   return standaloneDoc($("#reportDoc").outerHTML,
-    "Numeracy Probe — "+(S.intake.name||"examinee")+" — "+S.intake.date);
+    "Numeracy Probe — "+(S.intake.name||"learner")+" — "+S.intake.date);
 }
 function standaloneDoc(doc,title){
   const css='body{font-family:Georgia,"Times New Roman",serif;color:#111;background:#fff;max-width:52rem;margin:2rem auto;padding:0 1.2rem;line-height:1.55}'+
@@ -1991,7 +2076,7 @@ function standaloneDoc(doc,title){
     '<title>'+esc(String(title).replace(/[^A-Za-z0-9 —_.-]/g,""))+'</title><style>'+css+'</style></head><body>'+doc+'</body></html>';
 }
 function fileStem(){
-  const nm=(S.intake.name||"examinee").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"examinee";
+  const nm=(S.intake.name||"learner").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"learner";
   return "numeracy-probe-"+nm+"-"+(S.intake.date||todayISO());
 }
 
@@ -2006,6 +2091,10 @@ function archive(){
   const h=history();
   const rec={id:S.archivedId||("a"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
     savedAt:Date.now(),intake:S.intake,band:S.band,ageBand:S.ageBand,
+    /* 1 = the clock ran until the whole item form was submitted, so latencies include
+       strategy selection and note-taking. 2 = the clock stops at the answer. The two
+       are not comparable, and the comparison view refuses to read latency across them. */
+    timing:2,
     items:S.items,startedAt:S.startedAt,endedAt:S.endedAt};
   S.archivedId=rec.id;
   const at=h.findIndex(function(x){return x.id===rec.id;});
@@ -2199,7 +2288,7 @@ function renderHistory(){
   box.innerHTML=h.map(function(r,i){
     const A=analyze({items:r.items,band:r.band,startedAt:r.startedAt,endedAt:r.endedAt});
     return '<label class="histrow"><input type="checkbox" data-id="'+esc(r.id)+'"'+(i<2?" checked":"")+'>'+
-      '<span class="who"><b>'+esc(r.intake.name||"Unnamed examinee")+'</b>'+
+      '<span class="who"><b>'+esc(r.intake.name||"Unnamed")+'</b>'+
       '<span>'+esc(r.intake.date||"")+' · '+esc(gradeLabel(r.intake.grade))+' · band '+r.band+'</span></span>'+
       '<span class="figs"><span>accuracy <b>'+pct(A.accAll)+'</b></span>'+
       '<span>median <b>'+secs(A.medAll)+'</b></span>'+
@@ -2230,6 +2319,7 @@ function renderComparison(a,b){
   const A0=analyze({items:early.items,band:early.band,startedAt:early.startedAt,endedAt:early.endedAt});
   const A1=analyze({items:late.items,band:late.band,startedAt:late.startedAt,endedAt:late.endedAt});
   const days=Math.max(0,Math.round((late.savedAt-early.savedAt)/86400000));
+  const timingComparable=(early.timing||1)===(late.timing||1);
   const prac=practiceBetween(early.savedAt,late.savedAt);
   const both=A0.present.filter(function(d){return A1.present.indexOf(d)>=0;});
 
@@ -2248,7 +2338,7 @@ function renderComparison(a,b){
   let h='<div class="report" id="compareDoc"><div class="rpt-head">'+
     '<p class="eyebrow">Numeracy Diagnostic Probe · change over time</p>'+
     '<h2>Comparison of two administrations</h2>'+
-    '<p class="sub">'+esc(early.intake.name||"Unnamed examinee")+' · '+esc(early.intake.date||"")+' compared with '+esc(late.intake.date||"")+
+    '<p class="sub">'+esc(early.intake.name||"Unnamed")+' · '+esc(early.intake.date||"")+' compared with '+esc(late.intake.date||"")+
     (days?' · '+days+' day'+(days===1?"":"s")+' apart':'')+'</p>'+
     '<dl class="recordgrid" style="margin:1.4rem 0 0">'+
     rec("Baseline",early.intake.date||"—")+rec("Follow-up",late.intake.date||"—")+
@@ -2256,12 +2346,14 @@ function renderComparison(a,b){
     rec("Band then / now",early.band+" → "+late.band)+
     rec("Age at follow-up",late.intake.ageTxt)+
     rec("Practice logged between",prac.total?prac.total+" question"+(prac.total===1?"":"s"):"none recorded")+
+    rec("Timing comparable",timingComparable?"Yes":"No — see below")+
     '</dl></div><div class="rpt-body">';
 
   /* interpretation guardrails first — before any number invites over-reading */
   h+='<section class="rpt-sec"><h3><span class="n">01</span> How to read this</h3><div class="disclaimer">'+
      '<b>Accuracy alone will mislead you here.</b> Each domain carries only two or three items, so one item changing hand swings that domain by 33 to 50 percentage points. A domain that moves from 2/3 to 3/3 has produced one different answer, which is well within what chance and mood account for. '+
      'Treat the accuracy table as the weakest evidence on this page. '+
+     (!timingComparable?'<br><br><b>These two were timed differently, so latency cannot be compared.</b> The earlier one was recorded before the clock was corrected: it ran until the whole question form was submitted, so it swept in the time spent saying how the answer was reached and ticking what applied. Those latencies are inflated by several seconds and are not measuring the same thing. Accuracy, strategy and error type still compare normally; anything time-based below is suppressed.':'')+
      (early.band!==late.band?'<br><br><b>The bands differ.</b> The follow-up was administered at band '+late.band+' against band '+early.band+' at baseline, so the items were not of equal difficulty and the two accuracies are not directly comparable at all. Read strategy and error type only.':'')+
      (prac.total?'<br><br><b>Practice sits between these two administrations</b> — '+prac.total+' logged question'+(prac.total===1?"":"s")+'. For number sense, fact fluency and procedure that is instruction doing its job, and improvement is the intended result. For the balance scales (domain 4) and word problems (domain 5) be more careful: those items measure how an unfamiliar structure is handled, so familiarity with the format can lower the load without the underlying capacity changing.':'')+
      '</div></section>';
@@ -2281,6 +2373,11 @@ function renderComparison(a,b){
      '</p></div>';
 
   const latDelta=A1.medAll-A0.medAll;
+  if(!timingComparable){
+    h+='<div class="signal weak"><h4><span>Response latency</span>'+
+       '<span class="chip neutral">not comparable</span></h4><p>'+
+       'Withheld. The two administrations used different timing rules — the earlier one counted the time spent answering the follow-up questions as part of the response — so a difference here would be an artefact of the change, not of the learner. Latency becomes readable again once two administrations recorded under the current rule can be compared.</p></div>';
+  } else {
   h+='<div class="signal"><h4><span>Response latency</span>'+
      '<span class="chip '+(latDelta<-500?"ok":latDelta>500?"watch":"neutral")+'">'+
      (latDelta<-500?"Faster":latDelta>500?"Slower":"Unchanged")+'</span></h4><p>'+
@@ -2288,6 +2385,7 @@ function renderComparison(a,b){
      (latDelta<-500?'Reaching the same accuracy faster is genuine consolidation, and it is invisible to an accuracy score.'
       :latDelta>500?'Slower responses at similar accuracy usually mean more is being reconstructed rather than retrieved. Check whether the follow-up was taken when tired or under more pressure before reading anything into it.'
       :'Effectively unchanged.')+'</p></div>';
+  }
 
   h+='<div class="signal"><h4><span>Error signatures</span>'+
      '<span class="chip '+(resolved.length>persisted.length?"ok":emerged.length>resolved.length?"watch":"neutral")+'">'+
@@ -2318,7 +2416,7 @@ function renderComparison(a,b){
   });
   h+='</tbody></table></div>'+
      '<p style="font-family:var(--serif);font-size:.93rem;color:var(--ink-soft);margin-top:.8rem">A change marked <em>1 item</em> is exactly one answer different. Do not report those as improvement or decline.</p>';
-  if(A1.dom[2]&&A0.dom[2]){
+  if(A1.dom[2]&&A0.dom[2]&&timingComparable){
     h+='<p style="font-family:var(--serif);font-size:.95rem;margin-top:.8rem"><strong>Fact automaticity.</strong> '+
        A0.dom[2].auto+' of '+A0.dom[2].n+' fact items met the automaticity criterion at baseline, '+A1.dom[2].auto+' of '+A1.dom[2].n+' now. '+
        'Because this counts recall speed rather than correctness, it moves for real reasons more often than the accuracy figures above.</p>';
@@ -2355,9 +2453,9 @@ function renderComparison(a,b){
   if(canSave()){
     const b=$("#btnSaveCmp"); b.classList.remove("hidden");
     b.addEventListener("click",function(){
-      const nm=(early.intake.name||"examinee").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"examinee";
+      const nm=(early.intake.name||"learner").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"learner";
       saveFile("numeracy-comparison-"+nm+"-"+(late.intake.date||todayISO())+".html",
-        standaloneDoc($("#compareDoc").outerHTML,"Numeracy comparison — "+(early.intake.name||"examinee")),"text/html")
+        standaloneDoc($("#compareDoc").outerHTML,"Numeracy comparison — "+(early.intake.name||"learner")),"text/html")
         .then(function(){$("#cmpNote").textContent="Comparison saved.";},
               function(){$("#cmpNote").textContent="Could not save — use Print → Save as PDF.";});
     });
@@ -2475,7 +2573,7 @@ function restore(d){
   S.items=d.items||[]; S.idx=d.idx||0; S.startedAt=d.startedAt||Date.now(); S.endedAt=d.endedAt||null;
   S.archivedId=d.archivedId||null;
   const I=S.intake;
-  ["name","dob","date","examiner","setting","lang","math","referral","hx","state"].forEach(function(k){
+  ["name","dob","date"].forEach(function(k){
     if(F(k)&&I[k]!=null)F(k).value=I[k];});
   if(F("grade")&&I.grade)F("grade").value=I.grade;
   F("paper").checked=!!I.paper; F("timer").checked=!!I.showTimer;

@@ -35,11 +35,14 @@ that needs.
 
 ### What it does
 
-**Intake.** Captures examinee name/ID, date of birth (age at testing is computed to the
-month), grade placement from Pre-K through adult/not-enrolled, examiner, setting,
-language, current math placement, reason for referral, relevant history, state at time of
-testing, and administration conditions (scratch paper, read-aloud, visible timer, habitual
-calculator use).
+**Designed to be taken alone.** There is no examiner, proctor, or observer role anywhere in
+it — a child opens it and works through it unsupervised. The start screen asks three things:
+what to call you, your birthday, and your year or grade. Nothing clinical, nothing an adult
+has to fill in first.
+
+Note the honest limit: independent use assumes the questions can be read. Below roughly
+age 8, or where reading is itself a difficulty, someone will still need to read them aloud,
+and the briefing says so.
 
 **Banding.** Difficulty is banded from grade placement, falling back to chronological age:
 
@@ -55,7 +58,34 @@ Difficulty also adapts up or down within a domain as the examinee performs. Fact
 items stay at single-digit difficulty in every band by design: automaticity is expected at
 all ages, so slow retrieval is the finding rather than an artifact of item difficulty.
 
-**Administration.** Twelve items, one per screen, no feedback of any kind during testing.
+**Timing.** Each question runs in two stages, and only the first is timed:
+
+| Stage | Timed? | What happens |
+|-------|--------|--------------|
+| 1 | **Yes** | The question appears, an answer is typed (or an option clicked, which commits immediately). The clock stops the instant the answer is committed. |
+| 2 | No | How it was worked out, what else applied, and any written work. Untimed, and clearly labelled as such. |
+
+Two clocks are kept per question: `latency` (question appears → answer committed) and
+`think` (question appears → first keystroke or click), which excludes typing, since typing
+speed is motor output rather than arithmetic. Fact automaticity is judged on `think`. Time
+with the browser tab hidden is subtracted from both, and the question is flagged as
+interrupted so its timing can be treated as soft.
+
+This matters more than it sounds. Before this split the clock ran until the whole question
+form was submitted, so it swept in strategy selection and note-taking — several seconds
+against a fact-automaticity threshold of three. Records carry a `timing` schema version, and
+the comparison view refuses to read latency across the two, rather than reporting a
+difference that is an artefact of the change.
+
+**Self-report.** After answering, the learner says how they worked it out and ticks anything
+else that applies — read it more than once, lost my place, hard to hold the numbers, wasn't
+sure it was right, that felt easy, felt worried or rushed, or picked the wrong one by
+accident. Each flag is tied to a construct the probe already measures, so it feeds the
+report rather than decorating it: re-reading points at comprehension load, losing your place
+and juggling numbers at working memory, unwarranted confidence at a missing estimate, and
+worry at the anxiety that consumes the same working memory the arithmetic needs.
+
+**Administration.** Twelve questions, one per screen, no feedback of any kind until the end.
 
 | Domain | Items | Tasks |
 |--------|-------|-------|
