@@ -1,0 +1,1693 @@
+<title>Numeracy Diagnostic Probe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#EFF2F3; --surface:#FFFFFF; --surface-2:#F7F9F9;
+  --ink:#14222A; --ink-soft:#54666F; --ink-faint:#7C8C94;
+  --rule:#D3DDE0; --rule-soft:#E4EBED;
+  --accent:#1C6A66; --accent-deep:#124C49; 
+  --accent-wash:#E1EDEB;
+  --moss:#3D7350; --moss-wash:#E4EEE7;
+  --ochre:#9C6C1E; --ochre-wash:#F3EADA;
+  --brick:#A2453B; --brick-wash:#F3E3E1;
+  --on-accent:#FFFFFF;
+  --shadow:0 1px 2px rgba(20,34,42,.06),0 8px 24px -16px rgba(20,34,42,.28);
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --serif:"Spectral",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --step:1.5rem;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1519; --surface:#161F24; --surface-2:#1B262B;
+    --ink:#E3EAEA; --ink-soft:#9DACB2; --ink-faint:#7A8990;
+    --rule:#2A3840; --rule-soft:#222E35;
+    --accent:#57B6AD; --accent-deep:#7FCFC6; --accent-wash:#18332F;
+    --moss:#7FB68E; --moss-wash:#1A2B20;
+    --ochre:#D4A356; --ochre-wash:#2E2617;
+    --brick:#D98679; --brick-wash:#31201E;
+    --on-accent:#0E1519;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1519; --surface:#161F24; --surface-2:#1B262B;
+  --ink:#E3EAEA; --ink-soft:#9DACB2; --ink-faint:#7A8990;
+  --rule:#2A3840; --rule-soft:#222E35;
+  --accent:#57B6AD; --accent-deep:#7FCFC6; --accent-wash:#18332F;
+  --moss:#7FB68E; --moss-wash:#1A2B20;
+  --ochre:#D4A356; --ochre-wash:#2E2617;
+  --brick:#D98679; --brick-wash:#31201E;
+  --on-accent:#0E1519;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:56rem;margin:0 auto;padding:0 1.25rem 5rem}
+h1,h2,h3,h4{text-wrap:balance;margin:0}
+a{color:var(--accent)}
+
+/* ---- masthead ---- */
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface);position:relative}
+.masthead .wrap{display:flex;flex-wrap:wrap;gap:1rem 2rem;align-items:flex-end;justify-content:space-between;padding-top:1.6rem;padding-bottom:1.1rem}
+.brandmark{display:flex;gap:.85rem;align-items:baseline}
+.brandmark h1{font-family:var(--serif);font-weight:600;font-size:1.5rem;letter-spacing:-.01em}
+.brandmark .ed{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);letter-spacing:.04em}
+.masthead p{margin:.25rem 0 0;color:var(--ink-soft);font-size:.85rem;max-width:34rem}
+.formstamp{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);text-align:right;line-height:1.7;letter-spacing:.02em}
+.formstamp b{color:var(--ink-soft);font-weight:500}
+
+/* ---- calibrated rail (number-line progress) ---- */
+.rail{background:var(--surface);border-bottom:1px solid var(--rule);padding:.9rem 0 .7rem}
+.rail .wrap{padding-top:0;padding-bottom:0}
+.rail-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:.5rem}
+.rail-head b{color:var(--accent);font-weight:500}
+.scale{position:relative;height:34px}
+.scale-line{position:absolute;top:11px;left:0;right:0;height:1px;background:var(--rule)}
+.scale-fill{position:absolute;top:10px;left:0;height:3px;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+.tick{position:absolute;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px}
+.tick i{display:block;width:1px;height:11px;background:var(--rule)}
+.tick.done i{background:var(--accent);width:2px}
+.tick.now i{background:var(--accent);width:3px;height:19px}
+.tick b{position:absolute;top:21px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.62rem;font-weight:400;color:var(--ink-faint);font-style:normal}
+.tick.done b,.tick.now b{color:var(--accent)}
+.tick.now b{font-weight:500}
+.bands{position:relative;height:15px;margin-top:2px}
+.band{position:absolute;top:0;font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);border-top:1px solid var(--rule-soft);padding-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+/* ---- generic blocks ---- */
+.card{background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow);padding:1.6rem}
+.eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);margin:0 0 .3rem}
+.sec-title{font-family:var(--serif);font-size:1.3rem;font-weight:600;letter-spacing:-.01em}
+.lede{color:var(--ink-soft);margin:.5rem 0 0;max-width:38rem}
+.stack{display:flex;flex-direction:column;gap:var(--step)}
+.pad-top{padding-top:2rem}
+
+/* ---- forms ---- */
+fieldset{border:0;border-top:1px solid var(--rule);margin:0;padding:1.1rem 0 0}
+legend{font-family:var(--mono);font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-faint);padding:0 .6rem 0 0}
+.grid{display:grid;gap:.9rem 1.2rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.grid.two{grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))}
+.field{display:flex;flex-direction:column;gap:.28rem;min-width:0}
+.field.span{grid-column:1/-1}
+.field label{font-size:.76rem;font-weight:500;letter-spacing:.02em;color:var(--ink-soft)}
+.field .hint{font-size:.7rem;color:var(--ink-faint);font-family:var(--mono)}
+input[type=text],input[type=date],input[type=number],select,textarea{
+  font-family:var(--sans);font-size:.92rem;color:var(--ink);background:var(--surface-2);
+  border:1px solid var(--rule);border-radius:2px;padding:.5rem .6rem;width:100%;
+  transition:border-color .15s,background .15s}
+textarea{resize:vertical;min-height:4.5rem;line-height:1.5}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.opt:focus-visible{
+  outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+input::placeholder,textarea::placeholder{color:var(--ink-faint)}
+.agecalc{font-family:var(--mono);font-size:.78rem;color:var(--accent);min-height:1.2em}
+.check{display:flex;gap:.55rem;align-items:flex-start;font-size:.85rem;color:var(--ink-soft);cursor:pointer}
+.check input{margin-top:.25rem;accent-color:var(--accent)}
+
+/* ---- buttons ---- */
+.btn{font-family:var(--sans);font-size:.88rem;font-weight:500;letter-spacing:.01em;
+  padding:.6rem 1.15rem;border-radius:2px;border:1px solid var(--accent);
+  background:var(--accent);color:var(--on-accent);cursor:pointer;transition:background .15s,color .15s}
+.btn:hover{background:var(--accent-deep);border-color:var(--accent-deep)}
+.btn.ghost{background:transparent;color:var(--accent);border-color:var(--rule)}
+.btn.ghost:hover{background:var(--accent-wash);border-color:var(--accent)}
+.btn.quiet{background:transparent;color:var(--ink-soft);border-color:transparent;padding-inline:.4rem}
+.btn.quiet:hover{color:var(--ink);background:var(--surface-2)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btnrow{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center}
+.btnrow.end{justify-content:flex-end}
+.spacer{flex:1}
+
+/* ---- item runner ---- */
+.itemhead{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;border-bottom:1px solid var(--rule);padding-bottom:.7rem;margin-bottom:1.3rem;flex-wrap:wrap}
+.itemhead .dom{font-family:var(--mono);font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.itemhead .no{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);letter-spacing:.04em}
+.instruction{font-family:var(--serif);font-size:1.12rem;line-height:1.5;color:var(--ink);margin:0 0 1.2rem;max-width:36rem}
+.stim{background:var(--surface-2);border:1px solid var(--rule-soft);border-left:3px solid var(--accent);padding:1.5rem 1.4rem;margin-bottom:1.3rem}
+.stim-num{font-family:var(--mono);font-size:2.4rem;font-weight:500;letter-spacing:.02em;font-variant-numeric:tabular-nums;text-align:center;line-height:1.25}
+.stim-word{font-family:var(--serif);font-size:1.05rem;line-height:1.65;max-width:34rem;margin:0}
+.stim-word .qn{display:block;margin-top:.8rem;font-weight:600}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.opt{font-family:var(--mono);font-size:2rem;font-weight:500;font-variant-numeric:tabular-nums;
+  background:var(--surface);border:1px solid var(--rule);border-radius:2px;color:var(--ink);
+  padding:1.4rem .8rem;cursor:pointer;transition:.15s;text-align:center}
+.opt:hover{border-color:var(--accent);background:var(--accent-wash)}
+.opt[aria-pressed=true]{border-color:var(--accent);background:var(--accent-wash);box-shadow:inset 0 0 0 1px var(--accent)}
+.answerline{display:flex;gap:.8rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1.2rem}
+.answerline .field{flex:1 1 12rem}
+input.bigans{font-family:var(--mono);font-size:1.5rem;font-weight:500;font-variant-numeric:tabular-nums;padding:.55rem .7rem;letter-spacing:.03em}
+.strategy{border-top:1px solid var(--rule-soft);padding-top:1rem;margin-bottom:1.1rem}
+.strategy > span{font-size:.76rem;font-weight:500;color:var(--ink-soft);display:block;margin-bottom:.55rem}
+.strat-opts{display:flex;flex-wrap:wrap;gap:.45rem}
+.strat{font-family:var(--sans);font-size:.78rem;padding:.4rem .75rem;border:1px solid var(--rule);
+  border-radius:99px;background:var(--surface);color:var(--ink-soft);cursor:pointer;transition:.15s}
+.strat:hover{border-color:var(--accent);color:var(--ink)}
+.strat[aria-pressed=true]{background:var(--accent-wash);border-color:var(--accent);color:var(--accent);font-weight:500}
+.obs summary{font-size:.76rem;color:var(--ink-faint);cursor:pointer;font-family:var(--mono);letter-spacing:.03em;list-style:none;padding:.3rem 0}
+.obs summary::-webkit-details-marker{display:none}
+.obs summary::before{content:"+ ";color:var(--accent)}
+.obs[open] summary::before{content:"– "}
+.timer{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+
+/* balance scale drawing */
+.scales{display:flex;flex-direction:column;gap:.7rem}
+.scalerow{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;font-family:var(--mono);font-size:.7rem;color:var(--ink-faint)}
+.scalerow .pan{display:flex;align-items:center;gap:.35rem;background:var(--surface);border:1px solid var(--rule);padding:.5rem .7rem;border-radius:2px}
+.scalerow .eq{font-family:var(--mono);font-size:1.15rem;color:var(--accent)}
+.shape{width:26px;height:26px;display:block}
+.shape *{fill:var(--accent-wash);stroke:var(--accent);stroke-width:1.5}
+.shape.v2 *{fill:var(--ochre-wash);stroke:var(--ochre)}
+.shape.v3 *{fill:var(--moss-wash);stroke:var(--moss)}
+.shape.v4 *{fill:var(--brick-wash);stroke:var(--brick)}
+.lbl{font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint)}
+
+/* ---- report ---- */
+.report{background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow)}
+.rpt-head{padding:2rem 2rem 1.5rem;border-bottom:2px solid var(--ink)}
+.rpt-head h2{font-family:var(--serif);font-size:1.85rem;font-weight:600;letter-spacing:-.015em;line-height:1.2}
+.rpt-head .sub{color:var(--ink-soft);font-size:.86rem;margin-top:.35rem}
+.recordgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:0;margin-top:1.4rem;border-top:1px solid var(--rule)}
+.recordgrid div{border-bottom:1px solid var(--rule-soft);border-right:1px solid var(--rule-soft);padding:.55rem .7rem .5rem 0}
+.recordgrid dt{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:.15rem}
+.recordgrid dd{margin:0;font-size:.88rem;font-weight:500}
+.rpt-body{padding:1.8rem 2rem 2.2rem;display:flex;flex-direction:column;gap:2.1rem}
+.rpt-sec > h3{font-family:var(--serif);font-size:1.18rem;font-weight:600;padding-bottom:.45rem;border-bottom:1px solid var(--rule);margin-bottom:.9rem;display:flex;align-items:baseline;gap:.6rem}
+.rpt-sec > h3 .n{font-family:var(--mono);font-size:.7rem;color:var(--accent);font-weight:400}
+.rpt-sec p{font-family:var(--serif);font-size:1rem;line-height:1.62;margin:0 0 .8rem;max-width:40rem}
+.rpt-sec p:last-child{margin-bottom:0}
+.chip{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--mono);font-size:.63rem;letter-spacing:.07em;text-transform:uppercase;padding:.16rem .5rem;border-radius:2px;font-weight:500;white-space:nowrap}
+.chip.ok{background:var(--moss-wash);color:var(--moss)}
+.chip.watch{background:var(--ochre-wash);color:var(--ochre)}
+.chip.flag{background:var(--brick-wash);color:var(--brick)}
+.chip.neutral{background:var(--surface-2);color:var(--ink-faint)}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+.tablewrap{overflow-x:auto;border:1px solid var(--rule)}
+th{text-align:left;font-family:var(--mono);font-size:.62rem;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:400;padding:.55rem .7rem;background:var(--surface-2);border-bottom:1px solid var(--rule);white-space:nowrap}
+td{padding:.5rem .7rem;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num,th.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.mono{font-family:var(--mono);font-size:.78rem}
+.mark-y{color:var(--moss);font-weight:600}
+.mark-n{color:var(--brick);font-weight:600}
+.mark-d{color:var(--ink-faint)}
+.domcard{border:1px solid var(--rule);border-left:3px solid var(--rule);padding:.9rem 1rem;background:var(--surface-2)}
+.domcard.ok{border-left-color:var(--moss)}
+.domcard.watch{border-left-color:var(--ochre)}
+.domcard.flag{border-left-color:var(--brick)}
+.domcard h4{font-family:var(--sans);font-size:.9rem;font-weight:600;display:flex;justify-content:space-between;gap:.7rem;align-items:center;flex-wrap:wrap;margin-bottom:.4rem}
+.domcard p{font-family:var(--serif);font-size:.94rem;line-height:1.55;margin:0;color:var(--ink-soft)}
+.domcard .metrics{display:flex;gap:1.1rem;flex-wrap:wrap;margin-top:.6rem;padding-top:.55rem;border-top:1px solid var(--rule-soft);font-family:var(--mono);font-size:.7rem;color:var(--ink-faint)}
+.domcard .metrics b{color:var(--ink);font-weight:500}
+.domlist{display:flex;flex-direction:column;gap:.8rem}
+.errgroup{border-top:1px solid var(--rule-soft);padding-top:.75rem;margin-top:.75rem}
+.errgroup:first-child{border-top:0;padding-top:0;margin-top:0}
+.errgroup h4{font-family:var(--sans);font-size:.85rem;font-weight:600;margin-bottom:.3rem;display:flex;gap:.5rem;align-items:baseline}
+.errgroup .ct{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint)}
+.errgroup p{font-size:.9rem}
+.errgroup ul{margin:.4rem 0 0;padding-left:1.1rem;font-family:var(--mono);font-size:.74rem;color:var(--ink-faint);line-height:1.7}
+.scaffold{border:1px solid var(--rule);padding:.9rem 1rem;background:var(--surface)}
+.scaffold h4{font-family:var(--sans);font-size:.88rem;font-weight:600;margin-bottom:.3rem}
+.scaffold p{font-family:var(--serif);font-size:.93rem;line-height:1.55;color:var(--ink-soft);margin:0}
+.scaffold .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.3rem}
+.scaffolds{display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:.8rem}
+.disclaimer{background:var(--surface-2);border:1px solid var(--rule);padding:1rem 1.1rem;font-size:.82rem;line-height:1.6;color:var(--ink-soft)}
+.disclaimer b{color:var(--ink);font-weight:600}
+.actionbar{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--rule);padding:.85rem 2rem;display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;z-index:5}
+.actionbar .note{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint)}
+.latbar{display:block;height:4px;background:var(--rule-soft);position:relative;min-width:44px}
+.latbar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent)}
+.latbar.slow i{background:var(--ochre)}
+footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule);font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);line-height:1.7}
+.resume{background:var(--ochre-wash);border:1px solid var(--ochre);padding:.75rem 1rem;display:flex;gap:.9rem;align-items:center;flex-wrap:wrap;font-size:.85rem;color:var(--ink)}
+.hidden{display:none!important}
+.err{color:var(--brick);font-size:.78rem;min-height:1.1em}
+
+@media (max-width:640px){
+  .choices{grid-template-columns:1fr}
+  .rpt-head,.rpt-body,.actionbar{padding-left:1.1rem;padding-right:1.1rem}
+  .stim-num{font-size:1.9rem}
+  .card{padding:1.15rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---- print ---- */
+@media print{
+  :root{--paper:#fff;--surface:#fff;--surface-2:#fff;--ink:#000;--ink-soft:#333;--ink-faint:#555;
+        --rule:#999;--rule-soft:#ccc;--accent:#000;--accent-wash:#fff;--shadow:none;
+        --moss:#000;--ochre:#000;--brick:#000;--moss-wash:#fff;--ochre-wash:#fff;--brick-wash:#fff}
+  body{background:#fff;font-size:10.5pt}
+  .masthead,.rail,.actionbar,.noprint{display:none!important}
+  .wrap{max-width:none;padding:0}
+  .report{border:0;box-shadow:none}
+  .rpt-head{padding:0 0 1rem}
+  .rpt-body{padding:1rem 0 0;gap:1.4rem}
+  .rpt-sec{break-inside:avoid}
+  .domcard,.scaffold,.errgroup,.disclaimer{break-inside:avoid}
+  .rpt-sec > h3{break-after:avoid}
+  tr{break-inside:avoid}
+  .chip{border:1px solid #666}
+  :root{--on-accent:#fff}
+  a{text-decoration:none;color:#000}
+  @page{margin:16mm 14mm}
+}
+</style>
+
+<header class="masthead noprint">
+  <div class="wrap">
+    <div>
+      <div class="brandmark">
+        <h1>Numeracy Diagnostic Probe</h1>
+        <span class="ed">FORM&nbsp;A · v1.0</span>
+      </div>
+      <p>An informal, dynamically generated probe of the cognitive domains implicated in dyscalculia and math learning differences. Every item is generated fresh — nothing repeats between administrations.</p>
+    </div>
+    <div class="formstamp">
+      <b>12 items</b> · 5 domains<br>
+      Ages 5 – adult<br>
+      Est. 15 – 25 min
+    </div>
+  </div>
+</header>
+
+<nav class="rail noprint hidden" id="rail" aria-label="Assessment progress">
+  <div class="wrap">
+    <div class="rail-head">
+      <span id="railDomain">Domain 1 · Core number sense</span>
+      <span><b id="railCount">Item 1</b> of 12</span>
+    </div>
+    <div class="scale" id="scale"></div>
+    <div class="bands" id="bands"></div>
+  </div>
+</nav>
+
+<main class="wrap pad-top" id="stage">
+
+<!-- ============ INTAKE ============ -->
+<section id="intake" class="stack">
+  <div id="resumeBanner" class="resume hidden">
+    <span id="resumeText">An unfinished administration is saved on this device.</span>
+    <span class="spacer"></span>
+    <button class="btn ghost" id="btnResume" type="button">Resume it</button>
+    <button class="btn quiet" id="btnDiscard" type="button">Discard</button>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">Step 1 — Examinee record</p>
+    <h2 class="sec-title">Intake</h2>
+    <p class="lede">Item difficulty is banded from date of birth and grade placement, so both matter. Everything on this form is optional except date of birth <em>or</em> grade — but a fuller record makes the report more useful, and nothing entered here leaves this device unless you save or print it.</p>
+
+    <form id="intakeForm" autocomplete="off">
+      <fieldset>
+        <legend>Identification</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="f_name">Examinee name or ID</label>
+            <input type="text" id="f_name" placeholder="e.g. J. Alvarez, or Case 2041">
+          </div>
+          <div class="field">
+            <label for="f_dob">Date of birth</label>
+            <input type="date" id="f_dob">
+            <span class="agecalc" id="ageOut"></span>
+          </div>
+          <div class="field">
+            <label for="f_date">Date of assessment</label>
+            <input type="date" id="f_date">
+          </div>
+          <div class="field">
+            <label for="f_grade">Grade placement</label>
+            <select id="f_grade">
+              <option value="">— select —</option>
+              <option value="prek">Pre-K</option>
+              <option value="k">Kindergarten</option>
+              <option value="1">Grade 1</option><option value="2">Grade 2</option>
+              <option value="3">Grade 3</option><option value="4">Grade 4</option>
+              <option value="5">Grade 5</option><option value="6">Grade 6</option>
+              <option value="7">Grade 7</option><option value="8">Grade 8</option>
+              <option value="9">Grade 9</option><option value="10">Grade 10</option>
+              <option value="11">Grade 11</option><option value="12">Grade 12</option>
+              <option value="college">Post-secondary / college</option>
+              <option value="adult">Adult — not currently enrolled</option>
+              <option value="hsed">Adult — GED / HSE program</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f_examiner">Examiner / proctor</label>
+            <input type="text" id="f_examiner" placeholder="Name and role">
+          </div>
+          <div class="field">
+            <label for="f_setting">Setting</label>
+            <input type="text" id="f_setting" placeholder="e.g. Resource room, teletherapy, home">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Background</legend>
+        <div class="grid two">
+          <div class="field">
+            <label for="f_lang">Primary language / language of instruction</label>
+            <input type="text" id="f_lang" placeholder="e.g. English; Spanish at home">
+          </div>
+          <div class="field">
+            <label for="f_math">Current math placement or curriculum</label>
+            <input type="text" id="f_math" placeholder="e.g. On-grade Algebra I; below-grade small group">
+          </div>
+          <div class="field span">
+            <label for="f_referral">Reason for referral — what prompted this probe?</label>
+            <textarea id="f_referral" placeholder="e.g. Persistently slow on timed fact drills; reverses digits when copying; avoids math homework; parent reports counting on fingers into middle school."></textarea>
+          </div>
+          <div class="field span">
+            <label for="f_hx">Relevant history — diagnoses, IEP / 504, services, prior testing</label>
+            <textarea id="f_hx" placeholder="e.g. ADHD dx 2023, unmedicated at time of testing; IEP for reading; no prior math evaluation."></textarea>
+          </div>
+          <div class="field span">
+            <label for="f_state">State at time of testing — vision / hearing / medication / fatigue / affect</label>
+            <textarea id="f_state" placeholder="e.g. Wears glasses, worn today. Tested after lunch. Visibly anxious when numbers appeared; asked twice if it was 'a test'."></textarea>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Administration conditions</legend>
+        <div class="grid two">
+          <label class="check"><input type="checkbox" id="f_paper"><span>Scratch paper is permitted (record its use per item — <em>that</em> is the datum, not whether it was allowed)</span></label>
+          <label class="check"><input type="checkbox" id="f_timer"><span>Show the running timer on screen (off by default — a visible clock changes behavior)</span></label>
+          <label class="check"><input type="checkbox" id="f_read"><span>Items will be read aloud to the examinee</span></label>
+          <label class="check"><input type="checkbox" id="f_calc"><span>Examinee ordinarily uses a calculator or fact chart in class</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Begin</legend>
+        <p class="err" id="intakeErr"></p>
+        <div class="btnrow">
+          <button class="btn" id="btnStart" type="submit">Continue to protocol</button>
+          <span class="timer">Nothing is submitted anywhere — this runs entirely in your browser.</span>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</section>
+
+<!-- ============ BRIEFING ============ -->
+<section id="brief" class="stack hidden">
+  <div class="card">
+    <p class="eyebrow">Step 2 — Before you begin</p>
+    <h2 class="sec-title">Administration protocol</h2>
+    <p class="lede" id="briefBand"></p>
+    <div class="grid two" style="margin-top:1.3rem">
+      <div class="domcard"><h4>One item at a time</h4><p>Twelve items across five domains. There is no going back — a revisited item is no longer a first-response measure.</p></div>
+      <div class="domcard"><h4>No feedback, ever</h4><p>The probe never says right or wrong, and neither should you. Correction mid-administration contaminates every item after it.</p></div>
+      <div class="domcard"><h4>Record the method, not just the answer</h4><p>After each response, mark <em>how</em> it was reached. A correct answer reached by counting on fingers at age fourteen is the finding.</p></div>
+      <div class="domcard"><h4>“I don't know” is data</h4><p>Accept it without prompting and move on. Do not encourage guessing, and do not wait out a long silence — record it and continue.</p></div>
+      <div class="domcard"><h4>Response latency runs automatically</h4><p>Timing starts when the item appears and stops on submit. Read items aloud promptly if you are reading; a slow read inflates the latency.</p></div>
+      <div class="domcard"><h4>Two items ask for written work</h4><p>On the procedural items, transcribe the intermediate steps as given. Where the algorithm breaks is more informative than whether it broke.</p></div>
+    </div>
+    <div class="btnrow" style="margin-top:1.4rem">
+      <button class="btn" id="btnBegin" type="button">Present item 1</button>
+      <button class="btn quiet" id="btnBackIntake" type="button">Back to intake</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RUNNER ============ -->
+<section id="runner" class="stack hidden">
+  <div class="card">
+    <div class="itemhead">
+      <span class="dom" id="itemDomain"></span>
+      <span class="no" id="itemNo"></span>
+    </div>
+    <p class="instruction" id="itemInstruction"></p>
+    <div id="itemStimulus"></div>
+    <div id="itemInput"></div>
+    <div class="strategy">
+      <span>How was this answer reached? <em>(required — mark what you observed)</em></span>
+      <div class="strat-opts" id="stratOpts"></div>
+    </div>
+    <details class="obs">
+      <summary>Examiner observation for this item</summary>
+      <div class="field" style="margin-top:.5rem">
+        <textarea id="itemObs" placeholder="e.g. Subvocalized while counting up. Re-read the problem three times. Wrote the numbers vertically before subtracting."></textarea>
+      </div>
+    </details>
+    <p class="err" id="itemErr"></p>
+    <div class="btnrow" style="margin-top:1rem">
+      <button class="btn" id="btnSubmitItem" type="button">Record and continue</button>
+      <button class="btn ghost" id="btnDontKnow" type="button">Record “I don't know”</button>
+      <span class="spacer"></span>
+      <span class="timer" id="liveTimer"></span>
+      <button class="btn quiet" id="btnEndEarly" type="button">End and report</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REPORT ============ -->
+<section id="report" class="hidden"></section>
+
+<footer class="page noprint">
+  Numeracy Diagnostic Probe · Form A · informal criterion-referenced probe — not a normed instrument and not a diagnosis.<br>
+  Item construction draws on principles from the Feifer Assessment of Mathematics, WIAT-4 Numerical Operations and Math Problem Solving, WJ-IV Math Facts Fluency, the Butterworth Dyscalculia Screener, and the WISC-V Figure Weights paradigm. It reproduces no published item.
+</footer>
+</main>
+
+<script>
+(function(){
+"use strict";
+const $=(s,r)=>(r||document).querySelector(s);
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>"$"+Number(n).toFixed(2).replace(/\.00$/,"");
+
+function parseNum(raw){
+  const t=String(raw).replace(/[,\s$]/g,"").replace(/^\+/,"");
+  if(!/^-?\d*\.?\d+$/.test(t))return null;
+  const v=parseFloat(t); return isFinite(v)?v:null;
+}
+function parseQR(raw){
+  const t=String(raw).toLowerCase().replace(/[,\s$]/g,"");
+  const nums=(t.match(/-?\d+(?:\.\d+)?/g)||[]).map(Number);
+  if(!nums.length)return null;
+  const flagged=/r|rem|left|and/.test(t);
+  if(nums.length>1)return {q:nums[0],r:nums[1],explicit:true};
+  if(flagged)return {q:nums[0],r:0,explicit:true};
+  return {q:nums[0],r:null,explicit:false};
+}
+const near=(a,b,tol)=>Math.abs(a-b)<=(tol==null?0.005:tol);
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+
+/* ---------- shapes ---------- */
+const SH={
+  square:{n:"Square",p:'<rect x="4" y="4" width="16" height="16"/>',v:""},
+  circle:{n:"Circle",p:'<circle cx="12" cy="12" r="8.5"/>',v:" v2"},
+  triangle:{n:"Triangle",p:'<polygon points="12,3.2 21,20 3,20"/>',v:" v3"},
+  hexagon:{n:"Hexagon",p:'<polygon points="12,2.6 20.2,7.3 20.2,16.7 12,21.4 3.8,16.7 3.8,7.3"/>',v:" v4"}
+};
+const shape=k=>'<svg class="shape'+SH[k].v+'" viewBox="0 0 24 24" role="img" aria-label="'+SH[k].n+'">'+SH[k].p+'</svg>';
+const shapes=(k,n)=>{let o="";for(let i=0;i<n;i++)o+=shape(k);return o;};
+const pan=(html,label)=>'<span class="pan">'+html+'<span class="lbl">'+label+'</span></span>';
+
+/* ---------- banding ---------- */
+const GRADE_BAND={prek:1,k:1,"1":1,"2":1,"3":2,"4":2,"5":2,"6":3,"7":3,"8":3,"9":4,"10":4,"11":4,"12":4,college:4,adult:4,hsed:4};
+const GRADE_LABEL={prek:"Pre-K",k:"Kindergarten",college:"Post-secondary",adult:"Adult, not enrolled",hsed:"Adult HSE program"};
+const gradeLabel=g=>!g?"Not reported":(GRADE_LABEL[g]||("Grade "+g));
+const BAND_NAME={1:"Early primary (K–2 expectations)",2:"Upper primary (grades 3–5)",3:"Middle grades (6–8)",4:"Secondary and adult (grade 9+)"};
+function ageAt(dob,on){
+  if(!dob||!on)return null;
+  const d=new Date(dob+"T00:00:00"), t=new Date(on+"T00:00:00");
+  if(isNaN(d)||isNaN(t)||t<d)return null;
+  let y=t.getFullYear()-d.getFullYear(), m=t.getMonth()-d.getMonth();
+  if(t.getDate()<d.getDate())m--;
+  if(m<0){y--;m+=12;}
+  return {y:y,m:m,txt:y+" yr "+m+" mo"};
+}
+const bandFromAge=y=>y==null?2:(y<8?1:y<11?2:y<14?3:4);
+const clampBand=b=>Math.max(1,Math.min(4,b));
+
+/* ---------- error dictionary ---------- */
+const ERRORS={
+  UNIT_DIGIT_DOMINANCE:{c:"Conceptual — magnitude",t:"Ones digit judged as whole magnitude",d:"The number with the larger ones digit was selected even though it is the smaller quantity. Place value is not governing the magnitude judgement; the digits are being compared as separate symbols rather than as a composed number."},
+  DECIMAL_LENGTH_BIAS:{c:"Conceptual — magnitude",t:"Longer decimal read as larger",d:"The decimal with more digits was chosen as larger — whole-number reasoning applied to decimal notation (0.65 treated as “sixty-five,” therefore bigger than 0.7)."},
+  NEGATIVE_INVERSION:{c:"Conceptual — magnitude",t:"Negative magnitude inverted",d:"On the negative number line, absolute value was substituted for position: the number further from zero was judged larger."},
+  WHOLE_NUMBER_BIAS_DENOM:{c:"Conceptual — magnitude",t:"Larger denominator judged larger",d:"The fraction with the bigger bottom number was chosen. The denominator is being read as a count rather than as the size of the parts — the single most common fraction misconception, and a fair one to expect before formal instruction."},
+  WHOLE_NUMBER_BIAS_NUM:{c:"Conceptual — magnitude",t:"Numerator compared in isolation",d:"The fraction with the bigger top number was chosen without reference to its denominator. The fraction is being processed as two independent whole numbers rather than one quantity."},
+  MIDPOINT_NO_HALVING:{c:"Conceptual — number line",t:"Endpoints summed, not halved",d:"The two endpoints were added and the halving step was dropped — the procedure was started but not completed."},
+  MIDPOINT_GAP:{c:"Conceptual — number line",t:"Distance reported instead of position",d:"The gap between the two numbers was given rather than the point between them. Interval and position are being conflated."},
+  MIDPOINT_GAP_HALVED:{c:"Conceptual — number line",t:"Half the distance, not the midpoint",d:"The distance was correctly halved but never added back to the lower endpoint — the answer describes how far, not where."},
+  MIDPOINT_NEAR:{c:"Working memory / calculation",t:"Approximately right, precisely wrong",d:"The response sits close to the true midpoint. Spatial placement on the mental number line is broadly intact; the exact computation slipped."},
+  MIDPOINT_OTHER:{c:"Conceptual — number line",t:"Midpoint not located",d:"The response bears no systematic relation to the endpoints, suggesting the mental number line is not available as a reasoning tool here."},
+  ADJACENT_FACT:{c:"Retrieval",t:"Neighbouring fact retrieved",d:"The answer is a product adjacent to the one asked (one row or column off in the table). This is retrieval interference — the fact network is there, but activation is spreading to competitors, which is characteristic of weak or unconsolidated storage rather than absent knowledge."},
+  OPERATION_SUBSTITUTION:{c:"Conceptual — operations",t:"Wrong operation applied",d:"The two numbers were combined with a different operation than the one shown. The symbol was not driving the procedure."},
+  COUNT_SLIP:{c:"Calculation slip",t:"Off by one",d:"An answer one away from correct — the signature of a counting strategy that started or stopped one step out, rather than a retrieved fact."},
+  BOND_TEN_SLIP:{c:"Calculation slip",t:"Off by ten at the decade boundary",d:"The answer is a full ten away from correct: the crossing of the ten was mishandled while the units were computed correctly."},
+  SMALLER_FROM_LARGER:{c:"Procedural",t:"Smaller digit subtracted from larger",d:"In at least one column the smaller digit was taken from the larger regardless of which was on top — the classic regrouping bug. The algorithm is being run column by column as unrelated subtractions rather than as one number being decomposed."},
+  BORROW_CHAIN:{c:"Procedural",t:"Regrouping not carried across the zero",d:"The result is off by exactly a power of ten, indicating the borrow was taken but not propagated through the zero column. This is a sequencing failure inside the algorithm, not a fact error."},
+  DIGIT_TRANSPOSITION:{c:"Spatial / place value",t:"Correct digits, wrong order",d:"The digits of the correct answer appear transposed. Column alignment or the left-to-right reassembly of the result is unstable."},
+  CARRY_OMISSION:{c:"Procedural",t:"Carry dropped",d:"Each column was computed correctly in isolation but the carried quantity was never added into the next column — the parts are right, the composition is not."},
+  INCOMPLETE_PARTIAL_PRODUCTS:{c:"Working memory / sequencing",t:"Only the first partial product completed",d:"The multiplication stopped after the ones-digit pass. The second partial product was never generated — the procedure was abandoned mid-sequence, typically because holding the first result while starting the second exceeded available working memory."},
+  PLACE_VALUE_SHIFT:{c:"Spatial / place value",t:"Second partial product not shifted",d:"Both partial products were computed correctly, but the second was added without shifting it one place left. Place value is not being tracked spatially."},
+  CALC_SLIP:{c:"Calculation slip",t:"Isolated computational error",d:"The procedure was structurally correct with a single arithmetic error inside it — a slip, not a misconception."},
+  REMAINDER_DROPPED:{c:"Procedural",t:"Remainder discarded",d:"The quotient is correct but the remainder was not reported. The division was executed; the meaning of what was left over was not carried through to the answer."},
+  QUOTIENT_ZERO_OMITTED:{c:"Spatial / place value",t:"Zero omitted from the quotient",d:"A place holding zero was skipped in the quotient, collapsing the answer by a factor of ten. Each division step was performed, but the positional record of where the steps happened was lost."},
+  REMAINDER_EXCEEDS:{c:"Conceptual — operations",t:"Remainder larger than the divisor",d:"The remainder reported is at least as large as the divisor, meaning the division was stopped one step early. The stopping condition for the algorithm is not understood."},
+  DIVIDEND_REVERSAL:{c:"Conceptual — operations",t:"Dividend and divisor reversed",d:"The two quantities were swapped. Division is being treated as order-independent, as addition and multiplication are."},
+  INTERMEDIATE_ONLY:{c:"Working memory / sequencing",t:"Stopped at the intermediate value",d:"The answer given is the correct value of the intermediate quantity, not the one asked for. The first substitution was performed and then reported as final — the goal was displaced by the sub-goal, the definitive signature of a working-memory drop rather than a reasoning failure."},
+  COEFF_DROPPED:{c:"Working memory / sequencing",t:"Coefficient dropped in substitution",d:"The substitution was made but the quantity of the substituted shape was not multiplied through — one term of the relation was lost in transit."},
+  ADDITIVE_COUNT:{c:"Conceptual — equivalence",t:"Shapes counted rather than substituted",d:"The shapes on the scale were tallied instead of exchanged by value. Equivalence is being read as “how many objects,” not “how much.”"},
+  CHAIN_FAIL:{c:"Conceptual — equivalence",t:"Substitution chain not established",d:"The response does not correspond to any step of the substitution chain, suggesting the relations were not linked into a single system."},
+  SINGLE_STEP_TRUNCATION:{c:"Working memory / sequencing",t:"Multi-step problem solved one step deep",d:"The first computation was correct and then reported as the answer. The second step of the problem was either not planned or was lost while the first was executed."},
+  EXTRANEOUS_USED:{c:"Linguistic translation",t:"Irrelevant quantity pulled into the computation",d:"A number that plays no part in the question was used in the arithmetic. Numbers in the text are being harvested and operated on rather than the situation being modelled — a comprehension bottleneck, not a computational one."},
+  OPERATION_SELECTION:{c:"Linguistic translation",t:"Wrong operation chosen for the situation",d:"The correct quantities were identified but combined the wrong way. The language of the problem is not mapping onto an operation."},
+  TRANSLATION_FAIL:{c:"Linguistic translation",t:"Problem not translated into arithmetic",d:"The response does not correspond to a recognisable computation on the given quantities — the text was not converted into a mathematical model."},
+  UNSCORED:{c:"No response",t:"No response given",d:"Recorded as “I don't know.” Withholding rather than guessing is itself informative, particularly where it clusters in one domain."}
+};
+
+/* ---------- item generators ---------- */
+const D={1:"Core number sense & magnitude",2:"Fact retrieval & fluency",3:"Procedural calculation",4:"Working memory & equivalence",5:"Applied reasoning"};
+
+function gCompare(band){
+  let a,b,trap,kind,note;
+  if(band<=2){
+    const t=ri(2,8),u1=ri(5,9),u2=ri(0,u1-3);
+    a=t*10+u1; b=(t+1)*10+u2; trap=a; kind="UNIT_DIGIT_DOMINANCE";
+  }else if(band===3){
+    const big=ri(4,9)/10, small=(Math.round(big*100)-ri(3,9))/100;
+    a=big; b=small; trap=small; kind="DECIMAL_LENGTH_BIAS";
+  }else{
+    if(Math.random()<0.5){
+      a=ri(4,7)/10; b=Math.round(a*100-ri(4,9))/100; trap=b; kind="DECIMAL_LENGTH_BIAS";
+    }else{
+      a=-ri(3,9); b=-ri(11,28); trap=b; kind="NEGATIVE_INVERSION"; note="negative";
+    }
+  }
+  const larger=Math.max(a,b), fmt=v=>String(v);
+  const opts=Math.random()<0.5?[a,b]:[b,a];
+  return {
+    dom:1,task:"Symbolic magnitude comparison",
+    instruction:"Which of these two numbers is larger?",
+    stimText:fmt(opts[0])+"  vs.  "+fmt(opts[1]),
+    stimHTML:"",
+    input:{type:"choice",choices:opts.map(v=>({v:String(v),label:fmt(v)}))},
+    answer:String(larger), answerText:fmt(larger),
+    check:function(raw){
+      const v=parseNum(raw);
+      if(v===larger)return{correct:true,code:null};
+      if(v===trap)return{correct:false,code:kind};
+      return{correct:false,code:"UNIT_DIGIT_DOMINANCE"};
+    }
+  };
+}
+
+function gFraction(band){
+  let f1,f2,label1,label2,v1,v2;
+  if(band===1){
+    const d1=ri(2,4), d2=d1+ri(1,4);
+    f1={n:1,d:d1}; f2={n:1,d:d2};
+  }else{
+    let tries=0;
+    do{
+      f1={n:ri(2,6),d:ri(3,9)}; f2={n:ri(2,6),d:ri(3,9)};
+      v1=f1.n/f1.d; v2=f2.n/f2.d; tries++;
+    }while(tries<400 && !(f1.d!==f2.d && v1!==v2 && Math.abs(v1-v2)<0.14 && v1<1 && v2<1
+        && gcd(f1.n,f1.d)===1 && gcd(f2.n,f2.d)===1 && ((f1.n>f2.n)!==(v1>v2))));
+  }
+  v1=f1.n/f1.d; v2=f2.n/f2.d;
+  const fmt=f=>f.n+"/"+f.d;
+  const bigger=v1>v2?f1:f2, smaller=v1>v2?f2:f1;
+  const bigDen=f1.d>f2.d?f1:f2, bigNum=f1.n>f2.n?f1:f2;
+  const opts=Math.random()<0.5?[f1,f2]:[f2,f1];
+  return {
+    dom:1,task:"Fraction magnitude",
+    instruction:band===1?"Which is the larger amount — one of these parts of the same whole?":"Which of these two fractions is larger?",
+    stimText:fmt(opts[0])+"  vs.  "+fmt(opts[1]),
+    stimHTML:"",
+    input:{type:"choice",choices:opts.map(f=>({v:fmt(f),label:fmt(f)}))},
+    answer:fmt(bigger),answerText:fmt(bigger),
+    check:function(raw){
+      const s=String(raw).trim();
+      if(s===fmt(bigger))return{correct:true,code:null};
+      if(s===fmt(bigDen)&&bigDen!==bigger)return{correct:false,code:"WHOLE_NUMBER_BIAS_DENOM"};
+      if(s===fmt(bigNum)&&bigNum!==bigger)return{correct:false,code:"WHOLE_NUMBER_BIAS_NUM"};
+      return{correct:false,code:"WHOLE_NUMBER_BIAS_DENOM"};
+    }
+  };
+}
+
+function gMidpoint(band){
+  let a,b;
+  if(band===1){a=10*ri(1,5); b=a+20*ri(1,4);}
+  else if(band===2){a=ri(12,48); b=a+2*ri(9,26);}
+  else if(band===3){a=ri(120,480); b=a+2*ri(60,180);}
+  else {a=-ri(8,40); b=ri(10,60); if((b-a)%2)b++;}
+  const mid=(a+b)/2, gap=b-a;
+  return {
+    dom:1,task:"Mental number line — midpoint",
+    instruction:"What number sits exactly halfway between these two numbers?",
+    stimText:a+"  and  "+b,
+    stimHTML:'<div class="stim-num">'+a+' <span style="color:var(--ink-faint);font-size:.6em">and</span> '+b+'</div>',
+    input:{type:"number",placeholder:"halfway point"},
+    answer:String(mid),answerText:String(mid),
+    check:function(raw){
+      const v=parseNum(raw); if(v===null)return{correct:false,code:"MIDPOINT_OTHER"};
+      if(v===mid)return{correct:true,code:null};
+      if(v===a+b)return{correct:false,code:"MIDPOINT_NO_HALVING"};
+      if(v===gap)return{correct:false,code:"MIDPOINT_GAP"};
+      if(v===gap/2)return{correct:false,code:"MIDPOINT_GAP_HALVED"};
+      if(Math.abs(v-mid)<=Math.max(2,gap*0.06))return{correct:false,code:"MIDPOINT_NEAR"};
+      return{correct:false,code:"MIDPOINT_OTHER"};
+    }
+  };
+}
+
+function gFact(band){
+  if(band===1){
+    const a=ri(4,9), plus=Math.random()<0.5?a:a+1, ans=a+plus;
+    return {dom:2,task:"Automatic addition fact",
+      instruction:"Say the answer as soon as you know it. Do not work it out.",
+      stimText:a+" + "+plus,
+      stimHTML:'<div class="stim-num">'+a+' + '+plus+'</div>',
+      input:{type:"number",placeholder:"answer"},answer:String(ans),answerText:String(ans),
+      check:function(raw){const v=parseNum(raw);
+        if(v===ans)return{correct:true,code:null};
+        if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+        if(Math.abs(v-ans)===1)return{correct:false,code:"COUNT_SLIP"};
+        if(v===Math.abs(a-plus))return{correct:false,code:"OPERATION_SUBSTITUTION"};
+        return{correct:false,code:"CALC_SLIP"};}};
+  }
+  const pool=[3,4,6,7,8,9];
+  const a=pick(pool), b=pick(pool), ans=a*b;
+  return {dom:2,task:"Automatic multiplication fact",
+    instruction:"Answer as soon as you know it. Do not count up, skip-count, or use fingers.",
+    stimText:a+" × "+b,
+    stimHTML:'<div class="stim-num">'+a+' × '+b+'</div>',
+    input:{type:"number",placeholder:"answer"},answer:String(ans),answerText:String(ans),
+    check:function(raw){const v=parseNum(raw);
+      if(v===ans)return{correct:true,code:null};
+      if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+      if(v===a+b)return{correct:false,code:"OPERATION_SUBSTITUTION"};
+      if(v===a*(b+1)||v===a*(b-1)||v===(a+1)*b||v===(a-1)*b)return{correct:false,code:"ADJACENT_FACT"};
+      if(Math.abs(v-ans)===1)return{correct:false,code:"COUNT_SLIP"};
+      return{correct:false,code:"CALC_SLIP"};}};
+}
+
+function gBridge(band){
+  let m,n;
+  if(band<=3){n=ri(4,9); m=ri(11,n+9);}
+  else {m=10*ri(3,8)+ri(1,4); n=ri(5,9);}
+  const ans=m-n;
+  return {dom:2,task:"Subtraction across the ten",
+    instruction:"Answer straight away. No counting back.",
+    stimText:m+" − "+n,
+    stimHTML:'<div class="stim-num">'+m+' − '+n+'</div>',
+    input:{type:"number",placeholder:"answer"},answer:String(ans),answerText:String(ans),
+    check:function(raw){const v=parseNum(raw);
+      if(v===ans)return{correct:true,code:null};
+      if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+      if(v===m+n)return{correct:false,code:"OPERATION_SUBSTITUTION"};
+      if(Math.abs(v-ans)===1)return{correct:false,code:"COUNT_SLIP"};
+      if(Math.abs(v-ans)===10)return{correct:false,code:"BOND_TEN_SLIP"};
+      if(v===Math.abs((m%10)-n)+Math.floor(m/10)*10)return{correct:false,code:"SMALLER_FROM_LARGER"};
+      return{correct:false,code:"CALC_SLIP"};}};
+}
+
+function gBond(band){
+  let t,b;
+  if(band===1){t=10; b=ri(3,7);}
+  else {t=ri(12,18); b=ri(4,9);}
+  const ans=t-b;
+  return {dom:2,task:"Missing addend / number bond",
+    instruction:"Fill in the missing number. Answer as soon as you know it.",
+    stimText:b+" + ___ = "+t,
+    stimHTML:'<div class="stim-num">'+b+' + <span style="color:var(--accent)">___</span> = '+t+'</div>',
+    input:{type:"number",placeholder:"missing number"},answer:String(ans),answerText:String(ans),
+    check:function(raw){const v=parseNum(raw);
+      if(v===ans)return{correct:true,code:null};
+      if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+      if(v===t+b)return{correct:false,code:"OPERATION_SUBSTITUTION"};
+      if(Math.abs(v-ans)===1)return{correct:false,code:"COUNT_SLIP"};
+      if(Math.abs(v-ans)===10)return{correct:false,code:"BOND_TEN_SLIP"};
+      return{correct:false,code:"CALC_SLIP"};}};
+}
+
+function digitwiseAbs(a,b){
+  const A=String(a).split("").reverse(), B=String(b).split("").reverse(); let out="";
+  for(let i=0;i<A.length;i++){const x=+A[i], y=i<B.length?+B[i]:0; out=Math.abs(x-y)+out;}
+  return parseInt(out,10);
+}
+function gRegroup(band){
+  let a,b;
+  if(band===1){a=10*ri(4,9)+ri(0,3); b=10*ri(1,3)+ri(5,9);}
+  else if(band===2){a=100*ri(3,8)+ri(0,4); b=100*ri(1,2)+10*ri(2,9)+ri(5,9); if(b>=a)b=a-ri(120,180);}
+  else if(band===3){a=1000*ri(3,8)+ri(0,5); b=1000*ri(1,2)+100*ri(1,9)+10*ri(2,9)+ri(6,9);}
+  else {a=1000*ri(4,9); b=1000*ri(1,3)+100*ri(1,9)+10*ri(1,9)+ri(1,9);}
+  if(b>=a){const t=a;a=b+ri(100,400);b=t;}
+  const ans=a-b, dwa=digitwiseAbs(a,b);
+  return {dom:3,task:"Multi-digit subtraction with regrouping",
+    instruction:"Work this out and write down each step as you go.",
+    stimText:a+" − "+b,
+    stimHTML:'<div class="stim-num">'+a+' − '+b+'</div>',
+    input:{type:"number",placeholder:"answer",work:"Intermediate steps — transcribe exactly what was written or said"},
+    answer:String(ans),answerText:String(ans),
+    check:function(raw){const v=parseNum(raw);
+      if(v===ans)return{correct:true,code:null};
+      if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+      if(v===dwa)return{correct:false,code:"SMALLER_FROM_LARGER"};
+      if([10,100,1000,90,900,9990].some(k=>Math.abs(v-ans)===k))return{correct:false,code:"BORROW_CHAIN"};
+      if(Math.abs(v-ans)===1)return{correct:false,code:"COUNT_SLIP"};
+      if(String(v).split("").sort().join("")===String(ans).split("").sort().join(""))return{correct:false,code:"DIGIT_TRANSPOSITION"};
+      if(v===a+b)return{correct:false,code:"OPERATION_SUBSTITUTION"};
+      return{correct:false,code:"CALC_SLIP"};}};
+}
+
+function noCarryMul(a,b){
+  return parseInt(String(a).split("").map(d=>String(+d*b)).join(""),10);
+}
+function gLongMul(band){
+  if(band===1){
+    const a=100*ri(2,7)+10*ri(5,9)+ri(5,9), b=100*ri(1,3)+10*ri(5,9)+ri(5,9), ans=a+b;
+    const nc=parseInt(String(a).split("").map((d,i)=>String(+d+ +String(b)[i])).join(""),10);
+    return {dom:3,task:"Column addition with regrouping",
+      instruction:"Work this out and write down each step as you go.",
+      stimText:a+" + "+b,stimHTML:'<div class="stim-num">'+a+' + '+b+'</div>',
+      input:{type:"number",placeholder:"answer",work:"Intermediate steps — transcribe exactly what was written or said"},
+      answer:String(ans),answerText:String(ans),
+      check:function(raw){const v=parseNum(raw);
+        if(v===ans)return{correct:true,code:null};
+        if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+        if(v===nc)return{correct:false,code:"CARRY_OMISSION"};
+        if(v===a-b)return{correct:false,code:"OPERATION_SUBSTITUTION"};
+        if([10,100,1000].some(k=>Math.abs(v-ans)===k))return{correct:false,code:"CARRY_OMISSION"};
+        return{correct:false,code:"CALC_SLIP"};}};
+  }
+  let a,b;
+  if(band===2){a=10*ri(3,9)+ri(4,9); b=ri(4,8);}
+  else if(band===3){a=10*ri(2,8)+ri(3,9); b=10*ri(2,4)+ri(3,8);}
+  else {a=100*ri(1,4)+10*ri(2,9)+ri(3,9); b=10*ri(2,5)+ri(3,9);}
+  const ans=a*b, ones=b%10, tens=Math.floor(b/10);
+  const pOnes=a*ones, pTens=a*tens;
+  return {dom:3,task:"Multi-digit multiplication",
+    instruction:"Work this out and write down each step as you go.",
+    stimText:a+" × "+b,stimHTML:'<div class="stim-num">'+a+' × '+b+'</div>',
+    input:{type:"number",placeholder:"answer",work:"Partial products and steps — transcribe exactly what was written"},
+    answer:String(ans),answerText:String(ans),
+    check:function(raw){const v=parseNum(raw);
+      if(v===ans)return{correct:true,code:null};
+      if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+      if(tens>0&&v===pOnes)return{correct:false,code:"INCOMPLETE_PARTIAL_PRODUCTS"};
+      if(tens>0&&v===pOnes+pTens)return{correct:false,code:"PLACE_VALUE_SHIFT"};
+      if(tens===0&&v===noCarryMul(a,b))return{correct:false,code:"CARRY_OMISSION"};
+      if(v===a+b)return{correct:false,code:"OPERATION_SUBSTITUTION"};
+      if(Math.abs(v-ans)%10===0&&Math.abs(v-ans)<=100)return{correct:false,code:"CARRY_OMISSION"};
+      if(Math.abs(v-ans)<=a)return{correct:false,code:"CALC_SLIP"};
+      if(String(v).split("").sort().join("")===String(ans).split("").sort().join(""))return{correct:false,code:"DIGIT_TRANSPOSITION"};
+      return{correct:false,code:"CALC_SLIP"};}};
+}
+
+function gDivide(band){
+  let a,d,q,r;
+  if(band===1){d=ri(3,5); q=ri(3,4); r=ri(1,d-1); a=d*q+r;}
+  else if(band===2){d=ri(3,8); q=ri(11,16); r=ri(1,d-1); a=d*q+r;}
+  else if(band===3){d=ri(3,4); q=100*ri(1,2)+ri(2,9); r=0; a=d*q;}
+  else {d=ri(12,19); q=ri(21,39); r=ri(1,d-1); a=d*q+r;}
+  const ansText=r>0?(q+" r "+r):String(q);
+  return {dom:3,task:"Division with remainder",
+    instruction:r>0?"Work this out. Give the whole-number answer and anything left over. Write down your steps.":"Work this out and write down your steps.",
+    stimText:a+" ÷ "+d,stimHTML:'<div class="stim-num">'+a+' ÷ '+d+'</div>',
+    input:{type:"text",placeholder:r>0?'e.g. 13 r 2':"answer",work:"Steps — transcribe exactly what was written"},
+    answer:ansText,answerText:ansText,
+    check:function(raw){const p=parseQR(raw);
+      if(p===null)return{correct:false,code:"TRANSLATION_FAIL"};
+      if(p.q===q&&((r===0&&(p.r===null||p.r===0))||p.r===r))return{correct:true,code:null};
+      if(p.q===q&&r>0&&(p.r===null||p.r===0))return{correct:false,code:"REMAINDER_DROPPED"};
+      if(p.r!==null&&p.r>=d)return{correct:false,code:"REMAINDER_EXCEEDS"};
+      if(String(q).replace(/0/g,"")===String(p.q)&&String(q)!==String(p.q))return{correct:false,code:"QUOTIENT_ZERO_OMITTED"};
+      if(near(p.q,d/a,0.01)||p.q===0)return{correct:false,code:"DIVIDEND_REVERSAL"};
+      if(Math.abs(p.q-q)<=1)return{correct:false,code:"CALC_SLIP"};
+      return{correct:false,code:"CALC_SLIP"};}};
+}
+
+function balanceRow(leftHTML,leftLbl,rightHTML,rightLbl){
+  return '<div class="scalerow">'+pan(leftHTML,leftLbl)+'<span class="eq">=</span>'+pan(rightHTML,rightLbl)+'</div>';
+}
+function gBalance2(band){
+  const k=band===1?2:ri(2,4), c=band>=3?2:1, m=ri(1,3), ans=c*k+m;
+  const r1=balanceRow(shape("circle"),"1 circle",shapes("square",k),k+" squares");
+  const r2=balanceRow(shape("triangle"),"1 triangle",shapes("circle",c)+shapes("square",m),(c>1?c+" circles":"1 circle")+" + "+m+" square"+(m>1?"s":""));
+  return {dom:4,task:"Two-relation equivalence",
+    instruction:"Both scales below are balanced. Using them, work out the missing quantity.",
+    stimText:"Scale 1: 1 circle = "+k+" squares. Scale 2: 1 triangle = "+c+" circle(s) + "+m+" square(s).",
+    stimHTML:'<div class="scales">'+r1+r2+'</div><p class="stim-word" style="margin-top:1rem"><span class="qn">How many squares balance one triangle?</span></p>',
+    input:{type:"number",placeholder:"number of squares"},answer:String(ans),answerText:ans+" squares",
+    check:function(raw){const v=parseNum(raw);
+      if(v===ans)return{correct:true,code:null};
+      if(v===null)return{correct:false,code:"CHAIN_FAIL"};
+      if(v===k)return{correct:false,code:"INTERMEDIATE_ONLY"};
+      if(c>1&&v===k+m)return{correct:false,code:"COEFF_DROPPED"};
+      if(v===c+m||v===1+m||v===c+m+1)return{correct:false,code:"ADDITIVE_COUNT"};
+      if(Math.abs(v-ans)===1)return{correct:false,code:"CALC_SLIP"};
+      return{correct:false,code:"CHAIN_FAIL"};}};
+}
+function gBalance3(band){
+  const k=ri(2,3), c=band>=3?2:1, m=ri(1,3), h=2;
+  const tri=c*k+m, ans=h*tri;
+  const r1=balanceRow(shape("circle"),"1 circle",shapes("square",k),k+" squares");
+  const r2=balanceRow(shape("triangle"),"1 triangle",shapes("circle",c)+shapes("square",m),(c>1?c+" circles":"1 circle")+" + "+m+" square"+(m>1?"s":""));
+  const r3=balanceRow(shape("hexagon"),"1 hexagon",shapes("triangle",h),h+" triangles");
+  return {dom:4,task:"Three-relation equivalence chain",
+    instruction:"All three scales are balanced. Work out the missing quantity — you may not write anything down for this one unless the examinee asks.",
+    stimText:"1 circle = "+k+" squares; 1 triangle = "+c+" circle(s) + "+m+" square(s); 1 hexagon = "+h+" triangles.",
+    stimHTML:'<div class="scales">'+r1+r2+r3+'</div><p class="stim-word" style="margin-top:1rem"><span class="qn">How many squares balance one hexagon?</span></p>',
+    input:{type:"number",placeholder:"number of squares"},answer:String(ans),answerText:ans+" squares",
+    check:function(raw){const v=parseNum(raw);
+      if(v===ans)return{correct:true,code:null};
+      if(v===null)return{correct:false,code:"CHAIN_FAIL"};
+      if(v===tri)return{correct:false,code:"INTERMEDIATE_ONLY"};
+      if(v===k||v===c*k)return{correct:false,code:"INTERMEDIATE_ONLY"};
+      if(v===h*c*k||v===tri+m)return{correct:false,code:"COEFF_DROPPED"};
+      if(v===h+c+m||v===h*(c+m))return{correct:false,code:"ADDITIVE_COUNT"};
+      if(Math.abs(v-ans)<=2)return{correct:false,code:"CALC_SLIP"};
+      return{correct:false,code:"CHAIN_FAIL"};}};
+}
+
+/* ---------- word problems ---------- */
+const NAMES=["Ravi","Nour","Sam","Ines","Toby","Priya","Marco","Aiko","Dee","Omar","Lena","Zeke"];
+function buildWord(spec){
+  return {dom:5,task:spec.task,
+    instruction:"Read this problem carefully. Not every number in it is needed.",
+    stimText:spec.text.replace(/\s+/g," "),
+    stimHTML:'<p class="stim-word">'+esc(spec.text)+'<span class="qn">'+esc(spec.q)+'</span></p>',
+    input:{type:"text",placeholder:spec.ph||"answer"},
+    answer:String(spec.ans),answerText:spec.ansText||String(spec.ans),
+    check:function(raw){
+      const v=parseNum(raw), tol=spec.tol||0.001;
+      if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+      if(near(v,spec.ans,tol))return{correct:true,code:null};
+      if(spec.inter!=null&&near(v,spec.inter,tol))return{correct:false,code:"SINGLE_STEP_TRUNCATION"};
+      if((spec.extr||[]).some(x=>near(v,x,tol)))return{correct:false,code:"EXTRANEOUS_USED"};
+      if((spec.wrong||[]).some(x=>near(v,x,tol)))return{correct:false,code:"OPERATION_SELECTION"};
+      if(Math.abs(v-spec.ans)<=Math.max(1,Math.abs(spec.ans)*0.06))return{correct:false,code:"CALC_SLIP"};
+      return{correct:false,code:"TRANSLATION_FAIL"};}};
+}
+function ok(spec){
+  const all=(spec.extr||[]).concat(spec.wrong||[]);
+  if(spec.inter!=null&&near(spec.inter,spec.ans,0.001))return false;
+  if(all.some(x=>near(x,spec.ans,0.001)))return false;
+  if(spec.inter!=null&&all.some(x=>near(x,spec.inter,0.001)))return false;
+  return true;
+}
+function tryBuild(fn){for(let i=0;i<80;i++){const s=fn();if(ok(s))return buildWord(s);}return buildWord(fn());}
+
+function gWordA(band){
+  if(band===1)return tryBuild(function(){
+    const N=pick(NAMES),A=ri(12,20),B=ri(3,7),C=ri(2,6),X=ri(6,11);
+    return {task:"Two-step change problem",
+      text:N+" has "+A+" stickers. "+N+"'s cousin is "+X+" years old. "+N+" gives "+B+" stickers to a friend, then finds "+C+" more in a drawer.",
+      q:"How many stickers does "+N+" have now?",ph:"number of stickers",
+      ans:A-B+C,inter:A-B,extr:[X,A-X,A+X,X+C,A-B+X],wrong:[A-B-C,A+B+C,A+B-C]};});
+  if(band===2)return tryBuild(function(){
+    const N=pick(NAMES),P=ri(6,10),C=ri(2,4),K=ri(4,7),S=ri(18,28),cost=C*K;
+    let M=pick([20,25,30,50]); if(M<=cost)M=cost+ri(4,12);
+    return {task:"Two-step money problem",
+      text:"A pack of "+P+" markers costs $"+C+". "+N+" buys "+K+" packs for a class of "+S+" students and pays with a $"+M+" note.",
+      q:"How much change should "+N+" get?",ph:"e.g. 7",tol:0.005,
+      ans:M-cost,inter:cost,extr:[P*K,S-K,S*C,M-P,M-S,P*C,S],wrong:[M+cost,C+K,M-C]};});
+  if(band===3)return tryBuild(function(){
+    const rate=ri(12,25),H=ri(2,4),A=rate*H,H2=ri(5,8),W=ri(30,60);
+    return {task:"Proportional rate problem",
+      text:"A packer fills "+A+" boxes in "+H+" hours, working at a steady rate. The warehouse has "+W+" shelves.",
+      q:"At the same rate, how many boxes will the packer fill in "+H2+" hours?",ph:"number of boxes",
+      ans:rate*H2,inter:rate,extr:[W,A+W,W*H2,A*W],wrong:[A*H2,A+H2,rate+H2,A-H2]};});
+  return tryBuild(function(){
+    const P=20*ri(4,8),Dp=pick([20,25,40,50]),T=pick([5,6,8]),S=ri(9,24);
+    const sale=P*(1-Dp/100),fin=Math.round(sale*(1+T/100)*100)/100;
+    return {task:"Multi-step percentage problem",
+      text:"A $"+P+" jacket is marked down by "+Dp+"%. Sales tax of "+T+"% is then added to the discounted price. The shop has "+S+" of these jackets in stock.",
+      q:"What does one jacket cost at the register?",ph:"e.g. 64.80",tol:0.02,
+      ans:fin,ansText:money(fin),inter:sale,extr:[S,S*P,P-S,Math.round(sale*S*100)/100],
+      wrong:[P*Dp/100,P-Dp,Math.round(P*(1+T/100)*100)/100,Math.round((P-Dp/100*P-T)*100)/100]};});
+}
+function gWordB(band){
+  if(band===1)return tryBuild(function(){
+    const A=ri(11,18),B=ri(4,9),X=ri(3,7);
+    return {task:"Relational comparison",
+      text:"There are "+A+" red cubes and "+B+" blue cubes in a bin. "+X+" of the cubes are chipped.",
+      q:"How many more red cubes are there than blue cubes?",ph:"number of cubes",
+      ans:A-B,inter:null,extr:[X,A-X,B+X,A+B-X],wrong:[A+B,B-A,A-B-1]};});
+  if(band===2)return tryBuild(function(){
+    const N=pick(NAMES),A=ri(14,26),K=ri(2,4),T=ri(180,260);
+    return {task:"Multiplicative comparison, two steps",
+      text:N+" read "+A+" pages on Monday. On Tuesday they read "+K+" times as many pages. The whole book is "+T+" pages long.",
+      q:"How many pages did "+N+" read on Monday and Tuesday altogether?",ph:"number of pages",
+      ans:A+K*A,inter:K*A,extr:[T,T-A,T-K*A],wrong:[A+K,K*A-A,A*A]};});
+  if(band===3)return tryBuild(function(){
+    const S=ri(4,6),C=ri(2,5),E=ri(2,4),mult=ri(2,4),S2=S*mult;
+    return {task:"Proportional scaling",
+      text:"A recipe that serves "+S+" people uses "+C+" cups of flour and "+E+" eggs.",
+      q:"How many cups of flour are needed to serve "+S2+" people?",ph:"cups of flour",
+      ans:C*mult,inter:mult,extr:[E,E*mult,C+E,S2-E],wrong:[C+S2-S,C*S2,S2-C,C+mult]};});
+  return tryBuild(function(){
+    const R=pick([4,5,8,10]),G=2*R*ri(4,12),P=ri(2,6);
+    return {task:"Multi-step rate with unit filtering",
+      text:"A tank holds "+G+" gallons and drains at "+R+" gallons per minute. Running the pump costs $"+P+" per hour.",
+      q:"How many minutes will it take to drain the tank halfway?",ph:"minutes",
+      ans:(G/2)/R,inter:G/2,extr:[P,P*R,G/2/P,P*60],wrong:[G/R,G*R/2,G/2-R]};});
+}
+
+const PLAN=[
+  {g:gCompare,dom:1},{g:gFraction,dom:1},{g:gMidpoint,dom:1},
+  {g:gFact,dom:2},{g:gBridge,dom:2},{g:gBond,dom:2},
+  {g:gRegroup,dom:3},{g:Math.random()<0.5?gLongMul:gDivide,dom:3},
+  {g:gBalance2,dom:4},{g:gBalance3,dom:4},
+  {g:gWordA,dom:5},{g:gWordB,dom:5}
+];
+const AUTO_MS={1:6000,2:4500,3:3500,4:3000};
+const STRATS=[
+  {v:"instant",l:"Knew it instantly"},
+  {v:"reasoned",l:"Worked it out mentally"},
+  {v:"counted",l:"Counted — fingers, tally, or aloud"},
+  {v:"paper",l:"Used paper or a device"},
+  {v:"guess",l:"Guessed"},
+  {v:"unknown",l:"No response"}
+];
+const STRAT_LABEL=Object.fromEntries(STRATS.map(s=>[s.v,s.l]));
+
+/* ---------- state ---------- */
+const LSKEY="ndp.session.v1";
+const S={intake:{},band:2,ageBand:null,age:null,items:[],idx:0,plan:[],startedAt:null,endedAt:null,
+         cur:null,t0:0,answer:null,strategy:null,tick:null};
+
+function save(){
+  try{localStorage.setItem(LSKEY,JSON.stringify({intake:S.intake,band:S.band,ageBand:S.ageBand,age:S.age,
+    items:S.items,idx:S.idx,startedAt:S.startedAt,endedAt:S.endedAt}));}catch(e){}
+}
+function clearSaved(){try{localStorage.removeItem(LSKEY);}catch(e){}}
+
+/* ---------- intake ---------- */
+const F=id=>$("#f_"+id);
+function todayISO(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+F("date").value=todayISO();
+
+function refreshAge(){
+  const a=ageAt(F("dob").value,F("date").value||todayISO());
+  $("#ageOut").textContent=a?("Age at testing: "+a.txt):(F("dob").value?"Check the dates — birth date is after the test date.":"");
+  return a;
+}
+F("dob").addEventListener("change",refreshAge);
+F("date").addEventListener("change",refreshAge);
+
+$("#intakeForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  const a=refreshAge(), grade=F("grade").value;
+  if(!a&&!grade){$("#intakeErr").textContent="Enter a date of birth or a grade placement — item difficulty is banded from one or the other.";return;}
+  $("#intakeErr").textContent="";
+  S.age=a;
+  S.ageBand=a?bandFromAge(a.y):null;
+  S.band=grade?GRADE_BAND[grade]:S.ageBand;
+  S.intake={name:F("name").value.trim(),dob:F("dob").value,date:F("date").value||todayISO(),grade:grade,
+    examiner:F("examiner").value.trim(),setting:F("setting").value.trim(),lang:F("lang").value.trim(),
+    math:F("math").value.trim(),referral:F("referral").value.trim(),hx:F("hx").value.trim(),state:F("state").value.trim(),
+    paper:F("paper").checked,showTimer:F("timer").checked,readAloud:F("read").checked,usesCalc:F("calc").checked,
+    ageTxt:a?a.txt:"",ageY:a?a.y:null};
+  $("#briefBand").innerHTML="Items will be generated at the <strong>"+esc(BAND_NAME[S.band])+"</strong> band"+
+    (S.ageBand&&S.ageBand!==S.band?", set from grade placement. Chronological age implies the "+esc(BAND_NAME[S.ageBand])+" band instead — that discrepancy is noted in the report.":
+     ", and will adapt up or down within a domain as the examinee performs.")+
+    " Fact-retrieval items stay at single-digit difficulty for every band: automaticity is expected at all ages, so slow retrieval is the finding, not the item.";
+  show("brief");
+});
+$("#btnBackIntake").addEventListener("click",()=>show("intake"));
+
+function show(which){
+  ["intake","brief","runner","report"].forEach(id=>$("#"+id).classList.toggle("hidden",id!==which));
+  $("#rail").classList.toggle("hidden",which!=="runner");
+  window.scrollTo({top:0,behavior:"auto"});
+}
+
+/* ---------- rail ---------- */
+const BANDS=[{d:1,s:0,n:3},{d:2,s:3,n:3},{d:3,s:6,n:2},{d:4,s:8,n:2},{d:5,s:10,n:2}];
+const SHORT={1:"Number sense",2:"Fact fluency",3:"Procedural",4:"Working memory",5:"Applied"};
+function drawRail(){
+  const sc=$("#scale"); let h='<div class="scale-line"></div><div class="scale-fill" style="width:'+((S.idx/12)*100).toFixed(2)+'%"></div>';
+  for(let i=0;i<12;i++){
+    const cls=i<S.idx?"done":(i===S.idx?"now":"");
+    h+='<span class="tick '+cls+'" style="left:'+(((i+0.5)/12)*100).toFixed(3)+'%"><i></i><b>'+(i+1)+'</b></span>';
+  }
+  sc.innerHTML=h;
+  $("#bands").innerHTML=BANDS.map(b=>'<span class="band" style="left:'+((b.s/12)*100).toFixed(3)+'%;width:'+((b.n/12)*100).toFixed(3)+'%">'+SHORT[b.d]+'</span>').join("");
+  $("#railCount").textContent="Item "+Math.min(S.idx+1,12);
+  const d=S.plan[Math.min(S.idx,11)].dom;
+  $("#railDomain").textContent="Domain "+d+" · "+D[d];
+}
+
+/* ---------- runner ---------- */
+function bandFor(dom){
+  const prior=S.items.filter(x=>x.dom===dom);
+  let off=0;
+  if(prior.length>=2){
+    const c=prior.filter(x=>x.correct).length;
+    if(c===prior.length)off=1; else if(c===0)off=-1;
+  }else if(prior.length===1){
+    if(prior[0].correct&&prior[0].strategy==="instant")off=1;
+    else if(!prior[0].correct&&prior[0].strategy==="unknown")off=-1;
+  }
+  return clampBand(S.band+off);
+}
+function startSession(){
+  S.plan=PLAN.slice();
+  S.plan[7]={g:Math.random()<0.5?gLongMul:gDivide,dom:3};
+  S.startedAt=S.startedAt||Date.now();
+  show("runner"); nextItem();
+}
+$("#btnBegin").addEventListener("click",startSession);
+
+function nextItem(){
+  if(S.idx>=12)return finish();
+  drawRail();
+  const spec=S.plan[S.idx];
+  const it=spec.g(bandFor(spec.dom));
+  S.cur=it; S.answer=null; S.strategy=null;
+  $("#itemDomain").textContent="Domain "+it.dom+" · "+it.task;
+  $("#itemNo").textContent="Item "+(S.idx+1)+" of 12";
+  $("#itemInstruction").textContent=it.instruction;
+  $("#itemStimulus").innerHTML=it.stimHTML?'<div class="stim">'+it.stimHTML+'</div>':
+    (it.input.type==="choice"?"":'<div class="stim"><div class="stim-num">'+esc(it.stimText)+'</div></div>');
+  let ih="";
+  if(it.input.type==="choice"){
+    ih='<div class="choices" role="group" aria-label="Choose one">'+
+      it.input.choices.map(c=>'<button type="button" class="opt" data-v="'+esc(c.v)+'" aria-pressed="false">'+esc(c.label)+'</button>').join("")+'</div>';
+  }else{
+    ih='<div class="answerline"><div class="field"><label for="ansIn">Response as given</label>'+
+      '<input type="text" id="ansIn" class="bigans" inputmode="'+(it.input.type==="number"?"decimal":"text")+'" autocomplete="off" placeholder="'+esc(it.input.placeholder||"")+'"></div></div>';
+  }
+  if(it.input.work){
+    ih+='<div class="field" style="margin-bottom:1rem"><label for="workIn">'+esc(it.input.work)+'</label>'+
+        '<textarea id="workIn" placeholder="Transcribe the written work, including crossings-out and the order things were written."></textarea></div>';
+  }
+  $("#itemInput").innerHTML=ih;
+  $("#stratOpts").innerHTML=STRATS.filter(s=>s.v!=="unknown").map(s=>
+    '<button type="button" class="strat" data-s="'+s.v+'" aria-pressed="false">'+esc(s.l)+'</button>').join("");
+  $("#itemObs").value=""; $("#itemErr").textContent="";
+  const ai=$("#ansIn"); if(ai){ai.focus(); ai.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();submitItem(false);}});}
+  $("#itemInput").querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{
+    $("#itemInput").querySelectorAll(".opt").forEach(o=>o.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true"); S.answer=b.dataset.v;}));
+  $("#stratOpts").querySelectorAll(".strat").forEach(b=>b.addEventListener("click",()=>{
+    $("#stratOpts").querySelectorAll(".strat").forEach(o=>o.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true"); S.strategy=b.dataset.s;}));
+  S.t0=performance.now();
+  if(S.tick)clearInterval(S.tick);
+  if(S.intake.showTimer){
+    const tl=$("#liveTimer");
+    S.tick=setInterval(()=>{tl.textContent=((performance.now()-S.t0)/1000).toFixed(1)+" s";},100);
+  }else{$("#liveTimer").textContent="";}
+}
+function currentAnswer(){
+  const ai=$("#ansIn"); return ai?ai.value.trim():S.answer;
+}
+function submitItem(dontKnow){
+  const it=S.cur, lat=Math.round(performance.now()-S.t0);
+  const raw=dontKnow?"":currentAnswer();
+  if(!dontKnow){
+    if(raw===null||raw===""){$("#itemErr").textContent="Enter the response as it was given, or record “I don't know”.";return;}
+    if(!S.strategy){$("#itemErr").textContent="Mark how the answer was reached before continuing.";return;}
+  }
+  const res=dontKnow?{correct:false,code:"UNSCORED"}:it.check(raw);
+  S.items.push({n:S.idx+1,dom:it.dom,task:it.task,stim:it.stimText,expected:it.answerText,
+    given:dontKnow?"—":String(raw),latency:lat,strategy:dontKnow?"unknown":S.strategy,
+    obs:$("#itemObs").value.trim(),work:($("#workIn")?$("#workIn").value.trim():""),
+    correct:res.correct,code:res.code,band:bandFor(it.dom)});
+  S.idx++; save();
+  if(S.tick)clearInterval(S.tick);
+  nextItem();
+}
+$("#btnSubmitItem").addEventListener("click",()=>submitItem(false));
+$("#btnDontKnow").addEventListener("click",()=>submitItem(true));
+$("#btnEndEarly").addEventListener("click",function(){
+  if(S.items.length<2){$("#itemErr").textContent="Record at least two items before generating a report.";return;}
+  if(confirm("End the administration here? The report will cover the "+S.items.length+" items completed so far."))finish();
+});
+function finish(){
+  if(S.tick)clearInterval(S.tick);
+  S.endedAt=Date.now(); save();
+  renderReport(); show("report");
+}
+
+/* ---------- analysis ---------- */
+const secs=ms=>(ms/1000).toFixed(1)+" s";
+const pct=v=>Math.round(v*100)+"%";
+function analyze(){
+  const dom={}, all=S.items;
+  [1,2,3,4,5].forEach(d=>{
+    const it=all.filter(x=>x.dom===d);
+    if(!it.length){dom[d]=null;return;}
+    const lats=it.map(x=>x.latency).slice().sort((a,b)=>a-b);
+    const cnt=v=>it.filter(x=>x.strategy===v).length;
+    dom[d]={d:d,n:it.length,items:it,
+      correct:it.filter(x=>x.correct).length,
+      acc:it.filter(x=>x.correct).length/it.length,
+      med:lats[Math.floor(lats.length/2)],
+      max:lats[lats.length-1],
+      instant:cnt("instant"),reasoned:cnt("reasoned"),counted:cnt("counted"),
+      paper:cnt("paper"),guess:cnt("guess"),dk:cnt("unknown"),
+      auto:it.filter(x=>x.correct&&x.strategy==="instant"&&x.latency<=AUTO_MS[S.band]).length,
+      codes:it.filter(x=>x.code).map(x=>x.code)};
+  });
+  const codes={}; all.forEach(x=>{if(x.code)codes[x.code]=(codes[x.code]||0)+1;});
+  const has=(...c)=>c.some(k=>codes[k]);
+  const nOf=(...c)=>c.reduce((s,k)=>s+(codes[k]||0),0);
+
+  const st={};
+  const grade=(o,ok,watch)=>o?(o.acc>=ok?"ok":o.acc>=watch?"watch":"flag"):null;
+  if(dom[1]){
+    let s=grade(dom[1],0.99,0.6);
+    const bias=nOf("WHOLE_NUMBER_BIAS_DENOM","WHOLE_NUMBER_BIAS_NUM","UNIT_DIGIT_DOMINANCE","DECIMAL_LENGTH_BIAS","NEGATIVE_INVERSION");
+    if(s==="ok"&&bias>0)s="watch";
+    if(bias>=2)s="flag";
+    st[1]={s:s,l:s==="ok"?"Intact":s==="watch"?"Broadly intact, uneven":"Compromised"};
+  }
+  if(dom[2]){
+    const ar=dom[2].auto/dom[2].n; let s,l;
+    if(dom[2].acc>=0.99&&ar>=0.6){s="ok";l="Automatic";}
+    else if(dom[2].acc>=0.6&&ar<0.4){s="watch";l="Accurate but effortful";}
+    else if(dom[2].acc>=0.6){s="watch";l="Inconsistent automaticity";}
+    else {s="flag";l="Non-automatic";}
+    if(dom[2].acc<0.4){s="flag";l="Retrieval failure";}
+    st[2]={s:s,l:l,autoRate:ar};
+  }
+  if(dom[3]){const s=grade(dom[3],0.99,0.5);st[3]={s:s,l:s==="ok"?"Intact":s==="watch"?"Partially intact":"Breaking down"};}
+  if(dom[4]){const s=grade(dom[4],0.99,0.5);st[4]={s:s,l:s==="ok"?"Intact":s==="watch"?"Variable":"Compromised"};}
+  if(dom[5]){const s=grade(dom[5],0.99,0.5);st[5]={s:s,l:s==="ok"?"Intact":s==="watch"?"Variable":"Compromised"};}
+
+  const present=[1,2,3,4,5].filter(d=>dom[d]);
+  const score=d=>dom[d].acc*100-((dom[d].counted+dom[d].paper)/dom[d].n)*12-(dom[d].dk/dom[d].n)*25;
+  const ranked=present.slice().sort((a,b)=>score(a)-score(b));
+  const bottleneck=ranked[0], strongest=ranked[ranked.length-1];
+
+  const P={};
+  P.wm=nOf("INTERMEDIATE_ONLY","SINGLE_STEP_TRUNCATION","INCOMPLETE_PARTIAL_PRODUCTS","COEFF_DROPPED")>=2||(st[4]&&st[4].s==="flag");
+  P.retrieval=(!st[1]||st[1].s!=="flag")&&st[2]&&st[2].s!=="ok";
+  P.magnitude=st[1]&&st[1].s==="flag";
+  P.procedural=st[3]&&st[3].s!=="ok"&&(!st[1]||st[1].s==="ok")&&(!st[2]||st[2].s==="ok");
+  P.linguistic=(codes.EXTRANEOUS_USED||codes.OPERATION_SELECTION||codes.TRANSLATION_FAIL)&&(!st[3]||st[3].s==="ok");
+  P.spatial=nOf("PLACE_VALUE_SHIFT","DIGIT_TRANSPOSITION","QUOTIENT_ZERO_OMITTED")>=1;
+  P.counting=all.filter(x=>x.strategy==="counted").length>=3;
+  P.intact=present.every(d=>st[d].s==="ok");
+  P.withheld=all.filter(x=>x.strategy==="unknown").length>=3;
+  P.flags=present.filter(d=>st[d].s==="flag").length;
+
+  const totalMs=(S.endedAt||Date.now())-(S.startedAt||Date.now());
+  return {dom:dom,st:st,codes:codes,has:has,nOf:nOf,present:present,bottleneck:bottleneck,strongest:strongest,
+          P:P,items:all,totalMs:totalMs,
+          accAll:all.filter(x=>x.correct).length/all.length,
+          medAll:all.map(x=>x.latency).sort((a,b)=>a-b)[Math.floor(all.length/2)]};
+}
+
+/* ---------- executive summary prose ---------- */
+function summaryProse(A){
+  const who=S.intake.name?S.intake.name:"The examinee", n=A.items.length;
+  const p=[];
+  let a="Across "+n+" dynamically generated items spanning five domains, "+who+" answered "+
+    A.items.filter(x=>x.correct).length+" correctly ("+pct(A.accAll)+"), with a median response latency of "+secs(A.medAll)+
+    ". Items were set at the "+BAND_NAME[S.band].toLowerCase()+" band"+
+    (S.intake.ageTxt?", against a chronological age of "+S.intake.ageTxt:"")+".";
+  if(A.P.intact){
+    a+=" Performance was accurate and efficient throughout, with no domain falling below criterion and no systematic error pattern emerging.";
+    p.push(a);
+    p.push("Nothing in this probe indicates a specific numerical processing weakness. Where concern prompted the referral, look next at factors this instrument does not sample: sustained attention over longer tasks, written output and copying demands, math anxiety under evaluative pressure, gaps in taught content, or the reading load of the class curriculum.");
+    return p;
+  }
+  const bn=A.bottleneck, sn=A.strongest;
+  a+=" The clearest bottleneck sits in "+D[bn].toLowerCase()+" ("+A.dom[bn].correct+" of "+A.dom[bn].n+" correct"+
+     (A.dom[bn].counted+A.dom[bn].paper?", with "+(A.dom[bn].counted+A.dom[bn].paper)+" item"+((A.dom[bn].counted+A.dom[bn].paper)>1?"s":"")+" reached by counting or on paper":"")+
+     "), while "+D[sn].toLowerCase()+" was the most secure ("+A.dom[sn].correct+" of "+A.dom[sn].n+").";
+  p.push(a);
+
+  let b="";
+  if(A.P.magnitude){
+    b="The most consequential finding is at the semantic layer. Magnitude comparison and number-line placement — the operations that should require no calculation at all — were themselves unreliable. When the underlying representation of quantity is imprecise, everything built on it inherits the imprecision: facts have nothing to be checked against, estimates cannot flag an implausible answer, and procedures become sequences to be remembered rather than steps that mean something. This is the pattern most associated with a core numerical deficit, and it changes the instructional priority: quantity work must precede any further fluency drill.";
+  }else if(A.P.retrieval&&A.st[1]&&A.st[1].s==="ok"){
+    b="The profile shows a dissociation worth naming: semantic number sense was intact — magnitude and number-line items were handled correctly"+
+      (A.dom[1].med<AUTO_MS[S.band]?" and quickly":"")+" — while retrieval of basic facts was not automatic"+
+      (A.st[2].autoRate!=null?" ("+A.dom[2].auto+" of "+A.dom[2].n+" fact items met the automaticity criterion of "+(AUTO_MS[S.band]/1000)+" s with immediate recall)":"")+
+      ". Quantity is understood; the verbal-retrieval store that should make small facts instant is not doing its work. This is a retrieval profile rather than a magnitude profile, and it responds to very different instruction — strategy-based derivation and spaced retrieval, not more timed drill.";
+  }else if(A.P.procedural){
+    b="Number sense and fact retrieval were both sound, and the breakdown appeared only once multi-step algorithms were required. This localises the difficulty to procedural execution — holding a sequence, tracking place value across it, and knowing where in the algorithm one currently is — rather than to numerical understanding itself.";
+  }
+  if(b)p.push(b);
+
+  let c="";
+  if(A.P.wm){
+    c="A working-memory signature runs through the errors. On "+A.nOf("INTERMEDIATE_ONLY","SINGLE_STEP_TRUNCATION","INCOMPLETE_PARTIAL_PRODUCTS","COEFF_DROPPED")+
+      " item"+(A.nOf("INTERMEDIATE_ONLY","SINGLE_STEP_TRUNCATION","INCOMPLETE_PARTIAL_PRODUCTS","COEFF_DROPPED")>1?"s":"")+
+      " the first step was executed correctly and then reported as the final answer, or a term was lost between one step and the next. That is not a reasoning failure — the reasoning was right up to the point where it stopped. The goal was displaced by the sub-goal while the sub-goal was being computed. Scaffolds that externalise intermediate values will change this performance faster than any additional instruction in the mathematics.";
+  }else if(A.P.linguistic){
+    c="Computation held up where the arithmetic was presented directly, and faltered where it had to be extracted from text. Numbers appear to be harvested from the sentence and operated on, rather than the situation being modelled and then quantified. The bottleneck is translation, not calculation.";
+  }
+  if(c)p.push(c);
+
+  const tail=[];
+  if(A.P.counting)tail.push("counting strategies persisted on "+A.items.filter(x=>x.strategy==="counted").length+" items, well past the age at which they should have been replaced by retrieval");
+  if(A.P.spatial)tail.push("place-value and alignment errors appeared in the written algorithms, pointing to a spatial rather than conceptual failure");
+  if(A.P.withheld)tail.push("“I don't know” was recorded on "+A.items.filter(x=>x.strategy==="unknown").length+" items, which may reflect genuine absence of knowledge or a decision not to risk being wrong — worth distinguishing directly with the examinee");
+  if(S.intake.usesCalc&&A.st[2]&&A.st[2].s!=="ok")tail.push("the examinee already relies on a calculator or fact chart in class, which is consistent with what the fluency items showed and argues for formalising that support rather than withdrawing it");
+  if(tail.length)p.push("Three secondary observations bear on planning: "+tail.slice(0,3).join("; ")+".");
+  if(A.P.flags>=2||A.P.magnitude){
+    p.push("Given "+(A.P.flags>=2?"weakness across more than one domain":"involvement of core magnitude processing")+
+      ", referral for a comprehensive psychoeducational evaluation is warranted if one has not been completed. This probe is not normed and cannot establish eligibility; it can indicate where a full evaluation should look.");
+  }
+  return p;
+}
+
+/* ---------- domain narratives ---------- */
+function domainNarrative(A,d){
+  const o=A.dom[d], s=A.st[d]; if(!o)return "";
+  const codes=[...new Set(o.codes)].filter(c=>c!=="UNSCORED");
+  const list=codes.map(c=>ERRORS[c]?ERRORS[c].t.toLowerCase():c).join("; ");
+  const slow=o.med>AUTO_MS[S.band]*2;
+  if(d===1){
+    return (s.s==="ok"?"Magnitude comparison and number-line placement were handled correctly. Symbolic quantity is being accessed as quantity, not decoded digit by digit — the semantic foundation is available to build on.":
+      s.s==="watch"?"Magnitude judgements were mostly correct but not uniformly so. ":
+      "Magnitude judgements were unreliable. ")+
+      (s.s!=="ok"?"The errors were systematic rather than random"+(list?" — "+list:"")+", which means they are teachable: a systematic error reflects a rule being applied consistently in the wrong place, not an absence of reasoning.":"")+
+      (slow?" Latencies here were long even where answers were right, suggesting comparison is being computed rather than perceived.":"");
+  }
+  if(d===2){
+    const ar=Math.round((o.auto/o.n)*100);
+    return "Of "+o.n+" fact items, "+o.correct+" were answered correctly and "+o.auto+" met the automaticity criterion — immediate recall within "+(AUTO_MS[S.band]/1000)+" seconds — giving an automaticity rate of "+ar+"%. Median latency was "+secs(o.med)+
+      (o.counted?", and counting was observed on "+o.counted+" item"+(o.counted>1?"s":"")+".":".")+
+      (s.s==="ok"?" Facts are stored and retrievable; this domain needs maintenance, not intervention.":
+       o.acc>=0.6?" The distinction that matters here is between knowing and retrieving: the answers were largely available, but they were reconstructed rather than recalled. Every reconstruction consumes the working memory that the surrounding procedure also needs, which is why fluency weakness surfaces as procedural error further downstream.":
+       " Both accuracy and speed were affected, indicating the fact network itself is sparse rather than merely slow to access.")+
+      (list?" Error types: "+list+".":"");
+  }
+  if(d===3){
+    const worked=o.items.filter(x=>x.work).length;
+    return (s.s==="ok"?"Multi-step algorithms were executed accurately and in the correct order.":
+      "Algorithm execution broke down"+(list?" in identifiable ways — "+list:"")+".")+
+      (worked?" Written work was captured on "+worked+" item"+(worked>1?"s":"")+" and is reproduced in the item record below; read it alongside the error classification, because where the algorithm stopped being followed is usually more informative than the final value.":
+      " No written work was captured, which limits how precisely the breakdown point can be located — collect it on any re-administration.")+
+      (o.paper?"":" Note that these items were attempted without paper, which loads working memory beyond what the algorithm itself demands.");
+  }
+  if(d===4){
+    return (s.s==="ok"?"Both balance problems were solved. Intermediate values were held, substituted, and carried forward to the final quantity — quantitative working memory is adequate for the reasoning load these items impose.":
+      "The equivalence items were not carried through to completion"+(list?" — "+list:"")+". These items deliberately load working memory: nothing in them is arithmetically hard, and every value needed is visible on screen. Failure here therefore points at the holding and manipulating of intermediate quantities rather than at calculation or at the concept of balance.")+
+      (o.med?" Median latency across the two items was "+secs(o.med)+".":"");
+  }
+  return (s.s==="ok"?"Word problems were translated into the correct operations and carried to completion, including the filtering of irrelevant quantities.":
+    "Translation from text to arithmetic was where these items failed"+(list?" — "+list:"")+".")+
+    (S.intake.readAloud?" Items were read aloud, so decoding load can be excluded as an explanation.":" Items were read independently; if reading fluency is also a concern, re-administer with the problems read aloud to separate the reading demand from the mathematical one.");
+}
+
+/* ---------- scaffold library ---------- */
+const SCAFFOLDS=[
+ {tag:"Quantity before symbols",t:"Rebuild magnitude non-symbolically first",
+  b:"Before any further symbolic work, spend sessions on quantity itself: dot-array comparison without counting, Cuisenaire rods and bead strings, and estimation on a blank 0–100 line with only the endpoints marked. The target is a felt sense of how big a number is. Symbolic drill layered onto an imprecise magnitude representation produces memorised responses that cannot be self-checked.",
+  when:A=>A.st[1]&&A.st[1].s!=="ok"},
+ {tag:"Number line",t:"Make the number line a physical object",
+  b:"Use a walkable floor line or a long taped strip. Ask for placement, then for the midpoint, then for “which is closer to.” Have the learner justify placement aloud before checking. Midpoint errors specifically respond to the routine of marking both endpoints, marking the middle, and only then naming the number.",
+  when:A=>A.nOf("MIDPOINT_NO_HALVING","MIDPOINT_GAP","MIDPOINT_GAP_HALVED","MIDPOINT_OTHER","MIDPOINT_NEAR")>0},
+ {tag:"Fractions",t:"Fraction strips and benchmark comparison",
+  b:"Teach comparison through area models and folded strips before any cross-multiplication rule. Anchor every fraction to 0, ½, and 1 (“is it more or less than a half, and how do you know?”). Explicitly confront the misconception: line up 1⁄3 and 1⁄5 physically and ask which piece is bigger, then ask why the bigger number made the smaller piece.",
+  when:A=>A.nOf("WHOLE_NUMBER_BIAS_DENOM","WHOLE_NUMBER_BIAS_NUM")>0},
+ {tag:"Decimals",t:"Place-value chart and money for decimal magnitude",
+  b:"Write both numbers into a place-value chart with the decimal points aligned, and equalise the digits (0.7 becomes 0.70) before comparing. Money is the most reliable model here — $0.70 against $0.65 settles it without a rule to remember.",
+  when:A=>A.nOf("DECIMAL_LENGTH_BIAS")>0},
+ {tag:"Fluency",t:"Derived-fact strategy, not more timed drill",
+  b:"Timed drill on an unconsolidated fact network increases anxiety and consolidates nothing. Teach facts as derivations from anchors the learner already owns: near-doubles (7+8 as 7+7+1), the ×5 half-of-ten anchor, ×9 as ten-groups-minus-one, and the commutative pairing that halves what must be stored. Once a strategy is reliable, move it to spaced retrieval — five minutes daily, mixed operations, no clock — using cover-copy-compare.",
+  when:A=>A.st[2]&&A.st[2].s!=="ok"},
+ {tag:"Counting",t:"Displace counting with subitising and bridging",
+  b:"Counting on fingers persists because it works, and it will not be removed by prohibition. Replace it: ten-frames and dot patterns until small quantities are recognised without counting, then the bridge-through-ten routine (14−8 as 14−4−4) practised aloud until it is faster than counting back. Speed comes from the strategy being genuinely quicker, not from being told to stop.",
+  when:A=>A.P.counting||A.nOf("COUNT_SLIP")>=1},
+ {tag:"Accommodation",t:"Supply a fact chart so procedure can be taught independently",
+  b:"Where retrieval is the bottleneck but the algorithms themselves are sound, withholding a multiplication chart during procedural work measures the wrong thing and blocks the right practice. Provide the chart for multi-step work; keep fluency practice as its own separate, unpressured activity.",
+  when:A=>A.st[2]&&A.st[2].s!=="ok"&&A.st[3]&&A.st[3].s!=="flag"},
+ {tag:"Regrouping",t:"Trade physically, then write it expanded",
+  b:"Base-ten blocks with an explicit trade performed by the learner, narrated as it happens. Then bridge to expanded notation before the compact algorithm: 403 − 178 written as 300 + 90 + 13 minus 100 + 70 + 8. The expanded form makes the decomposition visible rather than remembered, and it is where the “can I take this?” self-question belongs.",
+  when:A=>A.nOf("SMALLER_FROM_LARGER","BORROW_CHAIN")>0},
+ {tag:"Regrouping",t:"Teach counting-up as a second subtraction algorithm",
+  b:"Subtraction across zeros is the hardest case of the borrowing algorithm and the easiest case of counting up. For 5002 − 1367, adding up from 1367 to 5002 in friendly jumps avoids the zero chain entirely. Having two algorithms means one can check the other, which is worth more than fluency in either alone.",
+  when:A=>A.nOf("BORROW_CHAIN")>0},
+ {tag:"Place value",t:"Constrain the page: columns, grid paper, and colour",
+  b:"Alignment errors are spatial, not conceptual, and respond to spatial fixes: squared paper with one digit per cell, lined paper turned ninety degrees to make vertical columns, or place-value columns coloured consistently. This is a cheap accommodation that removes a whole class of error immediately.",
+  when:A=>A.nOf("PLACE_VALUE_SHIFT","DIGIT_TRANSPOSITION","QUOTIENT_ZERO_OMITTED","CARRY_OMISSION")>0},
+ {tag:"Multiplication",t:"Use the area (box) model to externalise partial products",
+  b:"The box model gives every partial product its own cell, so none can be forgotten and the place-value shift is structural rather than remembered. It converts a working-memory task into a visual one — which is exactly the substitution needed when the standard algorithm collapses partway through.",
+  when:A=>A.nOf("INCOMPLETE_PARTIAL_PRODUCTS","PLACE_VALUE_SHIFT")>0},
+ {tag:"Division",t:"Give the remainder a meaning before a notation",
+  b:"Return division to context: thirteen cookies shared among four children, and then the question “what is the 1?” Requiring the remainder to be named in the situation — one cookie left over, not “r1” — makes dropping it much harder, and exposes whether the stopping rule for the algorithm is understood.",
+  when:A=>A.nOf("REMAINDER_DROPPED","REMAINDER_EXCEEDS","DIVIDEND_REVERSAL")>0},
+ {tag:"Working memory",t:"Externalise every intermediate value",
+  b:"The rule is that nothing is held in the head that can be written down. On balance and multi-step problems, write the substituted value directly onto the diagram as it is derived; on multi-digit multiplication, put each partial product on its own labelled line. This does not make the problem easier — it removes the storage demand that was causing the failure while leaving the mathematics intact.",
+  when:A=>A.P.wm},
+ {tag:"Working memory",t:"Restate the question before answering it",
+  b:"Where the first step is computed correctly and then handed in as the answer, the fix is goal maintenance rather than mathematics. Have the learner write the question as a blank at the top of the page — “___ squares = 1 hexagon” — and read it again before committing to an answer. The final check is: does my answer fit the blank I wrote?",
+  when:A=>A.nOf("INTERMEDIATE_ONLY","SINGLE_STEP_TRUNCATION")>0},
+ {tag:"Equivalence",t:"Physical balance and the replace-and-rewrite routine",
+  b:"Use an actual pan balance with weighted shapes so equivalence is experienced before it is reasoned about. Then formalise it as a routine: replace one shape with what it equals, rewrite the whole line, and repeat until only one kind of shape remains. Written substitution chains transfer directly into early algebra.",
+  when:A=>A.st[4]&&A.st[4].s!=="ok"},
+ {tag:"Word problems",t:"Numberless problems first",
+  b:"Present the problem with every number removed and discuss only what is happening and what is being asked. Add the quantities back one at a time, deciding for each whether it is needed. This directly targets number-harvesting: it makes comprehension the first move and computation the last.",
+  when:A=>A.nOf("EXTRANEOUS_USED","TRANSLATION_FAIL")>0},
+ {tag:"Word problems",t:"Bar models and problem-type schemas",
+  b:"Teach the small set of underlying structures — change, part-part-whole, comparison, and equal groups — and have the learner name the type before choosing an operation. Bar-model diagrams make the structure visible and turn operation choice into a consequence of the diagram rather than a guess prompted by a keyword.",
+  when:A=>A.nOf("OPERATION_SELECTION")>0||(A.st[5]&&A.st[5].s!=="ok")},
+ {tag:"Affect",t:"Separate assessment pressure from practice",
+  b:"Withheld responses and guessing under a low-stakes probe suggest the cost of being wrong is being felt. Keep retrieval practice untimed and unscored, make “I don't know” an explicitly acceptable answer, and never use public or competitive fact drills. Anxiety consumes the same working memory the mathematics needs — reducing it is an intervention, not a courtesy.",
+  when:A=>A.P.withheld||A.items.filter(x=>x.strategy==="guess").length>=2},
+ {tag:"Monitoring",t:"Re-probe rather than intervene",
+  b:"No domain fell below criterion. Rather than starting an intervention, re-administer this probe in eight to twelve weeks and compare latency and strategy — the same accuracy reached faster, or by retrieval instead of counting, is real progress that an accuracy score alone would miss.",
+  when:A=>A.P.intact}
+];
+function accommodations(A){
+  const out=[];
+  if(A.st[2]&&A.st[2].s!=="ok")out.push("Extended time on any task with an arithmetic load, and a multiplication chart or calculator when computation is not what is being assessed.");
+  if(A.P.spatial||A.nOf("CARRY_OMISSION","PLACE_VALUE_SHIFT","DIGIT_TRANSPOSITION"))out.push("Squared or column-ruled paper as standard issue, and reduced copying — provide problems already written out rather than transcribed from a board.");
+  if(A.P.wm)out.push("Multi-step problems chunked into separately presented steps, with intermediate answers recorded on the page rather than carried mentally.");
+  if(A.st[5]&&A.st[5].s!=="ok")out.push("Word problems read aloud on request, and permission to annotate the text before computing.");
+  if(A.P.withheld||A.items.filter(x=>x.strategy==="guess").length>=2)out.push("No timed, public, or competitive fact drills; retrieval practice kept untimed and ungraded.");
+  if(S.intake.usesCalc)out.push("Formalise the calculator or fact chart already in informal use, so access does not depend on the individual teacher.");
+  out.push("Assess understanding and computation separately wherever possible, so a fluency weakness does not mask conceptual competence in reporting.");
+  return out;
+}
+
+/* ---------- report render ---------- */
+let LAST=null;
+function rec(k,v){return '<div><dt>'+esc(k)+'</dt><dd>'+esc(v||"—")+'</dd></div>';}
+function latBar(ms){
+  const w=Math.min(100,(ms/20000)*100);
+  return '<span class="latbar'+(ms>AUTO_MS[S.band]*2?" slow":"")+'"><i style="width:'+w.toFixed(1)+'%"></i></span>';
+}
+function renderReport(){
+  const A=analyze(); LAST=A;
+  const I=S.intake;
+  const dur=Math.max(1,Math.round(A.totalMs/60000));
+  let h='<div class="report" id="reportDoc">';
+  h+='<div class="rpt-head"><p class="eyebrow">Numeracy Diagnostic Probe · Form A · '+esc(I.date)+'</p>'+
+     '<h2>Qualitative Diagnostic Profile</h2>'+
+     '<p class="sub">Informal, criterion-referenced probe of numerical processing across five cognitive domains. Items were generated dynamically for this administration and are not reused.</p>'+
+     '<dl class="recordgrid" style="margin:1.4rem 0 0">'+
+     rec("Examinee",I.name)+rec("Date of birth",I.dob)+rec("Age at testing",I.ageTxt)+
+     rec("Grade placement",gradeLabel(I.grade))+rec("Difficulty band",BAND_NAME[S.band])+
+     rec("Date of assessment",I.date)+rec("Examiner",I.examiner)+rec("Setting",I.setting)+
+     rec("Items administered",A.items.length+" of 12")+rec("Duration",dur+" min")+
+     rec("Overall accuracy",pct(A.accAll))+rec("Median latency",secs(A.medAll))+
+     '</dl></div><div class="rpt-body">';
+
+  /* narrative context */
+  if(I.referral||I.hx||I.state||I.lang||I.math){
+    h+='<section class="rpt-sec"><h3><span class="n">00</span> Referral context</h3>';
+    if(I.referral)h+='<p><strong>Reason for referral.</strong> '+esc(I.referral)+'</p>';
+    if(I.hx)h+='<p><strong>Relevant history.</strong> '+esc(I.hx)+'</p>';
+    if(I.math)h+='<p><strong>Current placement.</strong> '+esc(I.math)+'</p>';
+    if(I.lang)h+='<p><strong>Language.</strong> '+esc(I.lang)+'</p>';
+    if(I.state)h+='<p><strong>State at testing.</strong> '+esc(I.state)+'</p>';
+    const cond=[];
+    if(I.paper)cond.push("scratch paper permitted");else cond.push("no scratch paper");
+    if(I.readAloud)cond.push("items read aloud");
+    if(I.showTimer)cond.push("timer visible to examinee");
+    if(I.usesCalc)cond.push("uses calculator or fact chart in class");
+    h+='<p><strong>Conditions.</strong> '+esc(cond.join("; "))+'.'+
+       (S.ageBand&&S.ageBand!==S.band?" Item difficulty was set from grade placement ("+esc(BAND_NAME[S.band])+"); chronological age implies the "+esc(BAND_NAME[S.ageBand])+" band. Interpret accuracy against the band actually administered.":"")+'</p></section>';
+  }
+
+  /* exec summary */
+  h+='<section class="rpt-sec"><h3><span class="n">01</span> Executive summary</h3>'+
+     summaryProse(A).map(p=>'<p>'+p+'</p>').join("")+'</section>';
+
+  /* at a glance */
+  h+='<section class="rpt-sec"><h3><span class="n">02</span> Performance at a glance</h3><div class="tablewrap"><table>'+
+     '<thead><tr><th>Domain</th><th class="num">Correct</th><th class="num">Median latency</th><th>Predominant method</th><th>Status</th></tr></thead><tbody>';
+  A.present.forEach(d=>{
+    const o=A.dom[d], s=A.st[d];
+    const meth=[["Instant recall",o.instant],["Mental reasoning",o.reasoned],["Counting",o.counted],["Paper / device",o.paper],["Guessed",o.guess],["No response",o.dk]]
+      .sort((a,b)=>b[1]-a[1]).filter(x=>x[1]>0);
+    h+='<tr><td><strong>'+d+'. '+esc(D[d])+'</strong></td>'+
+       '<td class="num">'+o.correct+" / "+o.n+'</td>'+
+       '<td class="num">'+secs(o.med)+' '+latBar(o.med)+'</td>'+
+       '<td>'+(meth.length?esc(meth[0][0])+(meth[0][1]<o.n?' <span style="color:var(--ink-faint)">('+meth[0][1]+" of "+o.n+')</span>':""):"—")+'</td>'+
+       '<td><span class="chip '+s.s+'">'+esc(s.l)+'</span></td></tr>';
+  });
+  h+='</tbody></table></div></section>';
+
+  /* domain by domain */
+  const HEAD={1:"Semantic number sense",2:"Fact automaticity vs. retrieval delay",3:"Procedural integrity",4:"Quantitative working memory & equivalence",5:"Applied reasoning & linguistic translation"};
+  h+='<section class="rpt-sec"><h3><span class="n">03</span> Domain-by-domain analysis</h3><div class="domlist">';
+  A.present.forEach(d=>{
+    const o=A.dom[d], s=A.st[d];
+    h+='<div class="domcard '+s.s+'"><h4><span>'+esc(HEAD[d])+'</span><span class="chip '+s.s+'">'+esc(s.l)+'</span></h4>'+
+       '<p>'+domainNarrative(A,d)+'</p><div class="metrics">'+
+       '<span>Accuracy <b>'+o.correct+"/"+o.n+'</b></span>'+
+       '<span>Median <b>'+secs(o.med)+'</b></span>'+
+       '<span>Slowest <b>'+secs(o.max)+'</b></span>'+
+       (d===2?'<span>Automatic <b>'+o.auto+"/"+o.n+'</b></span>':"")+
+       (o.counted?'<span>Counted <b>'+o.counted+'</b></span>':"")+
+       (o.dk?'<span>No response <b>'+o.dk+'</b></span>':"")+
+       '</div></div>';
+  });
+  h+='</div></section>';
+
+  /* item record */
+  h+='<section class="rpt-sec"><h3><span class="n">04</span> Item record</h3><div class="tablewrap"><table>'+
+     '<thead><tr><th class="num">#</th><th class="num">Dom</th><th>Item as presented</th><th>Expected</th><th>Given</th><th class="num">Latency</th><th>Method</th><th class="num">Score</th><th>Error signature</th></tr></thead><tbody>';
+  A.items.forEach(x=>{
+    h+='<tr><td class="num">'+x.n+'</td><td class="num">'+x.dom+'</td>'+
+       '<td class="mono">'+esc(x.stim)+'</td><td class="mono">'+esc(x.expected)+'</td>'+
+       '<td class="mono">'+esc(x.given)+'</td><td class="num">'+secs(x.latency)+'</td>'+
+       '<td>'+esc(STRAT_LABEL[x.strategy]||x.strategy)+'</td>'+
+       '<td class="num '+(x.correct?"mark-y":x.strategy==="unknown"?"mark-d":"mark-n")+'">'+(x.correct?"✓":x.strategy==="unknown"?"—":"✗")+'</td>'+
+       '<td>'+(x.code?esc(ERRORS[x.code]?ERRORS[x.code].t:x.code):"")+'</td></tr>';
+    if(x.work||x.obs){
+      h+='<tr><td></td><td></td><td colspan="7" style="color:var(--ink-soft);font-size:.78rem;padding-top:0">'+
+        (x.work?'<strong>Work shown:</strong> <span class="mono">'+esc(x.work)+'</span><br>':"")+
+        (x.obs?'<strong>Observed:</strong> '+esc(x.obs):"")+'</td></tr>';
+    }
+  });
+  h+='</tbody></table></div></section>';
+
+  /* error analysis */
+  const cats={};
+  A.items.filter(x=>x.code).forEach(x=>{
+    const e=ERRORS[x.code]; if(!e)return;
+    (cats[e.c]=cats[e.c]||{n:0,codes:{},items:[]});
+    cats[e.c].n++; cats[e.c].codes[x.code]=(cats[e.c].codes[x.code]||0)+1; cats[e.c].items.push(x.n);
+  });
+  h+='<section class="rpt-sec"><h3><span class="n">05</span> Error analysis</h3>';
+  const catKeys=Object.keys(cats).sort((a,b)=>cats[b].n-cats[a].n);
+  if(!catKeys.length){
+    h+='<p>No scoreable errors were recorded. With every item correct, the ceiling of this probe was not reached — a harder band would be needed to locate the limit of current skill.</p>';
+  }else{
+    h+='<p>Errors are classified by the mechanism that produced them rather than by the operation involved. Two wrong answers to the same question can have entirely different instructional implications, and the categories below are what the scaffolds in the next section are matched against.</p>';
+    catKeys.forEach(c=>{
+      const g=cats[c];
+      h+='<div class="errgroup"><h4>'+esc(c)+' <span class="ct">'+g.n+' error'+(g.n>1?"s":"")+' · item'+(g.items.length>1?"s":"")+' '+g.items.join(", ")+'</span></h4>';
+      Object.keys(g.codes).forEach(code=>{
+        const e=ERRORS[code];
+        h+='<p style="font-family:var(--serif)"><strong>'+esc(e.t)+(g.codes[code]>1?" ×"+g.codes[code]:"")+'.</strong> '+esc(e.d)+'</p>';
+      });
+      h+='</div>';
+    });
+  }
+  h+='</section>';
+
+  /* scaffolds */
+  const picked=SCAFFOLDS.filter(s=>{try{return s.when(A);}catch(e){return false;}}).slice(0,9);
+  h+='<section class="rpt-sec"><h3><span class="n">06</span> Targeted instructional scaffolds</h3>'+
+     '<p>Each scaffold below is matched to a breakdown point actually observed in this administration, ordered roughly by dependency — earlier entries are prerequisites for later ones. Nothing here is generic good practice included for completeness.</p>'+
+     '<div class="scaffolds">'+
+     picked.map(s=>'<div class="scaffold"><span class="tag">'+esc(s.tag)+'</span><h4>'+esc(s.t)+'</h4><p>'+esc(s.b)+'</p></div>').join("")+
+     '</div>';
+  const acc=accommodations(A);
+  h+='<h4 style="font-family:var(--sans);font-size:.9rem;margin:1.4rem 0 .5rem">Accommodations to put in place now</h4><ul style="font-family:var(--serif);font-size:.97rem;line-height:1.6;padding-left:1.2rem;margin:0">'+
+     acc.map(a=>'<li style="margin-bottom:.35rem">'+esc(a)+'</li>').join("")+'</ul></section>';
+
+  /* limits */
+  h+='<section class="rpt-sec"><h3><span class="n">07</span> Limitations of this probe</h3><div class="disclaimer">'+
+     '<b>This is not a diagnosis and not a normed test.</b> It is an informal, criterion-referenced probe of '+A.items.length+' items. It yields no standard scores, no percentiles, and no age or grade equivalents, and it cannot establish eligibility for services or support a diagnosis of a specific learning disability. '+
+     'Dyscalculia is diagnosed by a qualified professional on the basis of a comprehensive evaluation that includes normed achievement and cognitive measures, developmental and educational history, exclusion of alternative explanations such as instructional gaps, sensory factors, attention, language, and anxiety, and evidence of persistence and functional impact over time. '+
+     'A single low-latency session says nothing about performance over sustained work, and a single administration cannot distinguish a stable processing difference from a bad afternoon. '+
+     'Use this profile as a hypothesis about <em>where to look</em> and as a starting point for instruction, and re-probe to confirm any pattern before acting on it at scale.'+
+     '</div></section>';
+
+  h+='</div></div>';
+  h+='<div class="actionbar noprint">'+
+     '<button class="btn" id="btnPrint" type="button">Print / Save as PDF</button>'+
+     '<button class="btn ghost hidden" id="btnSaveHtml" type="button">Download report (.html)</button>'+
+     '<button class="btn ghost hidden" id="btnSaveJson" type="button">Download record (.json)</button>'+
+     '<button class="btn ghost" id="btnCopy" type="button">Copy as text</button>'+
+     '<span class="spacer"></span>'+
+     '<span class="note" id="saveNote">Print → “Save as PDF” keeps a copy anywhere.</span>'+
+     '<button class="btn quiet" id="btnNew" type="button">New administration</button>'+
+     '</div>';
+  $("#report").innerHTML=h;
+  wireReport(A);
+}
+
+/* ---------- exports ---------- */
+function textReport(A){
+  const I=S.intake, L=[];
+  const rule="-".repeat(72);
+  L.push("NUMERACY DIAGNOSTIC PROBE — FORM A");
+  L.push("Qualitative diagnostic profile");
+  L.push(rule);
+  L.push("Examinee:            "+(I.name||"—"));
+  L.push("Date of birth:       "+(I.dob||"—")+"   Age at testing: "+(I.ageTxt||"—"));
+  L.push("Grade placement:     "+gradeLabel(I.grade));
+  L.push("Difficulty band:     "+BAND_NAME[S.band]);
+  L.push("Date of assessment:  "+(I.date||"—"));
+  L.push("Examiner:            "+(I.examiner||"—"));
+  L.push("Setting:             "+(I.setting||"—"));
+  L.push("Items / duration:    "+A.items.length+" of 12 · "+Math.max(1,Math.round(A.totalMs/60000))+" min");
+  L.push("Overall accuracy:    "+pct(A.accAll)+"   Median latency: "+secs(A.medAll));
+  L.push("");
+  if(I.referral){L.push("REFERRAL: "+I.referral);}
+  if(I.hx){L.push("HISTORY: "+I.hx);}
+  if(I.state){L.push("STATE AT TESTING: "+I.state);}
+  L.push("");L.push("1. EXECUTIVE SUMMARY");L.push(rule);
+  summaryProse(A).forEach(p=>{L.push(p.replace(/<[^>]+>/g,""));L.push("");});
+  L.push("2. PERFORMANCE AT A GLANCE");L.push(rule);
+  A.present.forEach(d=>L.push(("Domain "+d+" "+D[d]).padEnd(42)+(A.dom[d].correct+"/"+A.dom[d].n).padEnd(7)+secs(A.dom[d].med).padEnd(9)+A.st[d].l));
+  L.push("");L.push("3. DOMAIN-BY-DOMAIN ANALYSIS");L.push(rule);
+  const HEAD={1:"Semantic number sense",2:"Fact automaticity vs. retrieval delay",3:"Procedural integrity",4:"Quantitative working memory & equivalence",5:"Applied reasoning & linguistic translation"};
+  A.present.forEach(d=>{L.push(HEAD[d]+" — "+A.st[d].l);L.push(domainNarrative(A,d).replace(/<[^>]+>/g,""));L.push("");});
+  L.push("4. ITEM RECORD");L.push(rule);
+  A.items.forEach(x=>{
+    L.push(String(x.n).padStart(2)+"  D"+x.dom+"  "+x.stim.padEnd(30).slice(0,30)+"  exp "+String(x.expected).padEnd(10).slice(0,10)+"  got "+String(x.given).padEnd(10).slice(0,10)+"  "+secs(x.latency).padStart(7)+"  "+(x.correct?"OK ":x.strategy==="unknown"?"DK ":"ERR")+"  "+(STRAT_LABEL[x.strategy]||"")+(x.code?"  ["+(ERRORS[x.code]?ERRORS[x.code].t:x.code)+"]":""));
+    if(x.work)L.push("      work: "+x.work.replace(/\n/g," / "));
+    if(x.obs)L.push("      obs:  "+x.obs.replace(/\n/g," / "));
+  });
+  L.push("");L.push("5. ERROR ANALYSIS");L.push(rule);
+  const seen={};
+  A.items.filter(x=>x.code).forEach(x=>{if(seen[x.code])return;seen[x.code]=1;const e=ERRORS[x.code];if(e){L.push("["+e.c+"] "+e.t);L.push("  "+e.d);L.push("");}});
+  if(!Object.keys(seen).length)L.push("No scoreable errors recorded.");
+  L.push("");L.push("6. TARGETED INSTRUCTIONAL SCAFFOLDS");L.push(rule);
+  SCAFFOLDS.filter(s=>{try{return s.when(A);}catch(e){return false;}}).slice(0,9).forEach(s=>{L.push("• "+s.t+" ("+s.tag+")");L.push("  "+s.b);L.push("");});
+  L.push("ACCOMMODATIONS");
+  accommodations(A).forEach(a=>L.push("  - "+a));
+  L.push("");L.push("7. LIMITATIONS");L.push(rule);
+  L.push("This is an informal criterion-referenced probe, not a normed test and not a diagnosis.");
+  L.push("It yields no standard scores and cannot establish eligibility for services. Dyscalculia");
+  L.push("is diagnosed by a qualified professional through comprehensive evaluation. Use this");
+  L.push("profile as a hypothesis about where to look, and re-probe before acting at scale.");
+  return L.join("\n");
+}
+function standaloneHTML(){
+  const doc=$("#reportDoc").outerHTML;
+  const css='body{font-family:Georgia,"Times New Roman",serif;color:#111;background:#fff;max-width:52rem;margin:2rem auto;padding:0 1.2rem;line-height:1.55}'+
+   'h2{font-size:1.7rem;margin:0 0 .2rem}h3{font-size:1.15rem;border-bottom:1px solid #999;padding-bottom:.3rem;margin:2rem 0 .8rem;display:flex;gap:.6rem;align-items:baseline}'+
+   'h3 .n{font-family:monospace;font-size:.7rem;color:#666}h4{font-family:Helvetica,Arial,sans-serif;font-size:.95rem;margin:0 0 .3rem;display:flex;justify-content:space-between;gap:.7rem;flex-wrap:wrap}'+
+   '.eyebrow{font-family:monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:#555;margin:0 0 .3rem}'+
+   '.sub{color:#444;font-size:.9rem;margin:.3rem 0 0}.rpt-head{border-bottom:2px solid #111;padding-bottom:1rem}'+
+   '.recordgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:0;margin:1.2rem 0 0;border-top:1px solid #bbb}'+
+   '.recordgrid div{border-bottom:1px solid #ddd;padding:.45rem .6rem .4rem 0}'+
+   '.recordgrid dt{font-family:monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:#666}'+
+   '.recordgrid dd{margin:0;font-size:.88rem;font-family:Helvetica,Arial,sans-serif}'+
+   '.rpt-body{display:block}section{margin-bottom:1.6rem;page-break-inside:auto}'+
+   'p{max-width:40rem}table{width:100%;border-collapse:collapse;font-size:.78rem;font-family:Helvetica,Arial,sans-serif}'+
+   'th{text-align:left;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:#555;font-weight:400;padding:.45rem .6rem;border-bottom:1px solid #999;background:#f4f4f4}'+
+   'td{padding:.4rem .6rem;border-bottom:1px solid #e4e4e4;vertical-align:top}.tablewrap{overflow-x:auto;border:1px solid #bbb}'+
+   '.mono,.num{font-family:monospace}.chip{font-family:monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;border:1px solid #999;padding:.1rem .4rem;white-space:nowrap}'+
+   '.domcard{border:1px solid #ccc;border-left:3px solid #666;padding:.8rem .9rem;margin-bottom:.7rem;page-break-inside:avoid}'+
+   '.domcard .metrics{font-family:monospace;font-size:.7rem;color:#555;margin-top:.5rem;padding-top:.4rem;border-top:1px solid #e0e0e0;display:flex;gap:1rem;flex-wrap:wrap}'+
+   '.scaffolds{display:block}.scaffold{border:1px solid #ccc;padding:.8rem .9rem;margin-bottom:.6rem;page-break-inside:avoid}'+
+   '.scaffold .tag{font-family:monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.07em;color:#555;display:block;margin-bottom:.2rem}'+
+   '.errgroup{border-top:1px solid #e0e0e0;padding-top:.7rem;margin-top:.7rem}.errgroup .ct{font-family:monospace;font-size:.68rem;color:#666}'+
+   '.disclaimer{border:1px solid #999;background:#f6f6f6;padding:.9rem 1rem;font-size:.85rem}'+
+   '.latbar{display:none}.mark-y{font-weight:700}.mark-n{font-weight:700}'+
+   '.shape{width:22px;height:22px}.shape *{fill:#eee;stroke:#333;stroke-width:1.5}'+
+   '.scalerow{display:flex;align-items:center;gap:.7rem;font-family:monospace;font-size:.7rem}'+
+   '@media print{body{margin:0;max-width:none}@page{margin:16mm 14mm}}';
+  const nm=(S.intake.name||"examinee").replace(/[^A-Za-z0-9 _-]/g,"");
+  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>Numeracy Probe — '+esc(nm)+' — '+esc(S.intake.date)+'</title><style>'+css+'</style></head><body>'+doc+'</body></html>';
+}
+function fileStem(){
+  const nm=(S.intake.name||"examinee").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"examinee";
+  return "numeracy-probe-"+nm+"-"+(S.intake.date||todayISO());
+}
+
+/* ---------- downloads capability ---------- */
+let DL=null;
+function revealSave(){
+  if(!DL)return;
+  const a=$("#btnSaveHtml"),b=$("#btnSaveJson"),n=$("#saveNote");
+  if(a)a.classList.remove("hidden");
+  if(b)b.classList.remove("hidden");
+  if(n)n.textContent="Saving asks for your confirmation first.";
+}
+try{
+  if(window.claude&&typeof window.claude.use==="function"){
+    window.claude.use("downloads").then(function(d){DL=d;revealSave();}).catch(function(){});
+  }
+}catch(e){}
+
+function note(msg){const n=$("#saveNote");if(n)n.textContent=msg;}
+function jsonRecord(A){
+  return JSON.stringify({
+    instrument:"Numeracy Diagnostic Probe",form:"A",version:"1.0",
+    generated:new Date().toISOString(),
+    intake:S.intake,
+    difficultyBand:{index:S.band,label:BAND_NAME[S.band],fromAge:S.ageBand?BAND_NAME[S.ageBand]:null},
+    session:{startedAt:S.startedAt?new Date(S.startedAt).toISOString():null,
+             endedAt:S.endedAt?new Date(S.endedAt).toISOString():null,
+             durationMs:A.totalMs,itemsAdministered:A.items.length,plannedItems:12},
+    aggregate:{accuracy:A.accAll,medianLatencyMs:A.medAll,
+      domains:A.present.map(function(d){return{domain:d,name:D[d],n:A.dom[d].n,correct:A.dom[d].correct,
+        accuracy:A.dom[d].acc,medianLatencyMs:A.dom[d].med,status:A.st[d].l,statusFlag:A.st[d].s,
+        automaticItems:d===2?A.dom[d].auto:undefined,
+        methods:{instant:A.dom[d].instant,reasoned:A.dom[d].reasoned,counted:A.dom[d].counted,
+                 paper:A.dom[d].paper,guessed:A.dom[d].guess,noResponse:A.dom[d].dk}};})},
+    errorCounts:A.codes,
+    items:A.items.map(function(x){return{n:x.n,domain:x.dom,task:x.task,stimulus:x.stim,expected:x.expected,
+      given:x.given,latencyMs:x.latency,method:x.strategy,correct:x.correct,
+      errorCode:x.code||null,errorLabel:x.code&&ERRORS[x.code]?ERRORS[x.code].t:null,
+      errorCategory:x.code&&ERRORS[x.code]?ERRORS[x.code].c:null,
+      workShown:x.work||null,observation:x.obs||null,bandAdministered:x.band};}),
+    disclaimer:"Informal criterion-referenced probe. Not normed, not a diagnosis, not sufficient for eligibility determination."
+  },null,2);
+}
+function wireReport(A){
+  revealSave();
+  $("#btnPrint").addEventListener("click",function(){window.print();});
+  $("#btnCopy").addEventListener("click",function(){
+    const t=textReport(A);
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){note("Report copied to the clipboard as plain text.");},
+        function(){fallbackCopy(t);});
+    }else fallbackCopy(t);
+  });
+  $("#btnSaveHtml").addEventListener("click",function(){
+    if(!DL)return;
+    DL.save({filename:fileStem()+".html",data:standaloneHTML()}).then(function(){note("Report saved.");},
+      function(err){note(err&&err.code==="declined"?"Save cancelled.":"Could not save the file — use Print → Save as PDF instead.");});
+  });
+  $("#btnSaveJson").addEventListener("click",function(){
+    if(!DL)return;
+    DL.save({filename:fileStem()+".json",data:jsonRecord(A)}).then(function(){note("Record saved.");},
+      function(err){note(err&&err.code==="declined"?"Save cancelled.":"Could not save the file.");});
+  });
+  $("#btnNew").addEventListener("click",function(){
+    if(confirm("Start a new administration? The current report will be cleared from this device — save or print it first if you need it."))
+    {clearSaved();location.reload();}
+  });
+}
+function fallbackCopy(t){
+  try{
+    const ta=document.createElement("textarea");
+    ta.value=t; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select(); document.execCommand("copy");
+    document.body.removeChild(ta); note("Report copied to the clipboard as plain text.");
+  }catch(e){note("Copy is blocked here — use Print → Save as PDF instead.");}
+}
+
+/* ---------- resume ---------- */
+function restore(d){
+  S.intake=d.intake||{}; S.band=d.band||2; S.ageBand=d.ageBand||null; S.age=d.age||null;
+  S.items=d.items||[]; S.idx=d.idx||0; S.startedAt=d.startedAt||Date.now(); S.endedAt=d.endedAt||null;
+  const I=S.intake;
+  ["name","dob","date","examiner","setting","lang","math","referral","hx","state"].forEach(function(k){
+    if(F(k)&&I[k]!=null)F(k).value=I[k];});
+  if(F("grade")&&I.grade)F("grade").value=I.grade;
+  F("paper").checked=!!I.paper; F("timer").checked=!!I.showTimer;
+  F("read").checked=!!I.readAloud; F("calc").checked=!!I.usesCalc;
+  refreshAge();
+}
+(function init(){
+  let d=null;
+  try{const raw=localStorage.getItem(LSKEY); if(raw)d=JSON.parse(raw);}catch(e){}
+  if(!d||!d.items||!d.items.length){return;}
+  const done=!!d.endedAt||d.idx>=12;
+  $("#resumeBanner").classList.remove("hidden");
+  $("#resumeText").textContent=(done?"A completed administration is saved on this device":"An unfinished administration is saved on this device")+
+    (d.intake&&d.intake.name?" — "+d.intake.name:"")+
+    (d.intake&&d.intake.date?", "+d.intake.date:"")+" ("+d.items.length+" of 12 items recorded).";
+  $("#btnResume").textContent=done?"Reopen the report":"Resume it";
+  $("#btnResume").addEventListener("click",function(){
+    restore(d);
+    if(done){renderReport();show("report");}
+    else{S.plan=PLAN.slice();S.plan[7]={g:Math.random()<0.5?gLongMul:gDivide,dom:3};show("runner");nextItem();}
+  });
+  $("#btnDiscard").addEventListener("click",function(){clearSaved();$("#resumeBanner").classList.add("hidden");});
+})();
+
+})();
+</script>
