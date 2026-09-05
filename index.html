@@ -525,8 +525,7 @@ const ERRORS={
   UNIT_DIGIT_DOMINANCE:{c:"Conceptual — magnitude",t:"Ones digit judged as whole magnitude",d:"The number with the larger ones digit was selected even though it is the smaller quantity. Place value is not governing the magnitude judgement; the digits are being compared as separate symbols rather than as a composed number."},
   DECIMAL_LENGTH_BIAS:{c:"Conceptual — magnitude",t:"Longer decimal read as larger",d:"The decimal with more digits was chosen as larger — whole-number reasoning applied to decimal notation (0.65 treated as “sixty-five,” therefore bigger than 0.7)."},
   NEGATIVE_INVERSION:{c:"Conceptual — magnitude",t:"Negative magnitude inverted",d:"On the negative number line, absolute value was substituted for position: the number further from zero was judged larger."},
-  WHOLE_NUMBER_BIAS_DENOM:{c:"Conceptual — magnitude",t:"Larger denominator judged larger",d:"The fraction with the bigger bottom number was chosen. The denominator is being read as a count rather than as the size of the parts — the single most common fraction misconception, and a fair one to expect before formal instruction."},
-  WHOLE_NUMBER_BIAS_NUM:{c:"Conceptual — magnitude",t:"Numerator compared in isolation",d:"The fraction with the bigger top number was chosen without reference to its denominator. The fraction is being processed as two independent whole numbers rather than one quantity."},
+  WHOLE_NUMBER_BIAS_DENOM:{c:"Conceptual — magnitude",t:"Fraction judged by its whole numbers",d:"The fraction built from the bigger whole numbers was chosen. The fraction is being processed as two independent counts rather than as one quantity — the most common fraction misconception, and a fair one to expect before formal instruction. Note that a two-alternative item cannot separate a denominator focus from a numerator focus, since both name the same choice; ask the examinee how they decided to tell which is operating."},
   MIDPOINT_NO_HALVING:{c:"Conceptual — number line",t:"Endpoints summed, not halved",d:"The two endpoints were added and the halving step was dropped — the procedure was started but not completed."},
   MIDPOINT_GAP:{c:"Conceptual — number line",t:"Distance reported instead of position",d:"The gap between the two numbers was given rather than the point between them. Interval and position are being conflated."},
   MIDPOINT_GAP_HALVED:{c:"Conceptual — number line",t:"Half the distance, not the midpoint",d:"The distance was correctly halved but never added back to the lower endpoint — the answer describes how far, not where."},
@@ -609,8 +608,8 @@ function gFraction(band){
   }
   v1=f1.n/f1.d; v2=f2.n/f2.d;
   const fmt=f=>f.n+"/"+f.d;
-  const bigger=v1>v2?f1:f2, smaller=v1>v2?f2:f1;
-  const bigDen=f1.d>f2.d?f1:f2, bigNum=f1.n>f2.n?f1:f2;
+  const bigger=v1>v2?f1:f2;
+  const bigDen=f1.d>f2.d?f1:f2;
   const opts=Math.random()<0.5?[f1,f2]:[f2,f1];
   return {
     dom:1,task:"Fraction magnitude",
@@ -622,8 +621,6 @@ function gFraction(band){
     check:function(raw){
       const s=String(raw).trim();
       if(s===fmt(bigger))return{correct:true,code:null};
-      if(s===fmt(bigDen)&&bigDen!==bigger)return{correct:false,code:"WHOLE_NUMBER_BIAS_DENOM"};
-      if(s===fmt(bigNum)&&bigNum!==bigger)return{correct:false,code:"WHOLE_NUMBER_BIAS_NUM"};
       return{correct:false,code:"WHOLE_NUMBER_BIAS_DENOM"};
     }
   };
@@ -1155,7 +1152,7 @@ function analyze(){
   const grade=(o,ok,watch)=>o?(o.acc>=ok?"ok":o.acc>=watch?"watch":"flag"):null;
   if(dom[1]){
     let s=grade(dom[1],0.99,0.6);
-    const bias=nOf("WHOLE_NUMBER_BIAS_DENOM","WHOLE_NUMBER_BIAS_NUM","UNIT_DIGIT_DOMINANCE","DECIMAL_LENGTH_BIAS","NEGATIVE_INVERSION");
+    const bias=nOf("WHOLE_NUMBER_BIAS_DENOM","UNIT_DIGIT_DOMINANCE","DECIMAL_LENGTH_BIAS","NEGATIVE_INVERSION");
     if(s==="ok"&&bias>0)s="watch";
     if(bias>=2)s="flag";
     st[1]={s:s,l:s==="ok"?"Intact":s==="watch"?"Broadly intact, uneven":"Compromised"};
@@ -1303,7 +1300,7 @@ const SCAFFOLDS=[
   when:A=>A.nOf("MIDPOINT_NO_HALVING","MIDPOINT_GAP","MIDPOINT_GAP_HALVED","MIDPOINT_OTHER","MIDPOINT_NEAR")>0},
  {tag:"Fractions",t:"Fraction strips and benchmark comparison",
   b:"Teach comparison through area models and folded strips before any cross-multiplication rule. Anchor every fraction to 0, ½, and 1 (“is it more or less than a half, and how do you know?”). Explicitly confront the misconception: line up 1⁄3 and 1⁄5 physically and ask which piece is bigger, then ask why the bigger number made the smaller piece.",
-  when:A=>A.nOf("WHOLE_NUMBER_BIAS_DENOM","WHOLE_NUMBER_BIAS_NUM")>0},
+  when:A=>A.nOf("WHOLE_NUMBER_BIAS_DENOM")>0},
  {tag:"Decimals",t:"Place-value chart and money for decimal magnitude",
   b:"Write both numbers into a place-value chart with the decimal points aligned, and equalise the digits (0.7 becomes 0.70) before comparing. Money is the most reliable model here — $0.70 against $0.65 settles it without a rule to remember.",
   when:A=>A.nOf("DECIMAL_LENGTH_BIAS")>0},
