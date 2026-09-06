@@ -352,7 +352,7 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
   <div class="wrap">
     <div class="rail-head">
       <span id="railDomain">How big numbers feel</span>
-      <span><b id="railCount">Question 1</b> of 12</span>
+      <span><b id="railCount">Question 1</b> of <span id="railTotal">12</span></span>
     </div>
     <div class="scale" id="scale"></div>
     <div class="bands" id="bands"></div>
@@ -637,10 +637,10 @@ const shapes=(k,n)=>{let o="";for(let i=0;i<n;i++)o+=shape(k);return o;};
 const pan=(html,label)=>'<span class="pan">'+html+'<span class="lbl">'+label+'</span></span>';
 
 /* ---------- banding ---------- */
-const GRADE_BAND={prek:1,k:1,"1":1,"2":1,"3":2,"4":2,"5":2,"6":3,"7":3,"8":3,"9":4,"10":4,"11":4,"12":4,college:4,adult:4,hsed:4};
+const GRADE_BAND={prek:0,k:0,"1":1,"2":1,"3":2,"4":2,"5":2,"6":3,"7":3,"8":3,"9":4,"10":4,"11":4,"12":4,college:4,adult:4,hsed:4};
 const GRADE_LABEL={prek:"Pre-K",k:"Kindergarten",college:"Post-secondary",adult:"Adult, not enrolled",hsed:"Adult HSE program"};
 const gradeLabel=g=>!g?"Not reported":(GRADE_LABEL[g]||("Grade "+g));
-const BAND_NAME={1:"Early primary (K–2 expectations)",2:"Upper primary (grades 3–5)",3:"Middle grades (6–8)",4:"Secondary and adult (grade 9+)"};
+const BAND_NAME={0:"Early years (Pre-K and Kindergarten)",1:"Early primary (grades 1–2)",2:"Upper primary (grades 3–5)",3:"Middle grades (6–8)",4:"Secondary and adult (grade 9+)"};
 function ageAt(dob,on){
   if(!dob||!on)return null;
   const d=new Date(dob+"T00:00:00"), t=new Date(on+"T00:00:00");
@@ -650,8 +650,8 @@ function ageAt(dob,on){
   if(m<0){y--;m+=12;}
   return {y:y,m:m,txt:y+" yr "+m+" mo"};
 }
-const bandFromAge=y=>y==null?2:(y<8?1:y<11?2:y<14?3:4);
-const clampBand=b=>Math.max(1,Math.min(4,b));
+const bandFromAge=y=>y==null?2:(y<6?0:y<8?1:y<11?2:y<14?3:4);
+const clampBand=b=>Math.max(0,Math.min(4,b));
 
 /* ---------- error dictionary ---------- */
 const ERRORS={
@@ -659,6 +659,8 @@ const ERRORS={
   DECIMAL_LENGTH_BIAS:{c:"Conceptual — magnitude",t:"Longer decimal read as larger",d:"The decimal with more digits was chosen as larger — whole-number reasoning applied to decimal notation (0.65 treated as “sixty-five,” therefore bigger than 0.7)."},
   NEGATIVE_INVERSION:{c:"Conceptual — magnitude",t:"Negative magnitude inverted",d:"On the negative number line, absolute value was substituted for position: the number further from zero was judged larger."},
   WHOLE_NUMBER_BIAS_DENOM:{c:"Conceptual — magnitude",t:"Fraction judged by its whole numbers",d:"The fraction built from the bigger whole numbers was chosen. The fraction is being processed as two independent counts rather than as one quantity — the most common fraction misconception, and a fair one to expect before formal instruction. Note that a two-alternative item cannot separate a denominator focus from a numerator focus, since both name the same choice; ask them how they decided if you want to tell which is operating."},
+  MAGNITUDE_BASIC:{c:"Conceptual — magnitude",t:"Which of two small numbers is bigger not yet secure",d:"Comparison failed on quantities small enough to be seen rather than calculated. At this age the number word, the numeral and the amount are still being linked to one another, and that link is what the item is testing. It is the foundation everything else rests on, so it is where teaching should start."},
+  COUNT_SEQUENCE:{c:"Conceptual — counting",t:"Counting sequence not yet automatic",d:"The number that comes next, or just before, was not retrieved. Knowing the count sequence forwards and backwards without recounting from one is the precursor to adding and subtracting by counting on, and it is worth securing before either."},
   MIDPOINT_NO_HALVING:{c:"Conceptual — number line",t:"Endpoints summed, not halved",d:"The two endpoints were added and the halving step was dropped — the procedure was started but not completed."},
   MIDPOINT_GAP:{c:"Conceptual — number line",t:"Distance reported instead of position",d:"The gap between the two numbers was given rather than the point between them. Interval and position are being conflated."},
   MIDPOINT_GAP_HALVED:{c:"Conceptual — number line",t:"Half the distance, not the midpoint",d:"The distance was correctly halved but never added back to the lower endpoint — the answer describes how far, not where."},
@@ -674,6 +676,11 @@ const ERRORS={
   CARRY_OMISSION:{c:"Procedural",t:"Carry dropped",d:"Each column was computed correctly in isolation but the carried quantity was never added into the next column — the parts are right, the composition is not."},
   INCOMPLETE_PARTIAL_PRODUCTS:{c:"Working memory / sequencing",t:"Only the first partial product completed",d:"The multiplication stopped after the ones-digit pass. The second partial product was never generated — the procedure was abandoned mid-sequence, typically because holding the first result while starting the second exceeded available working memory."},
   PLACE_VALUE_SHIFT:{c:"Spatial / place value",t:"Second partial product not shifted",d:"Both partial products were computed correctly, but the second was added without shifting it one place left. Place value is not being tracked spatially."},
+  ORDER_LEFT_TO_RIGHT:{c:"Symbolic rules",t:"Expression evaluated left to right",d:"The operations were carried out in reading order rather than in precedence order, so multiplication was not done before addition. Every individual computation may well have been correct — this is a parsing failure, not an arithmetic one, and it is the single most common order-of-operations error. It matters beyond arithmetic: an expression read left to right stays unreadable once letters replace some of the numbers."},
+  ORDER_PEMDAS_LITERAL:{c:"Symbolic rules",t:"Mnemonic applied too literally",d:"Multiplication was done before division, or addition before subtraction, because the mnemonic lists them in that order. In fact each of those pairs shares a precedence level and is worked left to right. The rule has been memorised as a queue of six steps rather than as three tiers, which is a predictable consequence of how the mnemonic is usually taught."},
+  ORDER_PARENS_IGNORED:{c:"Symbolic rules",t:"Brackets not treated as a grouping",d:"The expression was evaluated as though the brackets were absent. Brackets are the one piece of notation that overrides everything else, so reading past them removes the only tool available for controlling order."},
+  ORDER_EXPONENT_SCOPE:{c:"Symbolic rules",t:"Exponent applied to the wrong thing",d:"The power was applied to the whole product rather than to the single value it sits on. Scope — what a symbol governs — is the idea being missed, and it recurs with negative signs, radicals and function notation later."},
+  ORDER_UNRESOLVED:{c:"Symbolic rules",t:"No consistent order applied",d:"The answer does not correspond to any systematic reading of the expression, correct or otherwise, which suggests the convention is not yet available as a rule to apply rather than being applied wrongly."},
   MAGNITUDE_IMPLAUSIBLE:{c:"Conceptual — magnitude",t:"Answer far outside a plausible range",d:"The response is several times larger or smaller than any correct answer could be. What is missing is not the calculation but the check on it: an estimate of roughly how big the answer should be, held alongside the work and used to reject an impossible result. Answers accepted without that check are a marker worth noting, because the estimate is what makes every other error self-correctable."},
   CALC_SLIP:{c:"Calculation slip",t:"Isolated computational error",d:"The procedure was structurally correct with a single arithmetic error inside it — a slip, not a misconception."},
   REMAINDER_DROPPED:{c:"Procedural",t:"Remainder discarded",d:"The quotient is correct but the remainder was not reported. The division was executed; the meaning of what was left over was not carried through to the answer."},
@@ -692,11 +699,17 @@ const ERRORS={
 };
 
 /* ---------- item generators ---------- */
-const D={1:"Core number sense & magnitude",2:"Fact retrieval & fluency",3:"Procedural calculation",4:"Working memory & equivalence",5:"Applied reasoning"};
+const D={1:"Core number sense & magnitude",2:"Fact retrieval & fluency",3:"Procedural calculation",4:"Working memory & equivalence",5:"Applied reasoning",6:"Order of operations"};
 
 function gCompare(band){
   let a,b,trap,kind,note;
-  if(band<=2){
+  if(band<=0){
+    /* At this age the item is whether number word, numeral and amount are linked at
+       all, so the quantities stay small enough to be seen rather than calculated. */
+    a=ri(1,9); do{b=ri(1,9);}while(Math.abs(a-b)<2);
+    const hi=Math.max(a,b), lo=Math.min(a,b);
+    a=hi; b=lo; trap=lo; kind="MAGNITUDE_BASIC";
+  }else if(band<=2){
     const t=ri(2,8),u1=ri(5,9),u2=ri(0,u1-3);
     a=t*10+u1; b=(t+1)*10+u2; trap=a; kind="UNIT_DIGIT_DOMINANCE";
   }else if(band===3){
@@ -760,9 +773,26 @@ function gFraction(band){
   };
 }
 
+function gCountSeq(band){
+  const back=Math.random()<0.5, n=ri(3,12);
+  const ans=back?n-1:n+1;
+  return {
+    dom:1,task:"Counting sequence",kind:"countseq",p:{n:n,back:back,ans:ans},
+    instruction:back?"Count backwards in your head to work this one out.":"Count on in your head to work this one out.",
+    stimText:back?("What number comes just before "+n+"?"):("What number comes just after "+n+"?"),
+    stimHTML:'<div class="stim-num" style="font-size:1.5rem">What comes just '+(back?"before":"after")+' <span style="color:var(--accent)">'+n+'</span>?</div>',
+    input:{type:"number",placeholder:"the number"},answer:String(ans),answerText:String(ans),
+    check:function(raw){const v=parseNum(raw);
+      if(v===ans)return{correct:true,code:null};
+      if(v===null)return{correct:false,code:"COUNT_SEQUENCE"};
+      if(v===n)return{correct:false,code:"COUNT_SEQUENCE"};
+      if(v===(back?n+1:n-1))return{correct:false,code:"COUNT_SEQUENCE"};
+      return{correct:false,code:"COUNT_SEQUENCE"};}};
+}
 function gMidpoint(band){
   let a,b;
-  if(band===1){a=10*ri(1,5); b=a+20*ri(1,4);}
+  if(band<=0){a=ri(1,8); b=a+2;}
+  else if(band===1){a=10*ri(1,5); b=a+20*ri(1,4);}
   else if(band===2){a=ri(12,48); b=a+2*ri(9,26);}
   else if(band===3){a=ri(120,480); b=a+2*ri(60,180);}
   else {a=-ri(8,40); b=ri(10,60); if((b-a)%2)b++;}
@@ -787,6 +817,19 @@ function gMidpoint(band){
 }
 
 function gFact(band){
+  if(band<=0){
+    const a=ri(1,4), b=ri(1,5-a), ans=a+b;
+    return {dom:2,task:"Small addition fact",kind:"addfact",p:{a:a,b:b,ans:ans},
+      instruction:"Say the answer as soon as you know it.",
+      stimText:a+" + "+b,stimHTML:'<div class="stim-num">'+a+' + '+b+'</div>',
+      input:{type:"number",placeholder:"answer"},answer:String(ans),answerText:String(ans),
+      check:function(raw){const v=parseNum(raw);
+        if(v===ans)return{correct:true,code:null};
+        if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+        if(Math.abs(v-ans)===1)return{correct:false,code:"COUNT_SLIP"};
+        if(v===Math.abs(a-b))return{correct:false,code:"OPERATION_SUBSTITUTION"};
+        return{correct:false,code:"CALC_SLIP"};}};
+  }
   if(band===1){
     const a=ri(4,9), plus=Math.random()<0.5?a:a+1, ans=a+plus;
     return {dom:2,task:"Automatic addition fact",kind:"addfact",p:{a:a,b:plus,ans:ans},
@@ -819,7 +862,8 @@ function gFact(band){
 
 function gBridge(band){
   let m,n;
-  if(band<=3){n=ri(4,9); m=ri(11,n+9);}
+  if(band<=0){m=ri(3,5); n=ri(1,m-1);}
+  else if(band<=3){n=ri(4,9); m=ri(11,n+9);}
   else {m=10*ri(3,8)+ri(1,4); n=ri(5,9);}
   const ans=m-n;
   return {dom:2,task:"Subtraction across the ten",kind:"bridge",p:{m:m,n:n,ans:ans},
@@ -839,7 +883,8 @@ function gBridge(band){
 
 function gBond(band){
   let t,b;
-  if(band===1){t=10; b=ri(3,7);}
+  if(band<=0){t=5; b=ri(1,4);}
+  else if(band===1){t=10; b=ri(3,7);}
   else {t=ri(12,18); b=ri(4,9);}
   const ans=t-b;
   return {dom:2,task:"Missing addend / number bond",kind:"bond",p:{b:b,t:t,ans:ans},
@@ -863,7 +908,8 @@ function digitwiseAbs(a,b){
 }
 function gRegroup(band){
   let a,b;
-  if(band===1){a=10*ri(4,9)+ri(0,3); b=10*ri(1,3)+ri(5,9);}
+  if(band<=0){a=ri(5,9); b=ri(1,a-2);}
+  else if(band===1){a=10*ri(4,9)+ri(0,3); b=10*ri(1,3)+ri(5,9);}
   else if(band===2){a=100*ri(3,8)+ri(0,4); b=100*ri(1,2)+10*ri(2,9)+ri(5,9); if(b>=a)b=a-ri(120,180);}
   else if(band===3){a=1000*ri(3,8)+ri(0,5); b=1000*ri(1,2)+100*ri(1,9)+10*ri(2,9)+ri(6,9);}
   else {a=1000*ri(4,9); b=1000*ri(1,3)+100*ri(1,9)+10*ri(1,9)+ri(1,9);}
@@ -890,6 +936,21 @@ function noCarryMul(a,b){
   return parseInt(String(a).split("").map(d=>String(+d*b)).join(""),10);
 }
 function gLongMul(band){
+  if(band<=0){
+    /* The procedural domain at this age is holding a sequence, not running an
+       algorithm: three addends have to be combined in order without losing one. */
+    const a=ri(1,4), b=ri(1,3), c=ri(1,3), ans=a+b+c;
+    return {dom:3,task:"Adding three numbers in order",kind:"coladd",p:{a:a,b:b+c,ans:ans},
+      instruction:"Take it one step at a time. You can count on your fingers if you want to.",
+      stimText:a+" + "+b+" + "+c,stimHTML:'<div class="stim-num">'+a+' + '+b+' + '+c+'</div>',
+      input:{type:"number",placeholder:"answer"},answer:String(ans),answerText:String(ans),
+      check:function(raw){const v=parseNum(raw);
+        if(v===ans)return{correct:true,code:null};
+        if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+        if(v===a+b||v===b+c||v===a+c)return{correct:false,code:"INTERMEDIATE_ONLY"};
+        if(Math.abs(v-ans)===1)return{correct:false,code:"COUNT_SLIP"};
+        return{correct:false,code:"CALC_SLIP"};}};
+  }
   if(band===1){
     const a=100*ri(2,7)+10*ri(5,9)+ri(5,9), b=100*ri(1,3)+10*ri(5,9)+ri(5,9), ans=a+b;
     const nc=parseInt(String(a).split("").map((d,i)=>String(+d+ +String(b)[i])).join(""),10);
@@ -957,6 +1018,21 @@ function balanceRow(leftHTML,leftLbl,rightHTML,rightLbl){
   return '<div class="scalerow">'+pan(leftHTML,leftLbl)+'<span class="eq">=</span>'+pan(rightHTML,rightLbl)+'</div>';
 }
 function gBalance2(band){
+  if(band<=0){
+    const k=2, mult=ri(2,3), ans=k*mult;
+    const r1=balanceRow(shape("circle"),"1 circle",shapes("square",k),k+" squares");
+    return {dom:4,task:"One exchange",kind:"bal2",p:{k:k,c:mult,m:0,ans:ans},
+      instruction:"The scale below balances. Use it to work out the missing number.",
+      stimText:"1 circle = "+k+" squares. How many squares balance "+mult+" circles?",
+      stimHTML:'<div class="scales">'+r1+'</div><p class="stim-word" style="margin-top:1rem"><span class="qn">How many squares balance '+mult+' circles?</span></p>',
+      input:{type:"number",placeholder:"number of squares"},answer:String(ans),answerText:ans+" squares",
+      check:function(raw){const v=parseNum(raw);
+        if(v===ans)return{correct:true,code:null};
+        if(v===null)return{correct:false,code:"CHAIN_FAIL"};
+        if(v===k)return{correct:false,code:"INTERMEDIATE_ONLY"};
+        if(v===k+mult)return{correct:false,code:"ADDITIVE_COUNT"};
+        return{correct:false,code:"CHAIN_FAIL"};}};
+  }
   const k=band===1?2:ri(2,4), c=band>=3?2:1, m=ri(1,3), ans=c*k+m;
   const r1=balanceRow(shape("circle"),"1 circle",shapes("square",k),k+" squares");
   const r2=balanceRow(shape("triangle"),"1 triangle",shapes("circle",c)+shapes("square",m),(c>1?c+" circles":"1 circle")+" + "+m+" square"+(m>1?"s":""));
@@ -975,6 +1051,7 @@ function gBalance2(band){
       return{correct:false,code:"CHAIN_FAIL"};}};
 }
 function gBalance3(band){
+  if(band<=0)return gBalance2(1);   /* the two-relation form is already the ceiling here */
   const k=ri(2,3), c=band>=3?2:1, m=ri(1,3), h=2;
   const tri=c*k+m, ans=h*tri;
   const r1=balanceRow(shape("circle"),"1 circle",shapes("square",k),k+" squares");
@@ -1026,6 +1103,17 @@ function ok(spec){
 function tryBuild(fn){for(let i=0;i<80;i++){const s=fn();if(ok(s))return buildWord(s);}return buildWord(fn());}
 
 function gWordA(band){
+  if(band<=0)return tryBuild(function(){
+    const N=pick(NAMES),A=ri(2,6),C=ri(1,4);
+    return {task:"One-step join",
+      text:N+" has "+A+" shells. "+N+" finds "+C+" more on the beach.",
+      q:"How many shells does "+N+" have now?",ph:"number of shells",
+      ans:A+C,inter:null,extr:[],wrong:[A-C,A*C,C],
+      unused:"nothing — every number here is needed",
+      sol:["Both numbers matter in this one, and both are about shells.",
+           N+" started with "+A+".",
+           "Finding "+C+" more makes the pile bigger, so add: "+A+" + "+C+" = "+(A+C)+".",
+           "Count them out on your fingers to check if you like."]};});
   if(band===1)return tryBuild(function(){
     const N=pick(NAMES),A=ri(12,20),B=ri(3,7),C=ri(2,6),X=ri(6,11);
     return {task:"Two-step change problem",
@@ -1080,6 +1168,17 @@ function gWordA(band){
            "A common slip is taxing the original $"+P+" instead of the sale price — that charges tax on money never spent."]};});
 }
 function gWordB(band){
+  if(band<=0)return tryBuild(function(){
+    const A=ri(4,9),B=ri(1,A-2);
+    return {task:"One-step take away",
+      text:"There are "+A+" birds sitting on a fence. "+(B===1?"One of them flies":B+" of them fly")+" away.",
+      q:"How many birds are left on the fence?",ph:"number of birds",
+      ans:A-B,inter:null,extr:[],wrong:[A+B,B,A],
+      unused:"nothing — every number here is needed",
+      sol:["Flying away makes the number on the fence smaller, so this is a take away.",
+           "Start with the "+A+" birds that were there.",
+           (B===1?"One flies off":B+" fly off")+": "+A+" − "+B+" = "+(A-B)+".",
+           "So "+(A-B)+" birds are left."]};});
   if(band===1)return tryBuild(function(){
     const A=ri(11,18),B=ri(4,9),X=ri(3,7);
     return {task:"Relational comparison",
@@ -1130,14 +1229,121 @@ function gWordB(band){
            "Draining the whole tank would take "+(G/R)+" minutes — double the answer, and a common misread."]};});
 }
 
-const PLAN=[
-  {g:gCompare,dom:1},{g:gFraction,dom:1},{g:gMidpoint,dom:1},
-  {g:gFact,dom:2},{g:gBridge,dom:2},{g:gBond,dom:2},
-  {g:gRegroup,dom:3},{g:Math.random()<0.5?gLongMul:gDivide,dom:3},
-  {g:gBalance2,dom:4},{g:gBalance3,dom:4},
-  {g:gWordA,dom:5},{g:gWordB,dom:5}
-];
-const AUTO_MS={1:6000,2:4500,3:3500,4:3000};
+/* ---------- domain 6: order of operations ----------
+   Kept out of procedural calculation deliberately. A learner can compute every part
+   of 3 + 4 x 2 correctly and still answer 14: that is a parsing failure, not an
+   arithmetic one, and folding it into domain 3 would hide exactly the distinction
+   worth seeing. It is also the gate to algebra -- an expression read left to right
+   stays unreadable once letters arrive. Grades 6 and up only, since parentheses
+   arrive around grade 5 and expressions in grade 6. */
+function ltr(nums,ops){
+  let v=nums[0];
+  for(let i=0;i<ops.length;i++){
+    const n=nums[i+1];
+    v = ops[i]==="+"?v+n : ops[i]==="-"?v-n : ops[i]==="*"?v*n : v/n;
+  }
+  return v;
+}
+function gOrderOps(band){
+  const a=ri(2,9), b=ri(2,9), c=ri(2,9);
+  if(Math.random()<0.6){
+    /* a + b x c  -- precedence against reading order */
+    const ans=a+b*c, lr=(a+b)*c;
+    return {dom:6,task:"Order of operations",kind:"orderops",p:{expr:a+" + "+b+" × "+c,ans:ans,a:a,b:b,c:c,form:"addmul"},
+      instruction:"Work this out. Watch the order the operations have to happen in.",
+      stimText:a+" + "+b+" × "+c,stimHTML:'<div class="stim-num">'+a+' + '+b+' × '+c+'</div>',
+      input:{type:"number",placeholder:"answer"},answer:String(ans),answerText:String(ans),
+      check:function(raw){const v=parseNum(raw);
+        if(v===ans)return{correct:true,code:null};
+        if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+        if(v===lr)return{correct:false,code:"ORDER_LEFT_TO_RIGHT"};
+        if(v===a*b+c)return{correct:false,code:"ORDER_LEFT_TO_RIGHT"};
+        if(Math.abs(v-ans)<=2)return{correct:false,code:"CALC_SLIP"};
+        return{correct:false,code:"ORDER_UNRESOLVED"};}};
+  }
+  /* a - b + c  -- equal precedence, so strictly left to right */
+  const x=ri(12,30), y=ri(2,9), z=ri(2,9);
+  const ans=x-y+z, wrong=x-(y+z);
+  return {dom:6,task:"Order of operations",kind:"orderops",p:{expr:x+" − "+y+" + "+z,ans:ans,a:x,b:y,c:z,form:"subadd"},
+    instruction:"Work this out. Watch the order the operations have to happen in.",
+    stimText:x+" − "+y+" + "+z,stimHTML:'<div class="stim-num">'+x+' − '+y+' + '+z+'</div>',
+    input:{type:"number",placeholder:"answer"},answer:String(ans),answerText:String(ans),
+    check:function(raw){const v=parseNum(raw);
+      if(v===ans)return{correct:true,code:null};
+      if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+      if(v===wrong)return{correct:false,code:"ORDER_PEMDAS_LITERAL"};
+      if(Math.abs(v-ans)<=2)return{correct:false,code:"CALC_SLIP"};
+      return{correct:false,code:"ORDER_UNRESOLVED"};}};
+}
+function gOrderParens(band){
+  if(band>=4&&Math.random()<0.5){
+    /* exponent scope: a x b squared */
+    const a=ri(2,6), b=ri(2,5);
+    const ans=a*b*b, wrong=(a*b)*(a*b);
+    return {dom:6,task:"Order of operations with an exponent",kind:"orderops",
+      p:{expr:a+" × "+b+"²",ans:ans,a:a,b:b,c:2,form:"exponent"},
+      instruction:"Work this out. The exponent only applies to what it sits on.",
+      stimText:a+" × "+b+"²",stimHTML:'<div class="stim-num">'+a+' × '+b+'<sup style="font-size:.55em">2</sup></div>',
+      input:{type:"number",placeholder:"answer"},answer:String(ans),answerText:String(ans),
+      check:function(raw){const v=parseNum(raw);
+        if(v===ans)return{correct:true,code:null};
+        if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+        if(v===wrong)return{correct:false,code:"ORDER_EXPONENT_SCOPE"};
+        if(v===a*b*2)return{correct:false,code:"ORDER_EXPONENT_SCOPE"};
+        if(Math.abs(v-ans)<=2)return{correct:false,code:"CALC_SLIP"};
+        return{correct:false,code:"ORDER_UNRESOLVED"};}};
+  }
+  if(Math.random()<0.5){
+    /* division and multiplication share precedence, so left to right decides */
+    const c=pick([2,3,4]), q=ri(2,6), a=c*q*c;
+    const ans=a/c*c, wrong=a/(c*c);
+    return {dom:6,task:"Order of operations",kind:"orderops",p:{expr:a+" ÷ "+c+" × "+c,ans:ans,a:a,b:c,c:c,form:"divmul"},
+      instruction:"Work this out. Watch the order the operations have to happen in.",
+      stimText:a+" ÷ "+c+" × "+c,stimHTML:'<div class="stim-num">'+a+' ÷ '+c+' × '+c+'</div>',
+      input:{type:"number",placeholder:"answer"},answer:String(ans),answerText:String(ans),
+      check:function(raw){const v=parseNum(raw);
+        if(v===ans)return{correct:true,code:null};
+        if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+        if(v===wrong)return{correct:false,code:"ORDER_PEMDAS_LITERAL"};
+        if(Math.abs(v-ans)<=2)return{correct:false,code:"CALC_SLIP"};
+        return{correct:false,code:"ORDER_UNRESOLVED"};}};
+  }
+  /* brackets that change the answer if ignored */
+  const a=ri(2,9), b=ri(2,9), c=ri(2,7);
+  const ans=(a+b)*c, ignored=a+b*c;
+  return {dom:6,task:"Order of operations with brackets",kind:"orderops",p:{expr:"("+a+" + "+b+") × "+c,ans:ans,a:a,b:b,c:c,form:"parens"},
+    instruction:"Work this out. The brackets are there for a reason.",
+    stimText:"("+a+" + "+b+") × "+c,stimHTML:'<div class="stim-num">('+a+' + '+b+') × '+c+'</div>',
+    input:{type:"number",placeholder:"answer"},answer:String(ans),answerText:String(ans),
+    check:function(raw){const v=parseNum(raw);
+      if(v===ans)return{correct:true,code:null};
+      if(v===null)return{correct:false,code:"TRANSLATION_FAIL"};
+      if(v===ignored)return{correct:false,code:"ORDER_PARENS_IGNORED"};
+      if(Math.abs(v-ans)<=2)return{correct:false,code:"CALC_SLIP"};
+      return{correct:false,code:"ORDER_UNRESOLVED"};}};
+}
+
+/* Twelve items for everyone, plus two order-of-operations items from grade 6, where
+   that content exists and the extra two minutes are tolerable. Pre-K and Kindergarten
+   swap fraction comparison -- which is grade 3-4 content -- for the counting sequence,
+   and take the three-addend item rather than long division. */
+function planFor(band){
+  if(band<=0)return [
+    {g:gCompare,dom:1},{g:gCountSeq,dom:1},{g:gMidpoint,dom:1},
+    {g:gFact,dom:2},{g:gBridge,dom:2},{g:gBond,dom:2},
+    {g:gRegroup,dom:3},{g:gLongMul,dom:3},
+    {g:gBalance2,dom:4},{g:gBalance3,dom:4},
+    {g:gWordA,dom:5},{g:gWordB,dom:5}];
+  const plan=[
+    {g:gCompare,dom:1},{g:gFraction,dom:1},{g:gMidpoint,dom:1},
+    {g:gFact,dom:2},{g:gBridge,dom:2},{g:gBond,dom:2},
+    {g:gRegroup,dom:3},{g:Math.random()<0.5?gLongMul:gDivide,dom:3},
+    {g:gBalance2,dom:4},{g:gBalance3,dom:4},
+    {g:gWordA,dom:5},{g:gWordB,dom:5}];
+  if(band>=3)plan.push({g:gOrderOps,dom:6},{g:gOrderParens,dom:6});
+  return plan;
+}
+const AUTO_MS={0:8000,1:6000,2:4500,3:3500,4:3000};
 const STRATS=[
   {v:"instant",l:"I just knew it"},
   {v:"reasoned",l:"I worked it out in my head"},
@@ -1474,6 +1680,11 @@ const SPOKEN={
       "One triangle balances "+shapeWord("circle",p.c)+" and "+shapeWord("square",p.m)+". "+
       "One hexagon balances "+shapeWord("triangle",p.h)+". "+
       "How many squares balance one hexagon? Try to do this one in your head.";},
+  orderops:function(p){
+    const spoken=String(p.expr).replace(/×/g," times ").replace(/÷/g," divided by ")
+      .replace(/−/g," minus ").replace(/\+/g," plus ").replace(/²/g," squared")
+      .replace(/\(/g,"open bracket ").replace(/\)/g," close bracket").replace(/\s+/g," ");
+    return "Work this out, watching the order the operations happen in. What is "+spoken.trim()+"?";},
   word:function(p){return "Listen carefully. Not every number in this one is needed. "+(p.text||"")+" "+(p.q||"");}
 };
 function spokenFor(it){
@@ -1560,20 +1771,30 @@ function show(which){
 }
 
 /* ---------- rail ---------- */
-const BANDS=[{d:1,s:0,n:3},{d:2,s:3,n:3},{d:3,s:6,n:2},{d:4,s:8,n:2},{d:5,s:10,n:2}];
-const SHORT={1:"Number sense",2:"Fact fluency",3:"Procedural",4:"Working memory",5:"Applied"};
+
+const SHORT={1:"Number sense",2:"Fact fluency",3:"Procedural",4:"Working memory",5:"Applied",6:"Order of operations"};
 const ABOUT={1:"How big numbers feel",2:"Quick number facts",3:"Working things out on paper",
-             4:"Holding numbers in your head",5:"Maths hidden in words"};
+             4:"Holding numbers in your head",5:"Maths hidden in words",6:"Which bit to do first"};
+function railSegments(){
+  const segs=[];
+  S.plan.forEach(function(p,i){
+    const last=segs[segs.length-1];
+    if(last&&last.d===p.dom)last.n++; else segs.push({d:p.dom,s:i,n:1});
+  });
+  return segs;
+}
 function drawRail(){
-  const sc=$("#scale"); let h='<div class="scale-line"></div><div class="scale-fill" style="width:'+((S.idx/12)*100).toFixed(2)+'%"></div>';
-  for(let i=0;i<12;i++){
+  const N=S.plan.length;
+  const sc=$("#scale"); let h='<div class="scale-line"></div><div class="scale-fill" style="width:'+((S.idx/N)*100).toFixed(2)+'%"></div>';
+  for(let i=0;i<N;i++){
     const cls=i<S.idx?"done":(i===S.idx?"now":"");
-    h+='<span class="tick '+cls+'" style="left:'+(((i+0.5)/12)*100).toFixed(3)+'%"><i></i><b>'+(i+1)+'</b></span>';
+    h+='<span class="tick '+cls+'" style="left:'+(((i+0.5)/N)*100).toFixed(3)+'%"><i></i><b>'+(i+1)+'</b></span>';
   }
   sc.innerHTML=h;
-  $("#bands").innerHTML=BANDS.map(b=>'<span class="band" style="left:'+((b.s/12)*100).toFixed(3)+'%;width:'+((b.n/12)*100).toFixed(3)+'%">'+SHORT[b.d]+'</span>').join("");
-  $("#railCount").textContent="Question "+Math.min(S.idx+1,12);
-  const d=S.plan[Math.min(S.idx,11)].dom;
+  $("#bands").innerHTML=railSegments().map(b=>'<span class="band" style="left:'+((b.s/N)*100).toFixed(3)+'%;width:'+((b.n/N)*100).toFixed(3)+'%">'+SHORT[b.d]+'</span>').join("");
+  $("#railCount").textContent="Question "+Math.min(S.idx+1,N);
+  $("#railTotal").textContent=String(N);
+  const d=S.plan[Math.min(S.idx,N-1)].dom;
   $("#railDomain").textContent=ABOUT[d];
 }
 
@@ -1589,6 +1810,14 @@ function drawRail(){
    arithmetic. Fact automaticity is judged on `think`. Time with the tab hidden is
    subtracted from both and the item flagged, since a page left open on the kitchen
    table would otherwise record a twenty-minute retrieval. */
+/* Escalation is deliberately harder to earn than it used to be. One correct answer
+   was enough to jump a whole band, which on a real administration pushed three items
+   of twelve into content two grades above the assigned level. Going UP now needs two
+   correct answers in the domain, or -- where a domain only has two items -- a first
+   answer that was both correct and genuinely fast, and never at the bottom two bands,
+   where a single early success is mostly noise. Coming DOWN stays easy on purpose:
+   an item pitched too high wastes a question and discourages the child, and that is
+   the more costly error of the two. */
 function bandFor(dom){
   const prior=S.items.filter(x=>x.dom===dom);
   let off=0;
@@ -1596,8 +1825,10 @@ function bandFor(dom){
     const c=prior.filter(x=>x.correct).length;
     if(c===prior.length)off=1; else if(c===0)off=-1;
   }else if(prior.length===1){
-    if(prior[0].correct&&prior[0].strategy==="instant")off=1;
-    else if(!prior[0].correct&&prior[0].strategy==="unknown")off=-1;
+    const p0=prior[0];
+    const t=(p0.think==null?p0.latency:p0.think);
+    if(!p0.correct&&(p0.strategy==="unknown"||p0.strategy==="guess"))off=-1;
+    else if(p0.correct&&p0.strategy==="instant"&&S.band>=2&&t<=AUTO_MS[S.band])off=1;
   }
   return clampBand(S.band+off);
 }
@@ -1642,21 +1873,20 @@ document.addEventListener("visibilitychange",function(){
 });
 
 function startSession(){
-  S.plan=PLAN.slice();
-  S.plan[7]={g:Math.random()<0.5?gLongMul:gDivide,dom:3};
+  S.plan=planFor(S.band);
   S.startedAt=S.startedAt||Date.now();
   show("runner"); nextItem();
 }
 $("#btnBegin").addEventListener("click",startSession);
 
 function nextItem(){
-  if(S.idx>=12)return finish();
+  if(S.idx>=S.plan.length)return finish();
   drawRail();
   const spec=S.plan[S.idx];
   const it=spec.g(bandFor(spec.dom));
   S.cur=it; S.answer=null; S.pending=null;
   $("#itemDomain").textContent=ABOUT[it.dom];
-  $("#itemNo").textContent="Question "+(S.idx+1)+" of 12";
+  $("#itemNo").textContent="Question "+(S.idx+1)+" of "+S.plan.length;
   $("#itemInstruction").textContent=it.instruction;
   $("#itemStimulus").innerHTML=it.stimHTML?'<div class="stim">'+it.stimHTML+'</div>':
     (it.input.type==="choice"?"":'<div class="stim"><div class="stim-num">'+esc(it.stimText)+'</div></div>');
@@ -1760,7 +1990,7 @@ $("#btnDontKnow").addEventListener("click",function(){commitAnswer(true);});
 $("#btnNextItem").addEventListener("click",recordItem);
 $("#btnEndEarly").addEventListener("click",function(){
   if(S.items.length<2){$("#reflectErr").textContent="Have a go at a couple more first — that isn't enough to say anything useful yet.";return;}
-  if(confirm("Stop here? You've done "+S.items.length+" of 12. You'll still get your results, based on what you've finished."))finish();
+  if(confirm("Stop here? You've done "+S.items.length+" of "+S.plan.length+". You'll still get your results, based on what you've finished."))finish();
 });
 function finish(){
   SPEAK.cancel();
@@ -1774,7 +2004,7 @@ const pct=v=>Math.round(v*100)+"%";
 function analyze(ctx){
   const C=ctx||{items:S.items,band:S.band,startedAt:S.startedAt,endedAt:S.endedAt};
   const dom={}, all=C.items, BAND=C.band;
-  [1,2,3,4,5].forEach(d=>{
+  [1,2,3,4,5,6].forEach(d=>{
     const it=all.filter(x=>x.dom===d);
     if(!it.length){dom[d]=null;return;}
     const lats=it.map(x=>x.latency).slice().sort((a,b)=>a-b);
@@ -1820,8 +2050,9 @@ function analyze(ctx){
   if(dom[3]){const s=grade(dom[3],0.99,0.5);st[3]={s:s,l:s==="ok"?"Intact":s==="watch"?"Partially intact":"Breaking down"};}
   if(dom[4]){const s=grade(dom[4],0.99,0.5);st[4]={s:s,l:s==="ok"?"Intact":s==="watch"?"Variable":"Compromised"};}
   if(dom[5]){const s=grade(dom[5],0.99,0.5);st[5]={s:s,l:s==="ok"?"Intact":s==="watch"?"Variable":"Compromised"};}
+  if(dom[6]){const s=grade(dom[6],0.99,0.5);st[6]={s:s,l:s==="ok"?"Secure":s==="watch"?"Unreliable":"Not established"};}
 
-  const present=[1,2,3,4,5].filter(d=>dom[d]);
+  const present=[1,2,3,4,5,6].filter(d=>dom[d]);
   const score=d=>dom[d].acc*100-((dom[d].counted+dom[d].paper)/dom[d].n)*12-(dom[d].dk/dom[d].n)*25;
   const ranked=present.slice().sort((a,b)=>score(a)-score(b));
   const bottleneck=ranked[0], strongest=ranked[ranked.length-1];
@@ -1943,6 +2174,11 @@ function domainNarrative(A,d){
       "The equivalence items were not carried through to completion"+(list?" — "+list:"")+". These items deliberately load working memory: nothing in them is arithmetically hard, and every value needed is visible on screen. Failure here therefore points at the holding and manipulating of intermediate quantities rather than at calculation or at the concept of balance.")+
       (o.med?" Median latency across the two items was "+secs(o.med)+".":"");
   }
+  if(d===6){
+    return (s.s==="ok"?"The order-of-operations items were handled correctly. Expressions are being read as structures with precedence rather than as sequences to be worked through from the left, which is the reading that algebra depends on."
+      :"Expressions were not evaluated in precedence order"+(list?" — "+list:"")+". This is worth separating from calculation: the arithmetic inside these items is deliberately easy, and an error here means the expression was parsed wrongly rather than computed wrongly. Because algebraic notation assumes the same conventions, this tends to surface later as difficulty with algebra that looks like a new problem but is not.")+
+      (o.med?" Median time was "+secs(o.med)+".":"");
+  }
   return (s.s==="ok"?"Word problems were translated into the correct operations and carried to completion, including the filtering of irrelevant quantities.":
     "Translation from text to arithmetic was where these items failed"+(list?" — "+list:"")+".")+
     (o.items.some(function(x){return x.readAloud;})?" These were read aloud, so decoding can be ruled out as the explanation — what is left is the translation from a situation into arithmetic.":" These were read independently, so a reading difficulty and a translation difficulty are still confounded. Turning read-aloud on and re-probing separates the two.");
@@ -2001,6 +2237,12 @@ const SCAFFOLDS=[
  {tag:"Word problems",t:"Bar models and problem-type schemas",
   b:"Teach the small set of underlying structures — change, part-part-whole, comparison, and equal groups — and have the learner name the type before choosing an operation. Bar-model diagrams make the structure visible and turn operation choice into a consequence of the diagram rather than a guess prompted by a keyword.",
   when:A=>A.nOf("OPERATION_SELECTION")>0||(A.st[5]&&A.st[5].s!=="ok")},
+ {tag:"Order of operations",t:"Teach precedence as three tiers, not six steps",
+  b:"The usual mnemonic is read as a queue of six operations, which is why multiplication gets done before division and addition before subtraction. Replace it with three tiers — brackets, then powers, then multiply/divide together, then add/subtract together — and make the rule that within a tier you work left to right. Have the learner mark up the expression before computing anything: underline what happens first, then rewrite the whole expression one step shorter, repeatedly, so the order is recorded on the page rather than held in mind.",
+  when:A=>A.nOf("ORDER_LEFT_TO_RIGHT","ORDER_PEMDAS_LITERAL","ORDER_PARENS_IGNORED","ORDER_EXPONENT_SCOPE","ORDER_UNRESOLVED")>0},
+ {tag:"Early number",t:"Secure counting and small quantities before anything else",
+  b:"At this stage the work is linking three things that are still separate: the number word, the written numeral, and the amount itself. Count real objects and move them while counting; use ten-frames and dot patterns until small amounts are recognised without counting; practise the count sequence forwards and backwards from any starting number, not just from one. Everything later — facts, place value, algorithms — is built on these, and time spent here is not remedial, it is foundational.",
+  when:A=>A.nOf("MAGNITUDE_BASIC","COUNT_SEQUENCE")>0},
  {tag:"Anxiety",t:"Take the pressure out before adding anything else",
   b:"Where feeling worried or rushed is reported repeatedly, that is not background colour: anxiety occupies the same working memory the arithmetic needs, so it lowers performance directly and will cap the gains from any other scaffold here. Deal with it first — untimed work, no public or competitive drills, an explicit “I don't know” option always available, and praise for the strategy used rather than for the answer produced.",
   when:A=>A.P.anxious},
@@ -2049,7 +2291,7 @@ function renderReport(){
      rec("Grade",gradeLabel(I.grade))+rec("Difficulty band",BAND_NAME[S.band])+
      rec("Date",I.date)+rec("How it was taken",I.selfAdministered?"On their own":"Not recorded")+
      rec("Read aloud",A.heard?(A.heard===A.items.length?"Yes, every question":"Yes, "+A.heard+" of "+A.items.length+" questions"):"No, read independently")+
-     rec("Items administered",A.items.length+" of 12")+rec("Duration",dur+" min")+
+     rec("Items administered",A.items.length+" of "+(S.plan.length||A.items.length))+rec("Duration",dur+" min")+
      rec("Overall accuracy",pct(A.accAll))+rec("Median latency",secs(A.medAll))+
      '</dl></div><div class="rpt-body">';
 
@@ -2112,7 +2354,7 @@ function renderReport(){
   h+='</tbody></table></div></section>';
 
   /* domain by domain */
-  const HEAD={1:"Semantic number sense",2:"Fact automaticity vs. retrieval delay",3:"Procedural integrity",4:"Quantitative working memory & equivalence",5:"Applied reasoning & linguistic translation"};
+  const HEAD={1:"Semantic number sense",2:"Fact automaticity vs. retrieval delay",3:"Procedural integrity",4:"Quantitative working memory & equivalence",5:"Applied reasoning & linguistic translation",6:"Order of operations and symbolic rules"};
   h+='<section class="rpt-sec"><h3><span class="n">03</span> Domain-by-domain analysis</h3><div class="domlist">';
   A.present.forEach(d=>{
     const o=A.dom[d], s=A.st[d];
@@ -2218,7 +2460,7 @@ function textReport(A){
   L.push("Difficulty band:     "+BAND_NAME[S.band]);
   L.push("Date:                "+(I.date||"—"));
   L.push("How taken:           "+(I.selfAdministered?"Independently, unsupervised":"Not recorded"));
-  L.push("Items / duration:    "+A.items.length+" of 12 · "+Math.max(1,Math.round(A.totalMs/60000))+" min");
+  L.push("Items / duration:    "+A.items.length+" · "+Math.max(1,Math.round(A.totalMs/60000))+" min");
   L.push("Overall accuracy:    "+pct(A.accAll)+"   Median latency: "+secs(A.medAll));
   L.push("");
   const fk=Object.keys(A.flags||{});
@@ -2229,7 +2471,7 @@ function textReport(A){
   L.push("2. PERFORMANCE AT A GLANCE");L.push(rule);
   A.present.forEach(d=>L.push(("Domain "+d+" "+D[d]).padEnd(42)+(A.dom[d].correct+"/"+A.dom[d].n).padEnd(7)+secs(A.dom[d].med).padEnd(9)+A.st[d].l));
   L.push("");L.push("3. DOMAIN-BY-DOMAIN ANALYSIS");L.push(rule);
-  const HEAD={1:"Semantic number sense",2:"Fact automaticity vs. retrieval delay",3:"Procedural integrity",4:"Quantitative working memory & equivalence",5:"Applied reasoning & linguistic translation"};
+  const HEAD={1:"Semantic number sense",2:"Fact automaticity vs. retrieval delay",3:"Procedural integrity",4:"Quantitative working memory & equivalence",5:"Applied reasoning & linguistic translation",6:"Order of operations and symbolic rules"};
   A.present.forEach(d=>{L.push(HEAD[d]+" — "+A.st[d].l);L.push(domainNarrative(A,d).replace(/<[^>]+>/g,""));L.push("");});
   L.push("4. ITEM RECORD");L.push(rule);
   A.items.forEach(x=>{
@@ -2728,7 +2970,7 @@ function jsonRecord(A){
     difficultyBand:{index:S.band,label:BAND_NAME[S.band],fromAge:S.ageBand?BAND_NAME[S.ageBand]:null},
     session:{startedAt:S.startedAt?new Date(S.startedAt).toISOString():null,
              endedAt:S.endedAt?new Date(S.endedAt).toISOString():null,
-             durationMs:A.totalMs,itemsAdministered:A.items.length,plannedItems:12},
+             durationMs:A.totalMs,itemsAdministered:A.items.length,plannedItems:S.plan.length||A.items.length},
     aggregate:{accuracy:A.accAll,medianLatencyMs:A.medAll,
       domains:A.present.map(function(d){return{domain:d,name:D[d],n:A.dom[d].n,correct:A.dom[d].correct,
         accuracy:A.dom[d].acc,medianLatencyMs:A.dom[d].med,status:A.st[d].l,statusFlag:A.st[d].s,
@@ -2840,12 +3082,12 @@ refreshTabCounts();
   $("#resumeBanner").classList.remove("hidden");
   $("#resumeText").textContent=(done?"A completed administration is saved on this device":"An unfinished administration is saved on this device")+
     (d.intake&&d.intake.name?" — "+d.intake.name:"")+
-    (d.intake&&d.intake.date?", "+d.intake.date:"")+" ("+d.items.length+" of 12 items recorded).";
+    (d.intake&&d.intake.date?", "+d.intake.date:"")+" ("+d.items.length+" questions recorded).";
   $("#btnResume").textContent=done?"Reopen the report":"Resume it";
   $("#btnResume").addEventListener("click",function(){
     restore(d);
     if(done){renderReport();show("report");}
-    else{S.plan=PLAN.slice();S.plan[7]={g:Math.random()<0.5?gLongMul:gDivide,dom:3};show("runner");nextItem();}
+    else{S.plan=planFor(S.band);show("runner");nextItem();}
   });
   $("#btnDiscard").addEventListener("click",function(){clearSaved();$("#resumeBanner").classList.add("hidden");});
 })();

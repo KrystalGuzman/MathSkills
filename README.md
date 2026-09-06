@@ -45,12 +45,24 @@ for younger children and for anyone whose reading is itself the difficulty.
 
 **Banding.** Difficulty is banded from grade placement, falling back to chronological age:
 
-| Band | Reference |
-|------|-----------|
-| 1 | Early primary, K–2 |
-| 2 | Upper primary, grades 3–5 |
-| 3 | Middle grades, 6–8 |
-| 4 | Secondary and adult, grade 9+ |
+| Band | Reference | Items |
+|------|-----------|-------|
+| 0 | Early years, Pre-K and Kindergarten | 12 |
+| 1 | Early primary, grades 1–2 | 12 |
+| 2 | Upper primary, grades 3–5 | 12 |
+| 3 | Middle grades, 6–8 | 14 |
+| 4 | Secondary and adult, grade 9+ | 14 |
+
+Band 0 exists because band 1 previously spanned Pre-K to grade 2 while its content was
+squarely grade 1–2 — three-digit column addition, two-digit regrouping, balance-scale
+substitution — none of which a Pre-K child can attempt. It substitutes small-quantity
+comparison, the counting sequence forwards and backwards, facts within five, three-addend
+sequencing, a single exchange on one balance scale, and one-step word problems with nothing
+to filter out. Fraction comparison, which is grade 3–4 content, is dropped there entirely.
+
+A date of birth giving an age below 5 or above 100 is queried before the probe starts and
+must be explicitly confirmed, because the band is derived from that number and a mistyped
+year would otherwise pitch every item at the wrong level in silence.
 
 Where grade and age imply different bands, the discrepancy is carried into the report.
 Difficulty also adapts up or down within a domain as the examinee performs. Fact-retrieval
@@ -112,6 +124,17 @@ worry at the anxiety that consumes the same working memory the arithmetic needs.
 | 3. Procedural calculation | 2 | Regrouping across zeros, plus multi-digit multiplication or division with remainder |
 | 4. Working memory & equivalence | 2 | Two- and three-relation balance-scale substitution chains |
 | 5. Applied reasoning | 2 | Multi-step word problems carrying extraneous quantities |
+| 6. Order of operations | 2 | Precedence, brackets, and exponent scope — **bands 3–4 only** |
+
+Order of operations is deliberately its own domain rather than part of procedural
+calculation. A learner can compute every part of `3 + 4 × 2` correctly and still answer 14:
+that is a parsing failure, not an arithmetic one, and folding it into Domain 3 would hide
+exactly the distinction worth seeing. It is also the gate to algebra — an expression read
+left to right stays unreadable once letters replace some of the numbers. Detected
+misconceptions: strict left-to-right evaluation; the mnemonic applied too literally
+(multiplying before dividing, or adding before subtracting, when each pair shares a
+precedence tier and runs left to right); brackets read past; and an exponent applied to a
+whole product rather than to the value it sits on.
 
 Every item is generated algorithmically at presentation time — no static item bank, so
 nothing can be memorised or coached between administrations. Response latency is captured
