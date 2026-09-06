@@ -65,7 +65,16 @@ must be explicitly confirmed, because the band is derived from that number and a
 year would otherwise pitch every item at the wrong level in silence.
 
 Where grade and age imply different bands, the discrepancy is carried into the report.
-Difficulty also adapts up or down within a domain as the examinee performs. Fact-retrieval
+Difficulty adapts within a domain, asymmetrically and on purpose. **Going up** needs two
+correct answers in that domain, or — where a domain has only two items — a first answer
+that was both correct and genuinely fast, and never at bands 0 or 1, where a single early
+success is mostly noise. **Coming down** needs only one "I don't know" or guess: an item
+pitched too high wastes a question and discourages the child, which is the more costly of
+the two errors. (An earlier rule escalated a whole band on one correct answer; on a real
+administration that pushed three items of twelve into content two grades above the level
+actually assigned.)
+
+Fact-retrieval
 items stay at single-digit difficulty in every band by design: automaticity is expected at
 all ages, so slow retrieval is the finding rather than an artifact of item difficulty.
 
