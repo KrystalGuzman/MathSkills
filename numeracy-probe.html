@@ -359,6 +359,9 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
     <p class="eyebrow">Before you start</p>
     <h2 class="sec-title">Tell us a bit about you</h2>
     <p class="lede">Just three things, so the questions come out at about the right level. Nothing you type here leaves this device — it stays in this browser and is never sent anywhere.</p>
+    <div class="btnrow hidden" id="readStartBar" style="margin-top:.9rem">
+      <button class="btn ghost" id="btnReadStart" type="button">Read this page out loud to me</button>
+    </div>
 
     <form id="intakeForm" autocomplete="off">
       <fieldset>
@@ -416,8 +419,12 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
 <section id="brief" class="stack hidden">
   <div class="card">
     <p class="eyebrow">How this works</p>
-    <h2 class="sec-title">Twelve questions, and no score at the end</h2>
+    <h2 class="sec-title" id="briefTitle">Twelve questions, and no score at the end</h2>
     <p class="lede" id="briefBand"></p>
+    <div class="btnrow hidden" id="readBriefBar" style="margin-top:.9rem">
+      <button class="btn ghost" id="btnReadBrief" type="button">Read this out loud to me</button>
+      <button class="btn quiet hidden" id="btnStopBrief" type="button">Stop reading</button>
+    </div>
     <div class="grid two" style="margin-top:1.3rem">
       <div class="domcard"><h4>You can't pass or fail this</h4><p>Nothing here goes on a report card. It's working out which bits of maths come easily to you and which bits are fiddly, so you get help with the right things.</p></div>
       <div class="domcard"><h4>Some of it is meant to be too hard</h4><p>The questions get harder on purpose until they're harder than you can do. That's how it's built, so getting stuck doesn't mean anything has gone wrong.</p></div>
@@ -426,7 +433,7 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
       <div class="domcard"><h4>Answer first, then say how you did it</h4><p>Type your answer and press Enter. Then you'll get a couple of questions about <em>how</em> you worked it out. Take as long as you like on those — they're not timed.</p></div>
       <div class="domcard"><h4>One at a time, and no going back</h4><p>Once you've answered, that one is done. Somewhere quiet helps, and try not to switch to another tab partway through a question.</p></div>
     </div>
-    <p class="lede" style="margin-top:1.2rem">If the reading is the hard part rather than the maths, it is completely fine to ask someone to read the questions out to you.</p>
+    <p class="lede" style="margin-top:1.2rem" id="briefReadNote">If the reading is the hard part rather than the maths, it is completely fine to ask someone to read the questions out to you.</p>
     <div class="btnrow" style="margin-top:1.4rem">
       <button class="btn" id="btnBegin" type="button">Start question 1</button>
       <button class="btn quiet" id="btnBackIntake" type="button">Go back</button>
@@ -509,6 +516,7 @@ footer.page{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule
       <legend>What to practise</legend>
       <div class="pickgrid" id="domPicks"></div>
       <div class="btnrow">
+        <button class="btn ghost hidden" id="btnReadPractice" type="button">Read this out loud to me</button>
         <button class="btn ghost" id="btnFocusFlagged" type="button">Focus on what the last report flagged</button>
         <button class="btn quiet" id="btnPickAll" type="button">Select all</button>
       </div>
@@ -1672,6 +1680,43 @@ const SPOKEN={
     return "Work this out, watching the order the operations happen in. What is "+spoken.trim()+"?";},
   word:function(p){return "Listen carefully. Not every number in this one is needed. "+(p.text||"")+" "+(p.q||"");}
 };
+/* The questions were readable aloud before the directions were, which is backwards:
+   a child who cannot read the questions cannot read the explanation of how the test
+   works either. These are written for a listener — the headings, cards and layout of
+   each screen do not survive being read out, so the wording is not the wording on
+   screen. */
+const DIRECTIONS={
+  start:function(){
+    return "This is a set of maths questions. Before you start there are three things to fill in: "+
+      "what we should call you, when your birthday is, and what year or grade you are in. "+
+      "That is only so the questions come out at about the right level. "+
+      "Nothing you type here leaves this computer. "+
+      "I will read the questions out to you as well. When you have filled those three things in, press Next.";},
+  brief:function(){
+    const n=planFor(S.band).length;
+    return "Here is how this works. There are "+n+" questions. "+
+      "You cannot pass or fail this, and nothing here goes on a report card. It is working out which bits of maths come easily to you, and which bits are fiddly, so that you get help with the right things. "+
+      "Some of it is meant to be too hard. The questions get harder on purpose until they are harder than you can do, so getting stuck does not mean anything has gone wrong. "+
+      "If you do not know an answer, there is a button that says: I don't know this one. Pressing it tells us more than a guess does, and nobody minds. "+
+      "You will not be told whether you are right or wrong until the very end. That is on purpose, because knowing would change how you did the next one. "+
+      "For each question, type your answer and press Enter. After that you will get a couple of questions about how you worked it out. Those are not timed, so take as long as you like on them. "+
+      "Once you have answered, that question is finished and you cannot go back. Try to work somewhere quiet, and try not to switch to another tab in the middle of a question. "+
+      "When you are ready, press the button that says Start question one.";},
+  reflectFirst:function(){
+    return "Your answer is saved. You will find out how you did at the end. "+
+      "Now, how did you work that one out? Choose one of the buttons. "+
+      "Then, if any of the other things are true, tick those as well. There is no clock on this part.";},
+  reflectAgain:function(){return "How did you work that one out?";},
+  practice:function(){
+    return "This is practice, not a test. Nothing here is timed and nothing is scored, and you can do as many questions as you like. "+
+      "Choose which kinds of question you want to practise, then press Start practising. "+
+      "On every question there is a button that says Show me how, which works the whole thing out step by step.";}
+};
+function speakDirections(key){
+  if(!SPEAK.ok())return;
+  const f=DIRECTIONS[key]; if(!f)return;
+  SPEAK.say(f());
+}
 function spokenFor(it){
   try{
     const f=SPOKEN[it.kind];
@@ -1696,7 +1741,12 @@ function todayISO(){const d=new Date();return d.getFullYear()+"-"+String(d.getMo
 F("date").value=todayISO();
 (function offerReadAloud(){
   if(!SPEAK.ok())return;
-  const show=function(){$("#readAloudOpt").classList.remove("hidden");};
+  const show=function(){
+    $("#readAloudOpt").classList.remove("hidden");
+    $("#readStartBar").classList.remove("hidden");
+    $("#readBriefBar").classList.remove("hidden");
+    $("#btnReadPractice").classList.remove("hidden");
+  };
   show();
   try{window.speechSynthesis.addEventListener("voiceschanged",show);}catch(e){}
 })();
@@ -1745,11 +1795,35 @@ $("#intakeForm").addEventListener("submit",function(e){
     " level and get easier or harder as you go, depending on how you're doing."+
     (S.ageBand&&S.ageBand!==S.band?" Your grade and your age point at slightly different levels, so we've gone with your grade.":"")+
     " The quick number facts stay small on purpose, whatever your age — how <em>fast</em> those come is the thing being looked at, not how big the numbers are.";
+  const nq=planFor(S.band).length;
+  const words={12:"Twelve",13:"Thirteen",14:"Fourteen"}[nq]||String(nq);
+  $("#briefTitle").textContent=words+" questions, and no score at the end";
+  $("#briefReadNote").textContent=SPEAK.ok()
+    ? (S.intake.readAloud
+        ? "The questions will be read out to you, and there is a button on every one if you want to hear it again. You can turn the reading off at any point."
+        : "If the reading is the hard part rather than the maths, press “Read this out loud to me” above — that turns on reading for the questions too.")
+    : "If the reading is the hard part rather than the maths, it is completely fine to ask someone to read the questions out to you.";
   show("brief");
+  if(S.intake.readAloud){$("#btnStopBrief").classList.remove("hidden");speakDirections("brief");}
 });
 $("#btnBackIntake").addEventListener("click",()=>show("intake"));
+/* Reading the page implies wanting the questions read too, so it turns that on
+   rather than leaving a child to find the tick box they could not read. */
+$("#btnReadStart").addEventListener("click",function(){
+  F("read").checked=true;
+  speakDirections("start");
+});
+$("#btnReadBrief").addEventListener("click",function(){
+  $("#btnStopBrief").classList.remove("hidden");
+  speakDirections("brief");
+});
+$("#btnStopBrief").addEventListener("click",function(){
+  SPEAK.cancel(); $("#btnStopBrief").classList.add("hidden");
+});
+$("#btnReadPractice").addEventListener("click",function(){speakDirections("practice");});
 
 function show(which){
+  SPEAK.cancel(); $("#btnStopBrief").classList.add("hidden");
   ["intake","brief","runner","report"].forEach(id=>$("#"+id).classList.toggle("hidden",id!==which));
   $("#rail").classList.toggle("hidden",which!=="runner");
   window.scrollTo({top:0,behavior:"auto"});
@@ -1949,6 +2023,11 @@ function commitAnswer(dontKnow){
       b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")==="true"?"false":"true");
       S.pending.flags=[].slice.call($("#flagOpts").querySelectorAll('[aria-pressed="true"]')).map(function(x){return x.dataset.f;});});
   });
+  if(S.intake.readAloud&&SPEAK.ok()){
+    /* Spoken in full the first time, then shortened, so it stays useful across
+       fourteen questions instead of becoming something to sit through. */
+    SPEAK.say(DIRECTIONS[S.idx===0?"reflectFirst":"reflectAgain"]());
+  }
   $("#itemMeta").innerHTML='<span>Took <b>'+secs(lat)+'</b></span>'+
     (CLK.replays?'<span>Heard it <b>'+(CLK.replays+1)+'</b> times</span>':"")+
     (CLK.interrupted?'<span style="color:var(--ochre)">tab was hidden partway — timing adjusted for it</span>':"");
@@ -2567,6 +2646,7 @@ function practiceBetween(t0,t1){
 /* ---------- section navigation ---------- */
 const SECTIONS=["intake","brief","runner","report","practice","history"];
 function showSection(which){
+  SPEAK.cancel(); $("#btnStopBrief").classList.add("hidden");
   SECTIONS.forEach(function(id){$("#"+id).classList.toggle("hidden",id!==which);});
   $("#rail").classList.toggle("hidden",which!=="runner");
   window.scrollTo({top:0,behavior:"auto"});

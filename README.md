@@ -111,6 +111,16 @@ speech engine never reports finishing, which some do not; and if an answer arriv
 question is still being read, that item's timing is marked soft rather than reported as a
 clean measurement.
 
+Directions are read too, not just questions — a child who cannot read the questions
+cannot read the explanation of how the test works either. The start page and the briefing
+each carry a "read this out loud to me" button (pressing the first also switches on reading
+for the questions, since a child who needs one needs the other), the briefing reads itself
+automatically when read-aloud is already on, and the follow-up questions after each answer
+are spoken in full the first time and shortened thereafter so they stay useful across
+fourteen questions rather than becoming something to sit through. Directions text is written
+separately from the on-screen wording, because headings, cards and layout do not survive
+being read out. Leaving a screen stops it talking.
+
 Turning it on changes what the probe measures, so the report says so: reading is removed
 from the picture, nothing then speaks to decoding, and the applied-reasoning result reflects
 understanding the situation rather than reading the words. With read-aloud on, the
